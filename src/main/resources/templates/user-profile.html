@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Employee Profile</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+            color: white;
+        }
+
+        .glass {
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(15px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .label {
+            font-size: 13px;
+            color: #ccc;
+        }
+
+        .value {
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container mt-4">
+
+    <!-- 👤 EMPLOYEE DETAILS -->
+    <div class="glass">
+        <div class="section-title">Employee Details</div>
+
+        <div class="row">
+            <div class="col-md-4">
+                <div class="label">Name</div>
+                <div class="value" th:text="${employee.name}"></div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="label">Email</div>
+                <div class="value" th:text="${employee.email}"></div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="label">Employee ID</div>
+                <div class="value" th:text="${employee.empId}"></div>
+            </div>
+
+            <div class="col-md-4 mt-3">
+                <div class="label">Department</div>
+                <div class="value" th:text="${employee.department}"></div>
+            </div>
+
+            <div class="col-md-4 mt-3">
+                <div class="label">Status</div>
+                <div class="value" th:text="${employee.status}"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 💼 EXPERIENCE -->
+    <div class="glass">
+        <div class="section-title">Experience Details</div>
+
+        <div class="row">
+            <div class="col-md-4">
+                <div class="label">Total Experience</div>
+                <div class="value" th:text="${employee.experience}"></div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="label">Role</div>
+                <div class="value" th:text="${employee.role}"></div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="label">Location</div>
+                <div class="value" th:text="${employee.location}"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🏦 BANK DETAILS -->
+    <div class="glass">
+        <div class="section-title">Bank Details</div>
+
+        <div class="row">
+            <div class="col-md-4">
+                <div class="label">Bank Name</div>
+                <div class="value" th:text="${employee.bankName}"></div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="label">Account Number</div>
+                <div class="value" th:text="${employee.accountNumber}"></div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="label">IFSC</div>
+                <div class="value" th:text="${employee.ifsc}"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 💰 SALARY HISTORY + PAYSLIP -->
+    <div class="glass">
+        <div class="section-title">Salary History</div>
+
+        <table class="table table-dark table-bordered">
+            <thead>
+                <tr>
+                    <th>Month</th>
+                    <th>Salary</th>
+                    <th>Payslip</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr th:each="s : ${salaries}">
+                    <td th:text="${s.month}"></td>
+                    <td>₹ <span th:text="${s.amount}"></span></td>
+                    <td>
+                        <a th:href="@{'/user/payslip/' + ${s.id}}" class="btn btn-success btn-sm">
+                            Download
+                        </a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="text-center mt-4">
+        <a href="/user/home" class="btn btn-light">⬅ Back</a>
+    </div>
+
+</div>
+
+</body>
+</html>

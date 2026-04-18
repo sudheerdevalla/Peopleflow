@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PeopleFlow Dashboard</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI';
+            display: flex;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 220px;
+            height: 100vh;
+            background: #1e293b;
+            color: white;
+            padding: 20px;
+        }
+
+        .sidebar h2 {
+            margin-bottom: 30px;
+        }
+
+        .sidebar a {
+            display: block;
+            color: #ccc;
+            text-decoration: none;
+            margin: 15px 0;
+        }
+
+        .sidebar a:hover {
+            color: white;
+        }
+
+        /* MAIN */
+        .main {
+            flex: 1;
+            background: #f1f5f9;
+            padding: 20px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .card-container {
+            display: flex;
+            gap: 20px;
+        }
+
+        .card {
+            flex: 1;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <h2>PeopleFlow</h2>
+
+    <a href="/admin/employees">Employees</a>
+    <a href="#">Attendance</a>
+    <a href="#">Salary</a>
+    <a href="/logout">Logout</a>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+    <div class="topbar">
+        <h2>Dashboard</h2>
+        <div>Welcome Admin</div>
+    </div>
+
+    <div class="card-container">
+        <div class="card">
+            <h3>Total Employees</h3>
+            <p th:text="${empCount}"></p>
+        </div>
+
+        <div class="card">
+            <h3>Attendance Today</h3>
+            <p>--</p>
+        </div>
+
+        <div class="card">
+            <h3>Total Salary</h3>
+            <p>--</p>
+        </div>
+		<h2>Employee List</h2>
+
+		<table border="1" cellpadding="10" style="background:white;">
+		    <tr>
+		        <th>ID</th>
+		        <th>Name</th>
+		        <th>Email</th>
+		        <th>Salary</th>
+		    </tr>
+
+		    <tr th:each="emp : ${employees}">
+		        <td th:text="${emp.id}"></td>
+		        <td th:text="${emp.name}"></td>
+		        <td th:text="${emp.email}"></td>
+		        <td th:text="${emp.salary}"></td>
+		    </tr>
+		</table>
+    </div>
+
+</div>
+
+</body>
+</html>

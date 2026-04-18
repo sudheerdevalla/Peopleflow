@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>PeopleFlow</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+		
+
+        .overlay {
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            display: flex;
+        }
+
+        /* LEFT SIDE */
+        .left {
+            width: 50%;
+            color: white;
+            padding: 80px;
+        }
+
+        .left h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .left p {
+            font-size: 18px;
+            max-width: 400px;
+        }
+
+        /* RIGHT SIDE */
+        .right {
+            width: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-box {
+            width: 350px;
+            padding: 30px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            color: white;
+        }
+
+        .login-box h2 {
+            margin-bottom: 20px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 15px;
+            background: #ff7a18;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #e56a10;
+        }
+
+        .remember {
+            font-size: 14px;
+            margin-top: 10px;
+        }
+		.quote {
+		    margin-top: 30px;
+		    font-size: 18px;
+		    font-style: italic;
+		    color: #ffd700;
+		    max-width: 400px;
+		    line-height: 1.5;
+		    position: relative;
+		}
+
+		.quote::before {
+		    content: "“";
+		    font-size: 40px;
+		    position: absolute;
+		    left: -15px;
+		    top: -10px;
+		    color: #ff7a18;
+		}
+
+		.quote::after {
+		    content: "”";
+		    font-size: 40px;
+		    position: absolute;
+		    right: -10px;
+		    bottom: -10px;
+		    color: #ff7a18;
+		}
+		.energy-orb {
+		    position: absolute;
+		    top: 20%;
+		    left: 60%;
+		    width: 120px;
+		    height: 120px;
+		    background: radial-gradient(circle, rgba(255,165,0,0.8), rgba(255,140,0,0.2));
+		    border-radius: 50%;
+		    filter: blur(20px);
+		    animation: float 6s ease-in-out infinite, pulse 3s infinite;
+		}
+
+		/* Floating movement */
+		@keyframes float {
+		    0%   { transform: translateY(0px) translateX(0px); }
+		    50%  { transform: translateY(-30px) translateX(20px); }
+		    100% { transform: translateY(0px) translateX(0px); }
+		}
+
+		/* Glow pulse */
+		@keyframes pulse {
+		    0%   { opacity: 0.6; transform: scale(1); }
+		    50%  { opacity: 1; transform: scale(1.2); }
+		    100% { opacity: 0.6; transform: scale(1); }
+		}
+		.quote {
+		    margin-top: 30px;
+		    font-size: 18px;
+		    font-style: italic;
+		    color: #ffd700;
+		}
+
+		#typing-text::after {
+		    content: "|";
+		    animation: blink 1s infinite;
+		}
+
+		@keyframes blink {
+		    0%, 50%, 100% { opacity: 1; }
+		    25%, 75% { opacity: 0; }
+		}
+		.logo {
+		    position: absolute;
+		    top: 20px;
+		    left: 50%;
+		    transform: translateX(-50%);
+		}
+
+		.logo img {
+		    height: 110px;
+		    filter: drop-shadow(0 0 12px rgba(255,255,255,0.6));
+		}
+		.tagline {
+		    font-size: 16px;
+		    color: #ddd;
+		    margin-bottom: 15px;
+		}
+		.success-msg {
+		    color: #4CAF50;
+		    margin-bottom: 10px;
+		    font-size: 14px;
+		}
+		.error-msg {
+		    color: #ff4d4d;
+		    margin-bottom: 10px;
+		    font-size: 14px;
+		}
+
+    </style>
+</head>
+
+<body style="background-image: url('images/bg.jpg');
+ background-size: cover;
+ background-position: center;
+ background-repeat: no-repeat;
+ ">
+	<div class="logo">
+	    <img src="images/logo.png"> 
+	</div>
+	<div class="energy-orb"></div>
+
+<div class="overlay">
+
+    <!-- LEFT -->
+    <div class="left">
+        <h2>Welcome to PeopleFlow</h2>
+        <p>
+            We are the best in Solar Energy.<br>
+            Powering a brighter future with clean and renewable solutions.
+        </p>
+		<p class="tagline">Smart Workforce Management for a Better Tomorrow</p>
+		<div class="quote">
+		    <span id="typing-text"></span>
+		</div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="right">
+        <div class="login-box">
+            <h2>Sign in to PeopleFlow</h2>
+			<div class="success-msg" th:if="${param.logout}">
+			    Logged out successfully
+			</div>
+			<div class="error-msg" th:if="${param.error}">
+			    Invalid username or password
+			</div>
+
+            <form method="post" action="/login">
+                <input type="text" name="username" placeholder="Email Address" required />
+                <input type="password" name="password" placeholder="Password" required />
+
+                <div class="remember">
+                    <input type="checkbox"> Remember Me
+                </div>
+
+                <button type="submit">Sign in now</button>
+				<p style="margin-top:10px; text-align:center;">
+				    New user? <a href="/register">Register here</a>
+				</p>
+            </form>
+
+        </div>
+    </div>
+
+</div>
+<script>
+    const text = "Alone we can do so little, together we can do so much.";
+    let index = 0;
+
+    function typeEffect() {
+        if (index < text.length) {
+            document.getElementById("typing-text").innerHTML += text.charAt(index);
+            index++;
+            setTimeout(typeEffect, 40);
+        }
+    }
+
+    window.onload = typeEffect;
+</script>
+
+</body>
+</html>

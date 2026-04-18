@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Fill Timesheet</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: #f5f7fb;
+        }
+
+        .day-card {
+            border-radius: 12px;
+            padding: 15px;
+            background: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            min-height: 320px;
+        }
+
+        .day-header {
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .date-text {
+            font-size: 12px;
+            color: gray;
+        }
+
+        .btn-submit {
+            width: 100%;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+
+<body class="container mt-4">
+
+<h3 class="mb-4 text-center">📅 Fill Timesheet</h3>
+
+<div class="row">
+
+    <div class="col-md-3 mb-4"
+         th:each="day : ${T(java.time.DayOfWeek).values()}">
+
+        <div th:with="
+            start=${T(java.time.LocalDate).now().with(T(java.time.DayOfWeek).MONDAY)},
+            currentDate=${start.plusDays(day.ordinal())}
+        ">
+
+            <div class="day-card">
+
+                <!-- DAY -->
+                <div class="day-header" th:text="${day}"></div>
+
+                <!-- DATE -->
+                <div class="date-text" th:text="${currentDate}"></div>
+
+                <hr>
+
+                <!-- FORM -->
+                <form th:action="@{/user/timesheet}" method="post">
+
+                    <!-- 🔥 WORK LOCATION (AUTO FROM DB) -->
+                    <label>Work Location</label>
+
+                    <!-- visible -->
+                    <input type="text"
+                           class="form-control mb-2"
+                           th:value="${employee.location}"
+                           readonly />
+
+                    <!-- hidden (for backend) -->
+                    <input type="hidden"
+                           name="workLocation"
+                           th:value="${employee.location}" />
+
+                    <!-- HOURS -->
+                    <label>Hours</label>
+                    <input type="number"
+                           name="hours"
+                           class="form-control mb-2"
+                           placeholder="Enter hours" required>
+
+                    <!-- TRAINING -->
+                    <label>Training</label>
+                    <input type="number"
+                           name="training"
+                           class="form-control mb-2"
+                           value="0">
+
+                    <!-- DATE -->
+                    <input type="hidden"
+                           name="date"
+                           th:value="${currentDate}" />
+
+                    <!-- SUBMIT -->
+					<button type="button"
+					        class="btn btn-primary"
+					        onclick="checkLocation(this.form)">
+					    Submit Day
+					</button>
+
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+
+</div>
+<script>
+
+async function getLocations() {
+    let res = await fetch('/api/locations');
+    return await res.json();
+}
+
+function getDistance(lat1, lon1, lat2, lon2) {
+    let R = 6371;
+    let dLat = (lat2-lat1) * Math.PI/180;
+    let dLon = (lon2-lon1) * Math.PI/180;
+
+    let a =
+        Math.sin(dLat/2) * Math.sin(dLat/2) +
+        Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) *
+        Math.sin(dLon/2) * Math.sin(dLon/2);
+
+    let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+}
+
+async function checkLocation(form) {
+
+    let locations = await getLocations();
+
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(pos) {
+
+            let userLat = pos.coords.latitude;
+            let userLon = pos.coords.longitude;
+
+            let assigned = form.querySelector('[name="workLocation"]').value;
+
+            let match = false;
+
+            locations.forEach(loc => {
+                if (loc.name === assigned) {
+
+                    let distance = getDistance(
+                        userLat, userLon,
+                        loc.latitude, loc.longitude
+                    );
+
+                    if (distance < 1) {
+                        match = true;
+                    }
+                }
+            });
+
+            if (!match) {
+                alert("❌ Wrong Location!");
+            } else {
+                form.submit(); // ✅ submit only if correct
+            }
+
+        });
+    }
+}
+
+</script>
+
+</body>
+</html>
+
+
+
+</body>
+</html>

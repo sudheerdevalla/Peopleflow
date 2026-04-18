@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>My Timesheet</title>
+</head>
+<body>
+
+<h2>My Timesheet</h2>
+
+<form th:action="@{/user/timesheet}" method="post" th:object="${timesheet}">
+    
+    <input type="date" th:field="*{date}" required>
+
+    <input type="number" th:field="*{hours}" placeholder="Hours worked" required>
+
+    <button type="submit">Add Entry</button>
+
+</form>
+
+<table border="1">
+    <tr>
+        <th>Date</th>
+        <th>Hours</th>
+    </tr>
+
+    <tr th:each="t : ${timesheets}">
+        <td th:text="${t.date}"></td>
+        <td th:text="${t.hours}"></td>
+    </tr>
+</table>
+
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>My Timesheet</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: #f5f7fb;
+        }
+
+        .card-day {
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            background: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            transition: 0.2s;
+        }
+
+        .card-day:hover {
+            transform: translateY(-3px);
+        }
+
+        .hours {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c7be5;
+        }
+
+        .header {
+            background: linear-gradient(to right, #2c7be5, #00c6ff);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body class="container mt-4">
+
+<!-- TOP BAR -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>My Timesheet</h2>
+
+    <a href="/user/fill-timesheet" class="btn btn-primary">
+        Fill Timesheet
+    </a>
+</div>
+
+<!-- HEADER -->
+<div class="header mb-4">
+    <h4>Track your weekly work</h4>
+</div>
+
+<!-- WEEK CARDS -->
+<div class="row text-center">
+
+    <div class="col" th:each="day : ${T(java.time.DayOfWeek).values()}">
+
+        <div th:with="
+            start=${T(java.time.LocalDate).now().with(T(java.time.DayOfWeek).MONDAY)},
+            currentDate=${start.plusDays(day.ordinal())}
+        ">
+
+            <div class="card-day">
+
+                <!-- DAY -->
+                <h6 th:text="${day}">MONDAY</h6>
+
+                <!-- DATE -->
+                <small th:text="${currentDate}">2026-04-18</small>
+
+                <!-- HOURS -->
+                <div class="hours"
+                     th:text="${weekData[day.toString()] != null ? weekData[day.toString()] : 0}">
+                    0
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

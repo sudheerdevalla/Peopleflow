@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Employees</title>
+	
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f4f6f9;
+        }
+        .sidebar {
+            height: 100vh;
+            background: #343a40;
+            color: white;
+            padding: 20px;
+        }
+        .sidebar a {
+            color: white;
+            display: block;
+            margin: 15px 0;
+            text-decoration: none;
+        }
+        .sidebar a:hover {
+            color: #0d6efd;
+        }
+        .card {
+            border-radius: 15px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container-fluid">
+    <div class="row">
+
+        <!-- Sidebar -->
+        <div class="col-md-2 sidebar">
+            <h4>HR Portal</h4>
+            <a href="/admin/dashboard">🏠 Dashboard</a>
+            <a href="/admin/employees">👨‍💼 Employees</a>
+            <a href="/admin/attendance">📅 Attendance</a>
+            <a href="/logout">🚪 Logout</a>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-10 p-4">
+
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Employee Management</h2>
+                <a href="/admin/add-employee" class="btn btn-primary">+ Add Employee</a>
+            </div>
+
+            <!-- Employee Table -->
+            <div class="card shadow p-4">
+				<div th:if="${success}" class="alert alert-success">
+				    <span th:text="${success}"></span>
+				</div>
+				<form method="get" action="/admin/employees" class="mb-3 d-flex">
+				    <input type="text" name="keyword" th:value="${keyword}" 
+				           class="form-control me-2" placeholder="Search employee...">
+				    <button class="btn btn-primary">Search</button>
+				</form>
+
+                <table class="table table-striped table-hover text-center">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Salary</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr th:each="emp : ${employees}">
+                            <td th:text="${emp.empId}"></td>
+                            <td th:text="${emp.name}"></td>
+                            <td th:text="${emp.email}"></td>
+                            <td th:text="${emp.basicSalary}"></td>
+							<td>
+								<span th:text="${emp.status}"
+								th:classappend="${emp.status == 'Active'} ? 'badge bg-success' : 'badge bg-danger'">
+								</span>
+							</td>
+
+                            <td>
+                                <a th:href="@{'/admin/edit/' + ${emp.empId}}" 
+                                   class="btn btn-sm btn-warning">Edit</a>
+
+                                <a th:href="@{'/admin/delete/' + ${emp.empId}}" 
+                                   class="btn btn-sm btn-danger"
+                                   onclick="return confirm('Are you sure?')">Delete</a>
+                            </td>
+                        </tr>
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>
