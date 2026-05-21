@@ -1,0 +1,174 @@
+/* ================= GLOBAL ================= */
+body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: #f5f7fa;
+}
+
+/* ================= NAVBAR ================= */
+.navbar {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background: #0b1d2a;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 30px;
+    box-sizing: border-box;   /* IMPORTANT FIX */
+    z-index: 1000;
+}
+
+/* right side fix */
+.right-nav {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+/* logout styling */
+.logout {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: 6px;
+    transition: 0.3s;
+}
+
+.logout:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+/* ================= HERO ================= */
+.hero {
+    margin-top: 70px;
+    height: 320px; /* 🔥 reduced height */
+    background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
+                url('/images/boat.png') center/cover no-repeat;
+    display: flex;
+    align-items: center;
+    padding: 0 60px;
+    color: white;
+}
+.header-banner {
+    background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)),
+                url('/images/leaf.png');
+    background-size: cover;
+    background-position: center;
+    height: 220px;
+    padding: 30px;
+    color: white;
+}
+
+.hero-content h1 {
+    font-size: 30px;
+    margin-bottom: 10px;
+}
+
+.hero-content p {
+    margin-bottom: 20px;
+}
+
+/* BUTTONS */
+.btn {
+    border: 1px solid white;
+    padding: 10px 18px;
+    margin-right: 10px;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: 0.3s;
+}
+
+.btn:hover {
+    background: white;
+    color: black;
+    transform: scale(1.05);
+}
+
+/* ================= WORKFLOW ================= */
+.workflow {
+    display: flex;
+    margin: 60px;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    background: white;
+}
+
+.workflow .text {
+    width: 40%;
+    padding: 40px;
+}
+
+.workflow .image {
+    width: 60%;
+    background: url('/images/blob.png') center/cover no-repeat;
+}
+
+/* ================= SECURE ================= */
+.secure {
+    position: relative;
+    height: 320px;
+    margin: 40px 60px; /* spacing add chesam */
+    border-radius: 20px;
+    overflow: hidden;
+    background: linear-gradient(rgba(255,255,255,0.3), rgba(255,255,255,0.3)),
+                url('/images/key.png') center/cover no-repeat;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.secure-content {
+    z-index: 1;
+}
+
+/* GLOBAL TIME */
+.secure-time {
+    font-size: 15px;
+    margin-bottom: 10px;
+    font-weight: 500;
+    color: #222;
+}
+
+/* ================= ANIMATION ================= */
+.fade {
+    opacity: 0;
+    transform: translateY(30px);
+    animation: fadeIn 1s ease forwards;
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ================= RESPONSIVE ================= */
+@media(max-width: 768px) {
+    .hero {
+        height: 260px;
+        padding: 20px;
+    }
+
+    .workflow {
+        flex-direction: column;
+        margin: 20px;
+    }
+
+    .workflow .text,
+    .workflow .image {
+        width: 100%;
+    }
+
+    .secure {
+        margin: 20px;
+        height: 250px;
+    }
+}

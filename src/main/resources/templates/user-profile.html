@@ -3,148 +3,151 @@
 <head>
     <title>Employee Profile</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
     <style>
         body {
-            background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-            color: white;
+            background: #f5f6fa;
+            font-family: Arial, sans-serif;
+            margin: 0;
         }
 
-        .glass {
-            background: rgba(255,255,255,0.08);
-            backdrop-filter: blur(15px);
-            border-radius: 15px;
+        .container {
+            width: 85%;
+            margin: 30px auto;
+        }
+
+        .card {
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
             padding: 20px;
-            margin-top: 20px;
+            margin-bottom: 20px;
         }
 
-        .section-title {
+        .header {
             font-size: 18px;
+            font-weight: 600;
             margin-bottom: 15px;
-            border-bottom: 1px solid rgba(255,255,255,0.2);
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .field {
+            padding: 10px 0;
         }
 
         .label {
-            font-size: 13px;
-            color: #ccc;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 3px;
         }
 
         .value {
-            font-weight: bold;
+            font-size: 14px;
+            color: #000;
+            font-weight: 500;
         }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .title-main {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .btn-finance {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-finance:hover {
+            background: #0056b3;
+        }
+
     </style>
 </head>
 
 <body>
 
-<div class="container mt-4">
+<div class="container">
 
-    <!-- 👤 EMPLOYEE DETAILS -->
-    <div class="glass">
-        <div class="section-title">Employee Details</div>
+    <!-- Top Header -->
+    <div class="top-bar">
+        <div class="title-main">Employee Profile</div>
 
-        <div class="row">
-            <div class="col-md-4">
+        <a href="/user/financial">
+            <button class="btn btn-finance">My Financial</button>
+        </a>
+    </div>
+
+    <!-- Employee Details -->
+    <div class="card">
+
+        <div class="header">Employee Details</div>
+
+        <div class="grid">
+
+            <div class="field">
                 <div class="label">Name</div>
                 <div class="value" th:text="${employee.name}"></div>
             </div>
 
-            <div class="col-md-4">
+            <div class="field">
                 <div class="label">Email</div>
                 <div class="value" th:text="${employee.email}"></div>
             </div>
 
-            <div class="col-md-4">
+            <div class="field">
                 <div class="label">Employee ID</div>
                 <div class="value" th:text="${employee.empId}"></div>
             </div>
 
-            <div class="col-md-4 mt-3">
+            <div class="field">
                 <div class="label">Department</div>
                 <div class="value" th:text="${employee.department}"></div>
             </div>
 
-            <div class="col-md-4 mt-3">
-                <div class="label">Status</div>
-                <div class="value" th:text="${employee.status}"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 💼 EXPERIENCE -->
-    <div class="glass">
-        <div class="section-title">Experience Details</div>
-
-        <div class="row">
-            <div class="col-md-4">
-                <div class="label">Total Experience</div>
-                <div class="value" th:text="${employee.experience}"></div>
-            </div>
-
-            <div class="col-md-4">
+            <div class="field">
                 <div class="label">Role</div>
                 <div class="value" th:text="${employee.role}"></div>
             </div>
 
-            <div class="col-md-4">
+            <div class="field">
                 <div class="label">Location</div>
                 <div class="value" th:text="${employee.location}"></div>
             </div>
+
+            <div class="field">
+                <div class="label">Status</div>
+                <div class="value" th:text="${employee.status}"></div>
+            </div>
+
+            <div class="field">
+                <div class="label">Experience</div>
+                <div class="value" th:text="${experience}"></div>
+            </div>
+
         </div>
-    </div>
 
-    <!-- 🏦 BANK DETAILS -->
-    <div class="glass">
-        <div class="section-title">Bank Details</div>
-
-        <div class="row">
-            <div class="col-md-4">
-                <div class="label">Bank Name</div>
-                <div class="value" th:text="${employee.bankName}"></div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="label">Account Number</div>
-                <div class="value" th:text="${employee.accountNumber}"></div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="label">IFSC</div>
-                <div class="value" th:text="${employee.ifsc}"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 💰 SALARY HISTORY + PAYSLIP -->
-    <div class="glass">
-        <div class="section-title">Salary History</div>
-
-        <table class="table table-dark table-bordered">
-            <thead>
-                <tr>
-                    <th>Month</th>
-                    <th>Salary</th>
-                    <th>Payslip</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                <tr th:each="s : ${salaries}">
-                    <td th:text="${s.month}"></td>
-                    <td>₹ <span th:text="${s.amount}"></span></td>
-                    <td>
-                        <a th:href="@{'/user/payslip/' + ${s.id}}" class="btn btn-success btn-sm">
-                            Download
-                        </a>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-
-    <div class="text-center mt-4">
-        <a href="/user/home" class="btn btn-light">⬅ Back</a>
     </div>
 
 </div>

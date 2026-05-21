@@ -227,7 +227,7 @@
 			    Invalid username or password
 			</div>
 
-            <form method="post" action="/login">
+            <form th:action="@{/login}" method="post">
                 <input type="text" name="username" placeholder="Email Address" required />
                 <input type="password" name="password" placeholder="Password" required />
 

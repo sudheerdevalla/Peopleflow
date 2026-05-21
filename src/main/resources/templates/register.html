@@ -37,6 +37,11 @@
     <h3 class="text-center mb-4">📝 Register</h3>
 
     <form th:action="@{/register}" method="post">
+		
+		<div class="mb-3">
+		    <label>Name</label>
+		    <input type="text" name="name" class="form-control" placeholder="Enter name" required>
+		</div>
 
         <div class="mb-3">
             <label>Email</label>

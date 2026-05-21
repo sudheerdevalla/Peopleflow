@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+<meta charset="UTF-8">
+<title>Leave Approvals</title>
+
+<style>
+
+body{
+    margin:0;
+    padding:0;
+    font-family: Arial, sans-serif;
+    background:#f4f4f4;
+}
+
+/* TOP BAR */
+
+.topbar{
+    background:#000;
+    color:white;
+    padding:18px 40px;
+    font-size:22px;
+    font-weight:bold;
+    letter-spacing:1px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.15);
+}
+
+/* BACKGROUND DESIGN */
+
+.background-design{
+    position:fixed;
+    width:100%;
+    height:100%;
+    top:0;
+    left:0;
+    z-index:-1;
+
+    background:
+    radial-gradient(circle at top left,
+    rgba(0,0,0,0.05),
+    transparent 35%),
+
+    radial-gradient(circle at bottom right,
+    rgba(0,0,0,0.04),
+    transparent 30%);
+}
+
+/* MAIN CONTAINER */
+
+.container{
+    width:90%;
+    margin:40px auto;
+    background:white;
+    border-radius:12px;
+    overflow:hidden;
+    box-shadow:0 4px 20px rgba(0,0,0,0.08);
+}
+
+/* TABLE */
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th{
+    background:black;
+    color:white;
+    padding:16px;
+    font-size:14px;
+    text-transform:uppercase;
+    letter-spacing:1px;
+}
+
+td{
+    padding:16px;
+    border-bottom:1px solid #ececec;
+    font-size:14px;
+    color:#333;
+}
+
+/* ROW HOVER */
+
+tr:hover{
+    background:#fafafa;
+}
+
+/* BUTTONS */
+
+.action-buttons{
+    display:flex;
+    gap:10px;
+}
+
+/* APPROVE */
+
+.approve{
+    background:black;
+    color:white;
+    border:none;
+    padding:8px 14px;
+    border-radius:6px;
+    cursor:pointer;
+    font-size:12px;
+}
+
+.approve:hover{
+    opacity:0.85;
+}
+
+/* REJECT */
+
+.reject{
+    background:white;
+    color:black;
+    border:1px solid black;
+    padding:8px 14px;
+    border-radius:6px;
+    cursor:pointer;
+    font-size:12px;
+}
+
+.reject:hover{
+    background:#f1f1f1;
+}
+
+/* STATUS COLORS */
+
+.status-approved{
+    color:green;
+    font-weight:bold;
+}
+
+.status-pending{
+    color:#d68910;
+    font-weight:bold;
+}
+
+.status-rejected{
+    color:red;
+    font-weight:bold;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="background-design"></div>
+
+<div class="topbar">
+    Leave Approvals
+</div>
+
+<div class="container">
+
+<table>
+
+<thead>
+
+<tr>
+    <th>Employee Name</th>
+    <th>Date</th>
+    <th>Leave Type</th>
+    <th>Status</th>
+    <th>Action</th>
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr th:each="leave : ${leaves}">
+
+    <!-- EMPLOYEE NAME -->
+
+    <td th:text="${employeeNames[leave.empId]}"></td>
+
+    <!-- DATE -->
+
+    <td th:text="${leave.date}"></td>
+
+    <!-- LEAVE TYPE -->
+
+    <td th:text="${leave.type}"></td>
+
+    <!-- STATUS -->
+
+    <td
+    th:text="${leave.status}"
+
+    th:classappend="
+    ${leave.status == 'APPROVED'} ? 'status-approved' :
+
+    (${leave.status == 'PENDING'} ?
+    'status-pending' :
+
+    'status-rejected')">
+
+    </td>
+
+    <!-- ACTIONS -->
+
+    <td>
+
+        <div class="action-buttons">
+
+            <!-- APPROVE -->
+
+            <form
+            th:action="@{'/admin/approve-leave/' + ${leave.id}}"
+            method="get">
+
+                <button class="approve">
+                    Approve
+                </button>
+
+            </form>
+
+            <!-- REJECT -->
+
+            <form
+            th:action="@{'/admin/reject-leave/' + ${leave.id}}"
+            method="get">
+
+                <button class="reject">
+                    Reject
+                </button>
+
+            </form>
+
+        </div>
+
+    </td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+</body>
+
+</html>

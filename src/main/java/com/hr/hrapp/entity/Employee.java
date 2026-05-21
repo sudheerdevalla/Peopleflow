@@ -1,9 +1,14 @@
 package com.hr.hrapp.entity;
 
+import java.time.LocalDate;
 
-import jakarta.persistence.*;
-
-
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 
 @Entity
 public class Employee {
@@ -18,17 +23,25 @@ public class Employee {
     private double basicSalary;
     private int leaves;
     private String status;
+    private int sickLeaves = 6;
+    private double annualLeaves = 0;
+    private LocalDate lastAccrualDate;
 
     // ✅ Profile fields
     private String experience;
     private String role;
     private String location;
-    private String assignedLocation;
+    private LocalDate joiningDate;
 
     // ✅ Bank details
     private String bankName;
     private String accountNumber;
     private String ifsc;
+
+    // ✅ Manager Mapping
+    @ManyToOne
+    @JoinColumn(name = "manager_id")
+    private Employee manager;
 
     // Constructor
     public Employee() {}
@@ -123,13 +136,14 @@ public class Employee {
     public void setLocation(String location) {
         this.location = location;
     }
-    public String getAssignedLocation() {
+
+    /*public String getAssignedLocation() {
         return assignedLocation;
     }
 
     public void setAssignedLocation(String assignedLocation) {
         this.assignedLocation = assignedLocation;
-    }
+    }*/
 
     // ✅ BANK NAME
     public String getBankName() {
@@ -156,5 +170,46 @@ public class Employee {
 
     public void setIfsc(String ifsc) {
         this.ifsc = ifsc;
+    }
+
+    public LocalDate getJoiningDate() {
+        return joiningDate;
+    }
+
+    public void setJoiningDate(LocalDate joiningDate) {
+        this.joiningDate = joiningDate;
+    }
+
+    public int getSickLeaves() {
+        return sickLeaves;
+    }
+
+    public void setSickLeaves(int sickLeaves) {
+        this.sickLeaves = sickLeaves;
+    }
+
+    public double getAnnualLeaves() {
+        return annualLeaves;
+    }
+
+    public void setAnnualLeaves(double annualLeaves) {
+        this.annualLeaves = annualLeaves;
+    }
+
+    public LocalDate getLastAccrualDate() {
+        return lastAccrualDate;
+    }
+
+    public void setLastAccrualDate(LocalDate lastAccrualDate) {
+        this.lastAccrualDate = lastAccrualDate;
+    }
+
+    // ✅ Manager Getter Setter
+    public Employee getManager() {
+        return manager;
+    }
+
+    public void setManager(Employee manager) {
+        this.manager = manager;
     }
 }

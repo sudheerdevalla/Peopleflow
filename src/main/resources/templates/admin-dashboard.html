@@ -1,125 +1,316 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
-
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-<meta charset="UTF-8">
-<title>Admin Dashboard</title>
+    <title>Admin Dashboard</title>
 
-<!-- Bootstrap CSS -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-<style>
-body {
-background-color: #f4f6f9;
-}
+    <style>
 
-.sidebar {
-height: 100vh;
-background: #212529;
-color: white;
-padding: 20px;
-}
+        body{
+            margin:0;
+            padding:0;
+            background:#f5f7fb;
+            font-family:Arial, sans-serif;
+        }
 
-.sidebar h4 {
-margin-bottom: 30px;
-}
+        /* SIDEBAR */
 
-.sidebar a {
-color: white;
-display: block;
-margin: 15px 0;
-text-decoration: none;
-font-size: 16px;
-}
+        .sidebar{
+            width:240px;
+            height:100vh;
+            background:#0f172a;
+            position:fixed;
+            padding-top:30px;
+        }
 
-.sidebar a:hover {
-color: #0d6efd;
-}
+        .sidebar h2{
+            color:white;
+            text-align:center;
+            margin-bottom:40px;
+            font-weight:bold;
+        }
 
-.card {
-border-radius: 15px;
-}
-</style>
+        .sidebar a{
+            display:block;
+            color:#cbd5e1;
+            padding:15px 30px;
+            text-decoration:none;
+            transition:0.3s;
+            font-size:17px;
+        }
+
+        .sidebar a:hover{
+            background:#1e293b;
+            color:white;
+        }
+
+        /* MAIN */
+
+        .main{
+            margin-left:240px;
+            padding:25px;
+        }
+
+        /* BANNER */
+
+        .banner{
+            height:260px;
+            border-radius:25px;
+            overflow:hidden;
+            position:relative;
+            margin-bottom:30px;
+            animation:slide 18s infinite;
+            background-size:cover;
+            background-position:center;
+        }
+
+        @keyframes slide{
+
+            0%{
+                background-image:url('https://images.unsplash.com/photo-1497366754035-f200968a6e72?q=80&w=1400&auto=format&fit=crop');
+            }
+
+            33%{
+                background-image:url('https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?q=80&w=1400&auto=format&fit=crop');
+            }
+
+            66%{
+                background-image:url('https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=1400&auto=format&fit=crop');
+            }
+
+            100%{
+                background-image:url('https://images.unsplash.com/photo-1497366754035-f200968a6e72?q=80&w=1400&auto=format&fit=crop');
+            }
+
+        }
+
+        .overlay{
+            position:absolute;
+            width:100%;
+            height:100%;
+            background:rgba(0,0,0,0.6);
+        }
+
+        .banner-content{
+            position:relative;
+            z-index:2;
+            color:white;
+            padding:60px;
+        }
+
+        .banner-content h1{
+            font-size:55px;
+            font-weight:bold;
+        }
+
+        .banner-content p{
+            font-size:20px;
+        }
+
+        /* CARDS */
+
+        .dashboard-card{
+            background:white;
+            border-radius:22px;
+            padding:30px;
+            box-shadow:0 4px 15px rgba(0,0,0,0.05);
+            transition:0.3s;
+            height:100%;
+        }
+
+        .dashboard-card:hover{
+            transform:translateY(-5px);
+        }
+
+        .dashboard-card h3{
+            font-size:40px;
+            font-weight:bold;
+            margin-top:10px;
+        }
+
+        .dashboard-card p{
+            color:gray;
+            margin-top:10px;
+        }
+
+        .btn-dark{
+            border-radius:12px;
+            padding:12px;
+        }
+
+        .section-title{
+            font-size:28px;
+            font-weight:bold;
+            margin-bottom:20px;
+        }
+
+    </style>
+
 </head>
 
 <body>
 
-<div class="container-fluid">
-<div class="row">
+<!-- SIDEBAR -->
 
-<!-- Sidebar -->
-<div class="col-md-3 col-lg-2 sidebar">
-<h4>HR Portal</h4>
+<div class="sidebar">
 
-<a href="/admin/dashboard">🏠 Dashboard</a>
-<a href="/admin/employees">👨‍💼 Employees</a>
-<a href="/admin/attendance">📅 Attendance</a>
-<a href="/logout">🚪 Logout</a>
-</div>
+    <h2>HR Portal</h2>
 
-<!-- Main Content -->
-<div class="col-md-9 col-lg-10 p-4">
+    <a href="/admin/dashboard">🏠 Dashboard</a>
 
-<h2 class="mb-4">Admin Dashboard</h2>
+    <a href="/admin/employees">👨 Employees</a>
 
-<div class="row">
+    <a href="/admin/attendance">📅 Attendance</a>
 
-<!-- Total Employees -->
-<div class="col-md-4">
-<div class="card shadow p-3 text-center">
-<h5>Total Employees</h5>
-<h2 th:text="${empCount}"></h2>
-</div>
-</div>
+    <a href="/admin/leaves">📝 Leaves</a>
 
-<!-- Manage Employees -->
-<div class="col-md-4">
-<div class="card shadow p-3 text-center">
-<h5>Manage Employees</h5>
-<a href="/admin/employees" class="btn btn-primary mt-2">Go</a>
-</div>
-</div>
-
-<!-- Attendance -->
-<div class="col-md-4">
-<div class="card shadow p-3 text-center">
-<h5>Attendance</h5>
-<a href="/admin/attendance" class="btn btn-success mt-2">Go</a>
-</div>
-</div>
+    <a href="/logout">🚪 Logout</a>
 
 </div>
 
+<!-- MAIN -->
+
+<div class="main">
+
+    <!-- BANNER -->
+
+    <div class="banner">
+
+        <div class="overlay"></div>
+
+        <div class="banner-content">
+
+            <h1>Admin Dashboard</h1>
+
+            <p>
+                Manage employees, attendance, leaves and HR activities
+            </p>
+
+        </div>
+
+    </div>
+
+    <!-- CARDS -->
+
+    <h2 class="section-title">Overview</h2>
+
+    <div class="row g-4">
+
+        <!-- TOTAL EMPLOYEES -->
+
+        <div class="col-md-4">
+
+            <div class="dashboard-card text-center">
+
+                <h5>Total Employees</h5>
+
+                <h3 th:text="${empCount}">0</h3>
+
+                <p>Total employees available in company</p>
+
+            </div>
+
+        </div>
+
+        <!-- EMPLOYEES -->
+
+        <div class="col-md-4">
+
+            <div class="dashboard-card text-center">
+
+                <h5>Employee Management</h5>
+
+                <h3>👨</h3>
+
+                <p>Add, edit and manage employees</p>
+
+                <a href="/admin/employees"
+                   class="btn btn-dark w-100 mt-3">
+                    Manage Employees
+                </a>
+
+            </div>
+
+        </div>
+
+        <!-- ATTENDANCE -->
+
+        <div class="col-md-4">
+
+            <div class="dashboard-card text-center">
+
+                <h5>Attendance</h5>
+
+                <h3>📅</h3>
+
+                <p>Track employee attendance records</p>
+
+                <a href="/admin/attendance"
+                   class="btn btn-dark w-100 mt-3">
+                    Open Attendance
+                </a>
+
+            </div>
+
+        </div>
+
+        <!-- LEAVES -->
+
+        <div class="col-md-4">
+
+            <div class="dashboard-card text-center">
+
+                <h5>Leave Requests</h5>
+
+                <h3>📝</h3>
+
+                <p>Approve or reject leave requests</p>
+
+                <a href="/admin/leaves"
+                   class="btn btn-dark w-100 mt-3">
+                    Manage Leaves
+                </a>
+
+            </div>
+
+        </div>
+
+        <!-- ACTIVE USERS -->
+
+        <div class="col-md-4">
+
+            <div class="dashboard-card text-center">
+
+                <h5>Active Employees</h5>
+
+                <h3 th:text="${empCount}">0</h3>
+
+                <p>Current active employee ratio</p>
+
+            </div>
+
+        </div>
+
+        <!-- COMPANY STATUS -->
+
+        <div class="col-md-4">
+
+            <div class="dashboard-card text-center">
+
+                <h5>Company Status</h5>
+
+                <h3>Online</h3>
+
+                <p>All HR services are running properly</p>
+
+            </div>
+
+        </div>
+
+    </div>
+
 </div>
-</div>
-</div>
-<div class="card shadow p-4 mt-4">
 
-    <h5>Employee Chart</h5>
-
-    <canvas id="employeeChart" height="100"></canvas>
-
-</div>
-
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-const ctx = document.getElementById('employeeChart');
-
-new Chart(ctx, {
-    type: 'bar',
-    data: {
-        labels: ['Employees'],
-        datasets: [{
-            label: 'Total Employees',
-            data: [/*[[${empCount}]]*/],
-            borderWidth: 1
-        }]
-    }
-});
-</script>
 </body>
 </html>
-
-

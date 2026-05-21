@@ -1,180 +1,192 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Fill Timesheet</title>
+<title>Fill Timesheet</title>
+<link rel="stylesheet" href="/css/style.css">
+<style>
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: #f4f6f9;
+}
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <style>
-        body {
-            background: #f5f7fb;
+/* 🔥 Banner (gradient + image feel) */
+.header-banner {
+            height: 200px;
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)),
+                        url('/images/leaf.png');
+            display: flex;
+            align-items: center;
+            padding: 30px;
+            color: white;
+            background-size: cover;
+            background-position: center;
         }
 
-        .day-card {
-            border-radius: 12px;
-            padding: 15px;
-            background: white;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            min-height: 320px;
-        }
+/* Layout */
+.container {
+    padding: 30px;
+}
 
-        .day-header {
-            font-weight: bold;
-            font-size: 16px;
-        }
+.timesheet-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
 
-        .date-text {
-            font-size: 12px;
-            color: gray;
-        }
+.card {
+    background: white;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
 
-        .btn-submit {
-            width: 100%;
-            border-radius: 8px;
-        }
-    </style>
+/* Text */
+.day {
+    font-weight: bold;
+}
+
+.date {
+    font-size: 12px;
+    color: gray;
+    margin-bottom: 10px;
+}
+
+/* Labels */
+.label {
+    font-size: 12px;
+    color: #555;
+    margin-bottom: 4px;
+}
+
+/* Inputs */
+input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+}
+
+/* Buttons */
+.btn-group {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-primary {
+    flex: 1;
+    background: #111827;
+    color: white;
+    border: none;
+    padding: 8px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.btn-secondary {
+    flex: 1;
+    background: #e5e7eb;
+    border: none;
+    padding: 8px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+</style>
 </head>
 
-<body class="container mt-4">
+<body>
 
-<h3 class="mb-4 text-center">📅 Fill Timesheet</h3>
-
-<div class="row">
-
-    <div class="col-md-3 mb-4"
-         th:each="day : ${T(java.time.DayOfWeek).values()}">
-
-        <div th:with="
-            start=${T(java.time.LocalDate).now().with(T(java.time.DayOfWeek).MONDAY)},
-            currentDate=${start.plusDays(day.ordinal())}
-        ">
-
-            <div class="day-card">
-
-                <!-- DAY -->
-                <div class="day-header" th:text="${day}"></div>
-
-                <!-- DATE -->
-                <div class="date-text" th:text="${currentDate}"></div>
-
-                <hr>
-
-                <!-- FORM -->
-                <form th:action="@{/user/timesheet}" method="post">
-
-                    <!-- 🔥 WORK LOCATION (AUTO FROM DB) -->
-                    <label>Work Location</label>
-
-                    <!-- visible -->
-                    <input type="text"
-                           class="form-control mb-2"
-                           th:value="${employee.location}"
-                           readonly />
-
-                    <!-- hidden (for backend) -->
-                    <input type="hidden"
-                           name="workLocation"
-                           th:value="${employee.location}" />
-
-                    <!-- HOURS -->
-                    <label>Hours</label>
-                    <input type="number"
-                           name="hours"
-                           class="form-control mb-2"
-                           placeholder="Enter hours" required>
-
-                    <!-- TRAINING -->
-                    <label>Training</label>
-                    <input type="number"
-                           name="training"
-                           class="form-control mb-2"
-                           value="0">
-
-                    <!-- DATE -->
-                    <input type="hidden"
-                           name="date"
-                           th:value="${currentDate}" />
-
-                    <!-- SUBMIT -->
-					<button type="button"
-					        class="btn btn-primary"
-					        onclick="checkLocation(this.form)">
-					    Submit Day
-					</button>
-
-                </form>
-
-            </div>
-        </div>
-
+<!-- 🔥 Banner -->
+<div class="header-banner">
+    <div>
+        <h2>Welcome Back</h2>
+        <p>Fill your weekly timesheet</p>
     </div>
+</div>
+
+<div class="container">
+<h3>Fill Timesheet</h3>
+
+<div class="timesheet-container">
+
+<div class="card" th:each="date : ${weekDates}">
+	
+	<div th:if="${leaveDates.contains(date)}">
+	       <p style="color:red; font-weight:bold;">On Leave</p>
+	   </div>
+
+	   <div th:unless="${leaveDates.contains(date)}">
+
+<div class="day" th:text="${#temporals.format(date, 'EEEE')}"></div>
+<div class="date" th:text="${date}"></div>
+
+<form th:action="@{/user/timesheet}" method="post">
+
+<input type="hidden" name="date" th:value="${date}" />
+
+<!-- LOCATION -->
+<input type="text"
+       name="workLocation"
+       class="location-input"
+       th:value="${timesheetMap.containsKey(date) && timesheetMap.get(date).workLocation != null && !timesheetMap.get(date).workLocation.isEmpty()
+                  ? timesheetMap.get(date).workLocation
+                  : employee.location}"
+       readonly />
+
+<!-- HOURS -->
+<input type="number" name="hours"
+       class="hours-input"
+        th:value="${timesheetMap.containsKey(date) ? timesheetMap.get(date).hours : 0}"
+       placeholder="Enter hours">
+      
+
+<!-- TRAINING -->
+<input type="number" name="training"
+       class="training-input"
+      
+	   th:value="${timesheetMap.containsKey(date) ? timesheetMap.get(date).training : 0}"
+       placeholder="Enter training hours">
+       
+
+<div class="btn-group">
+    <button type="submit" class="btn-primary">Submit</button>
+
+    <!-- EDIT BUTTON (focus only) -->
+    <button type="button"
+            class="btn-secondary"
+            onclick="focusHours(this)">
+        Edit
+    </button>
+</div>
+
+</form>
 
 </div>
+
+</div>
+
+</div>
+</div>
+
+<!-- 🔥 JS -->
 <script>
+function focusHours(btn) {
+    let card = btn.closest('.card');
 
-async function getLocations() {
-    let res = await fetch('/api/locations');
-    return await res.json();
+    let hoursInput = card.querySelector('.hours-input');
+    let trainingInput = card.querySelector('.training-input');
+
+    // readonly remove
+    hoursInput.removeAttribute('readonly');
+    trainingInput.removeAttribute('readonly');
+
+    // focus hours
+    hoursInput.focus();
 }
-
-function getDistance(lat1, lon1, lat2, lon2) {
-    let R = 6371;
-    let dLat = (lat2-lat1) * Math.PI/180;
-    let dLon = (lon2-lon1) * Math.PI/180;
-
-    let a =
-        Math.sin(dLat/2) * Math.sin(dLat/2) +
-        Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) *
-        Math.sin(dLon/2) * Math.sin(dLon/2);
-
-    let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    return R * c;
-}
-
-async function checkLocation(form) {
-
-    let locations = await getLocations();
-
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(function(pos) {
-
-            let userLat = pos.coords.latitude;
-            let userLon = pos.coords.longitude;
-
-            let assigned = form.querySelector('[name="workLocation"]').value;
-
-            let match = false;
-
-            locations.forEach(loc => {
-                if (loc.name === assigned) {
-
-                    let distance = getDistance(
-                        userLat, userLon,
-                        loc.latitude, loc.longitude
-                    );
-
-                    if (distance < 1) {
-                        match = true;
-                    }
-                }
-            });
-
-            if (!match) {
-                alert("❌ Wrong Location!");
-            } else {
-                form.submit(); // ✅ submit only if correct
-            }
-
-        });
-    }
-}
-
 </script>
 
-</body>
-</html>
-
-
+<f
 
 </body>
 </html>

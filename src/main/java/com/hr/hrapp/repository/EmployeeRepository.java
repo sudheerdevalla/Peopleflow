@@ -13,5 +13,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long>{
 	List<Employee> findByStatus(String status);
 	Page<Employee> findByStatus(String status, Pageable pageable);
 	Employee findByEmail(String email);
+	List<Employee> findByManager_EmpId(Long empId);
+	long countByStatus(String status);
 	/*Employee findByUsername(String username);*/
 }

@@ -53,6 +53,27 @@
 <div class="header mb-4">
     <h4>Track your weekly work</h4>
 </div>
+<h4>Weekly Summary</h4>
+<h5>Saved Timesheets</h5>
+
+<div th:each="t : ${list}">
+    <p>
+        <b th:text="${t.date}"></b> -
+        <span th:text="${t.workLocation}"></span> -
+        <span th:text="${t.hours}"></span> hrs
+
+        👉 <a th:href="@{'/user/edit-timesheet/' + ${t.id}}">Edit</a>
+    </p>
+</div>
+<div>
+    Monday: <span th:text="${weekData['MONDAY']} ?: 0"></span><br>
+    Tuesday: <span th:text="${weekData['TUESDAY']} ?: 0"></span><br>
+    Wednesday: <span th:text="${weekData['WEDNESDAY']} ?: 0"></span><br>
+    Thursday: <span th:text="${weekData['THURSDAY']} ?: 0"></span><br>
+    Friday: <span th:text="${weekData['FRIDAY']} ?: 0"></span><br>
+    Saturday: <span th:text="${weekData['SATURDAY']} ?: 0"></span><br>
+    Sunday: <span th:text="${weekData['SUNDAY']} ?: 0"></span><br>
+</div>
 
 <!-- WEEK CARDS -->
 <div class="row text-center">

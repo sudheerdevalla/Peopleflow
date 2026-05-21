@@ -9,6 +9,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -35,7 +36,8 @@ public class AuthController {
 	    return "register";
 	}
 	@PostMapping("/register")
-	public String registerUser(@RequestParam String username,
+	public String registerUser(@RequestParam String name,
+			                   @RequestParam String username,
 	                           @RequestParam String password) {
 
 	    // check if user exists
@@ -51,7 +53,7 @@ public class AuthController {
 	    userRepository.save(user);
 	    
 	    Employee emp = new Employee();
-	    emp.setName(username);
+	    emp.setName(name);
 	    emp.setEmail(username);
 	    emp.setDepartment("Not Assigned");
 	    emp.setBasicSalary(0);
@@ -84,16 +86,35 @@ public class AuthController {
 
 	@GetMapping("/admin/dashboard")
 	public String admindashboard(Model model) {
-	    model.addAttribute("employees", employeeRepository.findAll());
-	    model.addAttribute("empCount", employeeRepository.count());
+
+	    long totalEmployees = employeeRepository.count();
+
+	    long activeEmployees =
+	            employeeRepository.countByStatus("Active");
+
+	    model.addAttribute("employees",
+	            employeeRepository.findAll());
+
+	    model.addAttribute("empCount",
+	            totalEmployees);
+
+	    model.addAttribute("activeEmployees",
+	            activeEmployees);
+
 	    return "admin-dashboard";
 	}
 	// Show form
 	@GetMapping("/admin/add-employee")
 	public String showAddForm(Model model) {
+
 	    model.addAttribute("employee", new Employee());
+
+	    model.addAttribute("employees",
+	            employeeRepository.findAll());
+
 	    return "add-employee";
 	}
+	
 
 	// Save employee
 	@PostMapping("/admin/save-employee")

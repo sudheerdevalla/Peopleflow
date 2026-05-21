@@ -19,6 +19,8 @@ public class Timesheet {
     private String workLocation;  // ✅ added
 
     private Long employeeId;
+    
+    private String status;
 
     // GETTERS & SETTERS
 
@@ -65,4 +67,13 @@ public class Timesheet {
     public void setEmployeeId(Long employeeId) {
         this.employeeId = employeeId;
     }
+    public String getStatus() {
+        return status;
+    }
+
+    public void setHours(String status) {
+        this.status = status;
+    }
+
+	
 }

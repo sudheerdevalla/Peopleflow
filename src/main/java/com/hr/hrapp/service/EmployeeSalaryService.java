@@ -1,5 +1,7 @@
 package com.hr.hrapp.service;
 
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -145,5 +147,13 @@ public class EmployeeSalaryService {
         p.setIfsc(emp.getIfsc());
 
         return p;
+    }
+    public String calculateExperience(LocalDate joiningDate) {
+
+        if (joiningDate == null) return "0 Years";
+
+        Period p = Period.between(joiningDate, LocalDate.now());
+
+        return p.getYears() + " Years " + p.getMonths() + " Months";
     }
 }

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Admin Attendance</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+
+        body{
+            background:#f5f7fb;
+            font-family: Arial, sans-serif;
+        }
+
+        .sidebar{
+            width:240px;
+            height:100vh;
+            position:fixed;
+            background:#0f172a;
+            padding-top:30px;
+        }
+
+        .sidebar h2{
+            color:white;
+            text-align:center;
+            margin-bottom:40px;
+            font-weight:bold;
+        }
+
+        .sidebar a{
+            display:block;
+            color:#cbd5e1;
+            padding:15px 30px;
+            text-decoration:none;
+            transition:0.3s;
+        }
+
+        .sidebar a:hover{
+            background:#1e293b;
+            color:white;
+        }
+
+        .main{
+            margin-left:240px;
+            padding:25px;
+        }
+
+        .banner{
+            height:220px;
+            border-radius:25px;
+            overflow:hidden;
+            position:relative;
+            background:url('https://images.unsplash.com/photo-1497366754035-f200968a6e72?q=80&w=1400&auto=format&fit=crop') center/cover;
+            margin-bottom:25px;
+        }
+
+        .overlay{
+            position:absolute;
+            width:100%;
+            height:100%;
+            background:rgba(0,0,0,0.55);
+        }
+
+        .banner-content{
+            position:relative;
+            z-index:2;
+            color:white;
+            padding:50px;
+        }
+
+        .banner-content h1{
+            font-size:52px;
+            font-weight:bold;
+        }
+
+        .card-box{
+            background:white;
+            border-radius:20px;
+            padding:30px;
+            box-shadow:0 4px 15px rgba(0,0,0,0.05);
+            margin-bottom:25px;
+        }
+
+        .stat-card{
+            background:white;
+            border-radius:20px;
+            text-align:center;
+            padding:25px;
+            box-shadow:0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .stat-card h2{
+            font-size:40px;
+            font-weight:bold;
+        }
+
+        .table{
+            margin-top:20px;
+        }
+
+        .table thead{
+            background:black;
+            color:white;
+        }
+
+        .badge-success{
+            background:#16a34a;
+            color:white;
+            padding:8px 15px;
+            border-radius:20px;
+        }
+
+        .badge-danger{
+            background:#dc2626;
+            color:white;
+            padding:8px 15px;
+            border-radius:20px;
+        }
+
+        .form-control{
+            height:48px;
+            border-radius:12px;
+        }
+
+        .btn-dark{
+            height:48px;
+            border-radius:12px;
+            padding:0 25px;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<!-- Sidebar -->
+
+<div class="sidebar">
+
+    <h2>HR Portal</h2>
+
+    <a href="/admin/dashboard">Dashboard</a>
+    <a href="/admin/employees">Employees</a>
+    <a href="/admin/attendance">Attendance</a>
+    <a href="/admin/leaves">Leaves</a>
+    <a href="/logout">Logout</a>
+
+</div>
+
+<!-- Main -->
+
+<div class="main">
+
+    <!-- Banner -->
+
+    <div class="banner">
+
+        <div class="overlay"></div>
+
+        <div class="banner-content">
+            <h1>Attendance Management</h1>
+            <p class="fs-5">
+                Track employee attendance and monitor work activity
+            </p>
+        </div>
+
+    </div>
+
+    <!-- Stats -->
+
+    <div class="row mb-4">
+
+        <div class="col-md-4">
+            <div class="stat-card">
+                <h2 th:text="${attendanceList.size()}">0</h2>
+                <p>Total Employees</p>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="stat-card">
+                <h2>26</h2>
+                <p>Total Working Days</p>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="stat-card">
+                <h2>92%</h2>
+                <p>Attendance Rate</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Attendance Form -->
+
+    <div class="card-box">
+
+        <h3 class="mb-4">Mark Attendance</h3>
+
+        <form action="/admin/mark-attendance" method="post">
+
+            <div class="row">
+
+                <div class="col-md-4 mb-3">
+                    <label class="mb-2">Employee ID</label>
+
+                    <input type="number"
+                           name="empId"
+                           class="form-control"
+                           placeholder="Enter Employee ID"
+                           required>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label class="mb-2">Total Days</label>
+
+                    <input type="number"
+                           name="totalDays"
+                           class="form-control"
+                           placeholder="Enter Total Days"
+                           required>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label class="mb-2">Present Days</label>
+
+                    <input type="number"
+                           name="presentDays"
+                           class="form-control"
+                           placeholder="Enter Present Days"
+                           required>
+                </div>
+
+            </div>
+
+            <button type="submit" class="btn btn-dark">
+                Save Attendance
+            </button>
+
+        </form>
+
+    </div>
+
+    <!-- Attendance Table -->
+
+    <div class="card-box">
+
+        <h2>Employee Attendance</h2>
+
+        <table class="table table-hover align-middle">
+
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Employee ID</th>
+                <th>Total Days</th>
+                <th>Present Days</th>
+                <th>Status</th>
+            </tr>
+            </thead>
+
+            <tbody>
+
+            <tr th:each="att : ${attendanceList}">
+
+                <td th:text="${att.id}"></td>
+
+                <td th:text="${att.employeeId}"></td>
+
+                <td th:text="${att.totalDays}"></td>
+
+                <td th:text="${att.presentDays}"></td>
+
+                <td>
+
+                    <span th:if="${att.presentDays >= 20}"
+                          class="badge-success">
+                        Present
+                    </span>
+
+                    <span th:if="${att.presentDays < 20}"
+                          class="badge-danger">
+                        Low Attendance
+                    </span>
+
+                </td>
+
+            </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+</body>
+</html>

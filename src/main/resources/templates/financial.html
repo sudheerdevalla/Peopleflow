@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>My Financial</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #f5f6f8;
+        }
+
+        .container {
+            width: 90%;
+            margin: 30px auto;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .title {
+            font-size: 18px;
+            border-bottom: 1px solid #e0e0e0;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .field {
+            padding: 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+        }
+
+        .label {
+            font-size: 12px;
+            color: gray;
+        }
+
+        .value {
+            font-weight: 500;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border-bottom: 1px solid #e0e0e0;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .hike {
+            color: green;
+            font-weight: bold;
+        }
+
+        .btn {
+            padding: 6px 12px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .btn-small {
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+
+        form {
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- ================= BANK DETAILS ================= -->
+    <div class="card">
+        <div class="title">Bank Details</div>
+
+        <div th:if="${employee.bankName != null}" class="grid">
+
+            <div class="field">
+                <div class="label">Bank Name</div>
+                <div class="value" th:text="${employee.bankName}"></div>
+            </div>
+
+            <div class="field">
+                <div class="label">Account Number</div>
+                <div class="value" th:text="${employee.accountNumber}"></div>
+            </div>
+
+            <div class="field">
+                <div class="label">IFSC</div>
+                <div class="value" th:text="${employee.ifsc}"></div>
+            </div>
+
+        </div>
+
+        <!-- ADD FORM -->
+        <div th:if="${employee.bankName == null}">
+            <form th:action="@{/user/save-bank}" method="post">
+
+                <input type="hidden" name="empId" th:value="${employee.empId}" />
+
+                <input type="text" name="bankName" placeholder="Bank Name" required />
+                <input type="text" name="accountNumber" placeholder="Account Number" required />
+                <input type="text" name="ifsc" placeholder="IFSC" required />
+
+                <br><br>
+                <button class="btn">Save</button>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- ================= SALARY HISTORY ================= -->
+    <div class="card">
+        <div class="title">Salary History</div>
+
+        <!-- MONTH SELECT -->
+        <form method="get" action="/user/financial" style="margin-bottom:15px;">
+            <label>Select Month:</label>
+            <input type="month" name="month" required>
+            <button class="btn btn-small" type="submit">Load</button>
+        </form>
+		</form>
+
+		<!-- 🔥 ADD HERE -->
+		<div style="margin-top:20px;">
+		    <h4>Current Month Salary</h4>
+		    <p>₹ <span th:text="${calculatedSalary}"></span></p>
+		</div>
+        <!-- SELECTED MONTH -->
+        <div th:if="${salary != null}">
+
+            <table>
+                <tr>
+                    <th>Month</th>
+                    <th>Basic</th>
+                    <th>Net</th>
+                    <th>Hike</th>
+                    <th>Actions</th>
+                </tr>
+
+                <tr>
+                    <td th:text="${salary.month}"></td>
+                    <td th:text="${salary.basicSalary}"></td>
+                    <td th:text="${salary.netSalary}"></td>
+					<td th:text="${salary.hikeAmount}"></td>
+
+                    <td>
+                        <span th:if="${salary.hikeAmount > 0}"
+                              class="hike"
+                              th:text="'+ ' + ${salary.hikeAmount}">
+                        </span>
+                    </td>
+
+                    <td>
+                        <!-- VIEW -->
+                        <a th:href="@{'/user/view?month=' + ${salary.month}}">
+                            <button class="btn btn-small" type="button">View</button>
+                        </a>
+
+                        <!-- DOWNLOAD -->
+                        <a th:href="@{'/user/download?month=' + ${salary.month}}">
+                            <button class="btn btn-small" type="button">Download</button>
+                        </a>
+
+                        <!-- MAIL -->
+                        <form th:action="@{/user/send-mail}" method="post" style="display:inline;">
+                            <input type="hidden" name="month" th:value="${salary.month}">
+                            <button class="btn btn-small" type="submit">Mail</button>
+                        </form>
+                    </td>
+                </tr>
+
+            </table>
+
+        </div>
+    </div>
+
+
+    <!-- BACK BUTTON -->
+    <a href="/user/profile">
+        <button class="btn">Back to Profile</button>
+    </a>
+
+    <p th:text="${message}" style="color:green;"></p>
+
+</div>
+
+</body>
+</html>
