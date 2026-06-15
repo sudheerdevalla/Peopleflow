@@ -2,6 +2,9 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
 <title>Fill Timesheet</title>
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="/css/style.css">
 <style>
 body {
@@ -10,46 +13,63 @@ body {
     background: #f4f6f9;
 }
 
-/* 🔥 Banner (gradient + image feel) */
+/* Banner */
 .header-banner {
-            height: 200px;
-            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)),
-                        url('/images/leaf.png');
-            display: flex;
-            align-items: center;
-            padding: 30px;
-            color: white;
-            background-size: cover;
-            background-position: center;
-        }
+    height: 200px;
+    background: linear-gradient(rgba(0,0,0,0.4),
+                rgba(0,0,0,0.4)),
+                url('/images/leaf.png');
+    display: flex;
+    align-items: center;
+    padding: 30px;
+    color: white;
+    background-size: cover;
+    background-position: center;
+}
 
 /* Layout */
 .container {
     padding: 30px;
 }
 
-.timesheet-container {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
+/* Week Header */
+.week-header{
+    background:white;
+    padding:15px;
+    border-radius:12px;
+    margin-bottom:20px;
+    text-align:center;
+    box-shadow:0 4px 12px rgba(0,0,0,0.08);
 }
 
+.week-header h2{
+    margin:0;
+    color:#111827;
+}
+
+/* Timesheet Cards Side By Side */
+.timesheet-container {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+}
+
+/* Card */
 .card {
     background: white;
-    padding: 15px;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 
 /* Text */
-.day {
-    font-weight: bold;
+.day{
+    font-size:14px;
+    font-weight:bold;
 }
 
-.date {
-    font-size: 12px;
-    color: gray;
-    margin-bottom: 10px;
+.date{
+    font-size:10px;
 }
 
 /* Labels */
@@ -58,14 +78,52 @@ body {
     color: #555;
     margin-bottom: 4px;
 }
+@media(max-width:768px){
+
+    .week-grid,
+    .grid{
+        grid-template-columns:1fr !important;
+    }
+
+    .day-card{
+        width:100% !important;
+        min-width:100% !important;
+    }
+
+    input,
+    textarea,
+    select{
+        width:100%;
+        box-sizing:border-box;
+    }
+
+    .holiday-card,
+    .leave-card{
+        width:100%;
+    }
+
+    .container{
+        padding:10px;
+    }
+
+    .week-header{
+        font-size:24px;
+        text-align:center;
+    }
+}
 
 /* Inputs */
-input {
+input,
+textarea {
     width: 100%;
-    padding: 8px;
-    margin-bottom: 10px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
+    padding: 5px;
+    font-size: 11px;
+    margin-bottom: 6px;
+    box-sizing: border-box;
+}
+
+textarea{
+    height: 50px;
 }
 
 /* Buttons */
@@ -92,6 +150,16 @@ input {
     border-radius: 6px;
     cursor: pointer;
 }
+
+.btn-primary:hover{
+    opacity:0.9;
+}
+
+.btn-secondary:hover{
+    background:#d1d5db;
+}
+
+
 </style>
 </head>
 
@@ -106,22 +174,77 @@ input {
 </div>
 
 <div class="container">
-<h3>Fill Timesheet</h3>
+	
+	<div class="card" style="margin-bottom:20px;">
+
+	    <h3>Upcoming Holidays</h3>
+
+	    <div th:each="holiday : ${holidays}">
+
+	        <b th:text="${holiday.holidayName}"></b>
+	        -
+
+	        <span th:text="${holiday.holidayDate}"></span>
+
+	        <span>
+	            (
+	            <span th:text="${holiday.holidayType}"></span>
+	            )
+	        </span>
+
+	    </div>
+
+	</div>
+	<div class="week-header">
+	    <h2>
+	        Week :
+	        <span th:text="${weekDates[0]}"></span>
+	        →
+	        <span th:text="${weekDates[weekDates.size()-1]}"></span>
+	    </h2>
+	</div>
 
 <div class="timesheet-container">
 
 <div class="card" th:each="date : ${weekDates}">
 	
-	<div th:if="${leaveDates.contains(date)}">
-	       <p style="color:red; font-weight:bold;">On Leave</p>
-	   </div>
+	<!-- HOLIDAY -->
+	<div th:if="${holidayMap.containsKey(date)}"
+	     class="card"
+	     style="
+	     background:#ecfdf5;
+	     border:2px solid #22c55e;
+	     text-align:center;">
 
-	   <div th:unless="${leaveDates.contains(date)}">
+	    <h3 style="color:#16a34a;">
+	        🎉 Holiday
+	    </h3>
+
+	    <p th:text="${holidayMap.get(date).holidayName}"></p>
+
+	</div>
+	
+		<div th:if="${!holidayMap.containsKey(date) && leaveDates.contains(date)}"
+		     class="card"
+		     style="
+		     background:#fff1f2;
+		     border:2px solid #ef4444;
+		     text-align:center;">
+
+		    <h3 style="color:#dc2626;">
+		        On Leave
+		    </h3>
+
+		</div>
+
+	   <div th:unless="${holidayMap.containsKey(date) || leaveDates.contains(date)}">
 
 <div class="day" th:text="${#temporals.format(date, 'EEEE')}"></div>
 <div class="date" th:text="${date}"></div>
 
-<form th:action="@{/user/timesheet}" method="post">
+<form th:if="${!date.isAfter(today)}"
+      th:action="@{/user/timesheet}"
+      method="post">
 
 <input type="hidden" name="date" th:value="${date}" />
 
@@ -133,60 +256,172 @@ input {
                   ? timesheetMap.get(date).workLocation
                   : employee.location}"
        readonly />
+	   
+	   <!-- CLIENT NAME -->
+	   <input type="text"
+	          name="clientName"
+	          placeholder="Client Name">
+
+	   <!-- PROJECT NAME -->
+	   <input type="text"
+	          name="projectName"
+	          placeholder="Project Name">
+
+	   <!-- WORK DESCRIPTION -->
+	   <textarea
+	           name="workDescription"
+	           placeholder="Work Description"></textarea>
+
+	   <!-- GPS HIDDEN FIELDS -->
+	   <input type="hidden"
+	          name="latitude"
+	          class="latitude">
+
+	   <input type="hidden"
+	          name="longitude"
+	          class="longitude">
+
+	   <button type="button"
+	           class="btn-secondary"
+	           onclick="captureLocation(this)">
+	       📍 Capture Location
+	   </button>
 
 <!-- HOURS -->
-<input type="number" name="hours"
+<input type="number"
+       name="hours"
        class="hours-input"
-        th:value="${timesheetMap.containsKey(date) ? timesheetMap.get(date).hours : 0}"
-       placeholder="Enter hours">
+       th:value="${timesheetMap.containsKey(date) ? timesheetMap.get(date).hours : 0}"
+       placeholder="Enter hours"
+       th:readonly="${date.isAfter(today)}">
       
 
 <!-- TRAINING -->
-<input type="number" name="training"
+<input type="number"
+       name="training"
        class="training-input"
-      
-	   th:value="${timesheetMap.containsKey(date) ? timesheetMap.get(date).training : 0}"
-       placeholder="Enter training hours">
+       th:value="${timesheetMap.containsKey(date) ? timesheetMap.get(date).training : 0}"
+       placeholder="Enter training hours"
+       th:readonly="${date.isAfter(today)}">
+	   
+	   <div th:if="${timesheetMap.containsKey(date)}">
+
+	       <p style="font-weight:bold;">
+
+	           Status :
+
+	           <span th:text="${timesheetMap.get(date).status}"
+	                 th:style="${timesheetMap.get(date).status == 'APPROVED'}
+	                 ? 'color:green'
+	                 : (${timesheetMap.get(date).status == 'LOCATION_MISMATCH'}
+	                 ? 'color:red'
+	                 : 'color:orange')">
+	           </span>
+
+	       </p>
+
+	   </div>
        
 
 <div class="btn-group">
-    <button type="submit" class="btn-primary">Submit</button>
+	<button type="submit"
+	        class="btn-primary"
+	        th:text="${timesheetMap.containsKey(date) ? 'Update' : 'Submit'}">
+	</button>
 
     <!-- EDIT BUTTON (focus only) -->
-    <button type="button"
-            class="btn-secondary"
-            onclick="focusHours(this)">
-        Edit
-    </button>
+	<button type="button"
+	        class="btn-secondary"
+	        onclick="focusHours(this)"
+	        th:disabled="${date.isAfter(today)}">
+	    Edit
+	</button>
 </div>
 
 </form>
 
+<div th:if="${date.isAfter(today)}">
+
+    <p style="color:red;
+              font-weight:bold;
+              text-align:center;">
+        Future Date - Entry Not Allowed
+    </p>
+
+</div>
+
 </div>
 
 </div>
 
 </div>
+
+<!-- WEEKLY BUTTON -->
+
+<div style="text-align:center;margin-top:25px;">
+
+    <button
+        style="
+        background:#111827;
+        color:white;
+        border:none;
+        padding:14px 35px;
+        border-radius:8px;
+        font-size:16px;
+        font-weight:bold;">
+
+        Submit Weekly Timesheet
+
+    </button>
+
 </div>
 
 <!-- 🔥 JS -->
 <script>
-function focusHours(btn) {
-    let card = btn.closest('.card');
+	function focusHours(btn) {
 
-    let hoursInput = card.querySelector('.hours-input');
-    let trainingInput = card.querySelector('.training-input');
+	    if(btn.disabled){
+	        return;
+	    }
 
-    // readonly remove
-    hoursInput.removeAttribute('readonly');
-    trainingInput.removeAttribute('readonly');
+	    let card = btn.closest('.card');
 
-    // focus hours
-    hoursInput.focus();
+	    let hoursInput =
+	        card.querySelector('.hours-input');
+
+	    let trainingInput =
+	        card.querySelector('.training-input');
+
+	    hoursInput.removeAttribute('readonly');
+	    trainingInput.removeAttribute('readonly');
+
+	    hoursInput.focus();
+	}
+
+function captureLocation(btn) {
+
+    let form = btn.closest('form');
+
+    navigator.geolocation.getCurrentPosition(
+        function(position) {
+
+            form.querySelector('.latitude').value =
+                position.coords.latitude;
+
+            form.querySelector('.longitude').value =
+                position.coords.longitude;
+
+            alert("Location Captured Successfully");
+
+        },
+        function(error) {
+
+            alert("Location Permission Denied");
+
+        }
+    );
 }
 </script>
-
-<f
 
 </body>
 </html>

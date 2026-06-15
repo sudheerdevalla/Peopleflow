@@ -14,6 +14,8 @@ public class EmployeePayslip {
     private String accountNumber;
     private String ifsc;
     
+    private double travelAllowance;
+    
     public Integer getId() {
     	return id;
     }
@@ -77,6 +79,13 @@ public class EmployeePayslip {
 
     public void setIfsc(String ifsc) {
         this.ifsc = ifsc;
+    }
+    
+    public double getTravelAllowance() {
+        return travelAllowance;
+    }
+    public void setTravelAllowance(double travelAllowance) {
+        this.travelAllowance = travelAllowance;
     }
 
 

@@ -2,9 +2,12 @@ package com.hr.hrapp.controller;
 
 import com.hr.hrapp.entity.Employee;
 import com.hr.hrapp.entity.Salary;
+import com.hr.hrapp.payroll.entity.Payroll;
+import com.hr.hrapp.payroll.repository.PayrollRepository;
 import com.hr.hrapp.repository.EmployeeRepository;
 import com.hr.hrapp.repository.SalaryRepository;
 import com.hr.hrapp.service.EmailService;
+import com.hr.hrapp.service.EmployeeService;
 import com.hr.hrapp.service.FinancialService;
 import com.hr.hrapp.service.PdfGenerator;
 
@@ -37,33 +40,139 @@ public class FinancialController {
     
     @Autowired 
     private FinancialService financialService;
+    
+    @Autowired
+    private EmployeeService employeeService;
+    
+    @Autowired
+    private PayrollRepository payrollRepository;
 
     // ================== MAIN PAGE ==================
     @GetMapping("/financial")
-    public String financial(@RequestParam(required = false) String month,
+    public String financial(@RequestParam(required = false)
+                            String month,
+
                             Model model,
+
                             Principal principal) {
 
-        String username = principal.getName();
-        Employee emp = employeeRepository.findByEmail(username);
+        // =========================
+        // LOGIN CHECK
+        // =========================
 
-        // Employee details
+        if(principal == null) {
+
+            return "redirect:/login";
+        }
+
+        String username =
+                principal.getName();
+
+        Employee emp =
+                employeeRepository
+                .findByEmail(username);
+
+        // =========================
+        // EMPLOYEE DETAILS
+        // =========================
+
         model.addAttribute("employee", emp);
 
-        // Salary history 
-        List<Salary> salaries = salaryRepository.findByEmployeeId(emp.getEmpId());
-        model.addAttribute("salaryList", salaries);
+        // =========================
+        // OLD SALARY HISTORY
+        // =========================
 
-        // 🔥 Timesheet based salary calculation
+        List<Salary> salaries =
+                salaryRepository
+                .findByEmployeeId(emp.getEmpId());
+
+        model.addAttribute(
+                "salaryList",
+                salaries);
+
+        // =========================
+        // PAYROLL HISTORY
+        // =========================
+
+        List<Payroll> payrollHistory =
+                payrollRepository
+                .findByEmployeeIdOrderByIdDesc(
+                        emp.getEmpId());
+
+        model.addAttribute(
+                "payrollHistory",
+                payrollHistory);
+
+        // =========================
+        // CURRENT MONTH SALARY
+        // =========================
+
         LocalDate now = LocalDate.now();
-        int monthValue = now.getMonthValue();
-        int year = now.getYear();
 
-        double calculatedSalary = financialService.calculateSalary(emp, monthValue, year);
+        int monthValue =
+                now.getMonthValue();
 
-        model.addAttribute("calculatedSalary", calculatedSalary);
+        int year =
+                now.getYear();
+
+        double calculatedSalary =
+                financialService
+                .calculateSalary(
+                        emp,
+                        monthValue,
+                        year);
+
+        // =========================
+        // LATEST PAYROLL FETCH
+        // =========================
+
+        Payroll payroll =
+                payrollRepository
+                .findTopByEmployeeIdOrderByIdDesc(
+                        emp.getEmpId());
+     // =========================
+     // DEBUG
+     // =========================
+
+     System.out.println("EMP ID = " + emp.getEmpId());
+
+     if(payroll != null){
+
+         System.out.println("PAYROLL ID = " + payroll.getId());
+         System.out.println("PAYROLL EMP ID = " + payroll.getEmployeeId());
+         System.out.println("PAYROLL NET = " + payroll.getNetSalary());
+         System.out.println("PAYROLL MONTH = " + payroll.getMonth());
+
+     }else{
+
+         System.out.println("PAYROLL IS NULL");
+     }
+
+        if(payroll != null) {
+
+            model.addAttribute(
+                    "calculatedSalary",
+                    payroll.getNetSalary());
+
+        } else {
+
+            model.addAttribute(
+                    "calculatedSalary",
+                    calculatedSalary);
+        }
 
         return "financial";
+    }
+    @PostMapping("/financial/save")
+    public String saveFinancialDetails(
+            @ModelAttribute Employee updatedEmployee,
+            Principal principal) {
+
+        employeeService.updateFinancialDetails(
+                principal.getName(),
+                updatedEmployee);
+
+        return "redirect:/user/financial";
     }
 
     // ================== VIEW ==================

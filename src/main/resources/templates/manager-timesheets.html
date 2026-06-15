@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+<meta charset="UTF-8">
+<title>Manager Timesheets</title>
+
+<style>
+
+body{
+    margin:0;
+    padding:0;
+    font-family: Arial, sans-serif;
+    background:#f4f4f4;
+}
+
+.topbar{
+    background:#000;
+    color:white;
+    padding:18px 40px;
+    font-size:22px;
+    font-weight:bold;
+    letter-spacing:1px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.15);
+}
+
+.background-design{
+    position:fixed;
+    width:100%;
+    height:100%;
+    top:0;
+    left:0;
+    z-index:-1;
+
+    background:
+    radial-gradient(circle at top left,
+    rgba(0,0,0,0.05),
+    transparent 35%),
+
+    radial-gradient(circle at bottom right,
+    rgba(0,0,0,0.04),
+    transparent 30%);
+}
+
+.container{
+    width:90%;
+    margin:40px auto;
+    background:white;
+    border-radius:12px;
+    overflow:hidden;
+    box-shadow:0 4px 20px rgba(0,0,0,0.08);
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th{
+    background:black;
+    color:white;
+    padding:16px;
+    font-size:14px;
+    text-transform:uppercase;
+    letter-spacing:1px;
+}
+
+td{
+    padding:16px;
+    border-bottom:1px solid #ececec;
+    font-size:14px;
+    color:#333;
+}
+
+tr:hover{
+    background:#fafafa;
+}
+
+.status-approved{
+    color:green;
+    font-weight:bold;
+}
+
+.status-pending{
+    color:#d68910;
+    font-weight:bold;
+}
+
+.status-rejected{
+    color:red;
+    font-weight:bold;
+}
+
+.map-btn{
+    background:black;
+    color:white;
+    text-decoration:none;
+    padding:8px 14px;
+    border-radius:6px;
+    font-size:12px;
+}
+
+.map-btn:hover{
+    opacity:0.85;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="background-design"></div>
+
+<div class="topbar">
+    Manager Timesheets
+</div>
+
+<div class="container">
+
+<table>
+
+<thead>
+
+<tr>
+    <th>Employee ID</th>
+    <th>Date</th>
+    <th>Client</th>
+    <th>Project</th>
+    <th>Hours</th>
+    <th>Location</th>
+    <th>Status</th>
+	<th>Action</th>
+    <th>Map</th>
+	
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr th:each="t : ${timesheets}">
+
+    <td th:text="${t.employeeId}"></td>
+
+    <td th:text="${t.date}"></td>
+
+    <td th:text="${t.clientName}"></td>
+
+    <td th:text="${t.projectName}"></td>
+
+    <td th:text="${t.hours}"></td>
+
+    <td th:text="${t.workLocation}"></td>
+
+    <td
+        th:text="${t.status}"
+
+        th:classappend="
+        ${t.status == 'APPROVED'} ? 'status-approved' :
+
+        (${t.status == 'PENDING'} ?
+        'status-pending' :
+
+        'status-rejected')">
+
+    </td>
+	
+	<td>
+
+	    <div th:if="${t.status == 'LOCATION_MISMATCH'}">
+
+	        <a th:href="@{'/admin/manager/approve-location/' + ${t.id}}">
+	            Approve Exception
+	        </a>
+
+	        |
+
+	        <a th:href="@{'/admin/manager/reject-location/' + ${t.id}}">
+	            Reject
+	        </a>
+
+	    </div>
+
+	</td>
+
+    <td>
+
+        <a class="map-btn"
+           th:href="'https://maps.google.com/?q='
+           + ${t.latitude}
+           + ','
+           + ${t.longitude}"
+           target="_blank">
+
+            📍 View Map
+
+        </a>
+
+    </td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+</body>
+
+</html>

@@ -32,13 +32,26 @@ public class LeaveService {
             emp.setLastAccrualDate(emp.getJoiningDate());
         }
 
-        long days = ChronoUnit.DAYS.between(emp.getLastAccrualDate(), today);
+        // Never allow negative balance
+        if (emp.getAnnualLeaves() < 0) {
+            emp.setAnnualLeaves(0);
+        }
+
+        long days = ChronoUnit.DAYS.between(
+                emp.getLastAccrualDate(),
+                today);
 
         if (days > 0) {
-            YearMonth ym = YearMonth.now();
-            double perDay = 2.0 / ym.lengthOfMonth();
 
-            emp.setAnnualLeaves(emp.getAnnualLeaves() + (days * perDay));
+            YearMonth ym = YearMonth.now();
+
+            double perDay =
+                    2.0 / ym.lengthOfMonth();
+
+            emp.setAnnualLeaves(
+                    emp.getAnnualLeaves()
+                            + (days * perDay));
+
             emp.setLastAccrualDate(today);
 
             employeeRepository.save(emp);

@@ -10,21 +10,25 @@
         body {
             background-color: #f4f6f9;
         }
+
         .sidebar {
             height: 100vh;
             background: #343a40;
             color: white;
             padding: 20px;
         }
+
         .sidebar a {
             color: white;
             display: block;
             margin: 15px 0;
             text-decoration: none;
         }
+
         .sidebar a:hover {
             color: #0d6efd;
         }
+
         .card {
             border-radius: 15px;
         }
@@ -39,10 +43,10 @@
         <!-- Sidebar -->
         <div class="col-md-2 sidebar">
             <h4>HR Portal</h4>
+
             <a href="/admin/dashboard">🏠 Dashboard</a>
             <a href="/admin/employees">👨‍💼 Employees</a>
             <a href="/admin/attendance">📅 Attendance</a>
-			
             <a href="/logout">🚪 Logout</a>
         </div>
 
@@ -53,52 +57,102 @@
 
             <div class="card shadow p-4" style="max-width:600px;">
 
-                <form th:action="@{/admin/save-employee}" th:object="${employee}" method="post">
+                <form th:action="@{/admin/save-employees}"
+                      th:object="${employee}"
+                      method="post">
 
+                    <!-- Employee Name -->
                     <div class="mb-3">
                         <label class="form-label">Employee Name</label>
-                        <input type="text" th:field="*{name}" class="form-control" placeholder="Enter name" required>
+
+                        <input type="text"
+                               th:field="*{name}"
+                               class="form-control"
+                               placeholder="Enter name"
+                               required>
                     </div>
 
+                    <!-- Email -->
                     <div class="mb-3">
                         <label class="form-label">Email</label>
-                        <input type="email" th:field="*{email}" class="form-control" placeholder="Enter email" required>
+
+                        <input type="email"
+                               th:field="*{email}"
+                               class="form-control"
+                               placeholder="Enter email"
+                               required>
                     </div>
 
+                    <!-- Salary -->
                     <div class="mb-3">
                         <label class="form-label">Salary</label>
-                        <input type="number" th:field="*{basicSalary}" class="form-control" placeholder="Enter salary" required>
+
+                        <input type="number"
+                               th:field="*{basicSalary}"
+                               class="form-control"
+                               placeholder="Enter salary"
+                               required>
                     </div>
-					<div class="mb-3">
-					    <label class="form-label">Joining Date:</label>
-					    <input type="date" th:field="*{joiningDate}" class="form-control" required>
-					</div>
-					<div class="mb-3">
-					    <label>Status</label>
-					    <select th:field="*{status}" class="form-control">
-					        <option value="Active">Active</option>
-					        <option value="Inactive">Inactive</option>
-					    </select>
-					</div>
-					<div class="form-group mt-3">
-					    <label>Assign Manager</label>
 
-					    <select name="manager.empId" class="form-control">
+                    <!-- Joining Date -->
+                    <div class="mb-3">
+                        <label class="form-label">Joining Date</label>
 
-					        <option value="">Select Manager</option>
+                        <input type="date"
+                               th:field="*{joiningDate}"
+                               class="form-control"
+                               required>
+                    </div>
 
-					        <option th:each="mgr : ${employees}"
-					                th:value="${mgr.empId}"
-					                th:text="${mgr.name}">
-					        </option>
+                    <!-- Status -->
+                    <div class="mb-3">
+                        <label class="form-label">Status</label>
 
-					    </select>
-					</div>
+                        <select th:field="*{status}"
+                                class="form-control">
 
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
 
+                        </select>
+                    </div>
+
+                    <!-- Manager Dropdown -->
+                    <div class="mb-3">
+
+                        <label class="form-label">
+                            Assign Manager
+                        </label>
+
+                        <select name="manager.empId"
+                                class="form-control">
+
+                            <option value="">
+                                Select Manager
+                            </option>
+
+                            <option th:each="mgr : ${managers}"
+                                    th:value="${mgr.empId}"
+                                    th:text="${mgr.name}">
+                            </option>
+
+                        </select>
+						
+                    </div>
+
+                    <!-- Buttons -->
                     <div class="d-flex justify-content-between">
-                        <a href="/admin/employees" class="btn btn-secondary">⬅ Back</a>
-                        <button type="submit" class="btn btn-success">💾 Save</button>
+
+                        <a href="/admin/employees"
+                           class="btn btn-secondary">
+                            ⬅ Back
+                        </a>
+
+                        <button type="submit"
+                                class="btn btn-success">
+                            💾 Save
+                        </button>
+
                     </div>
 
                 </form>

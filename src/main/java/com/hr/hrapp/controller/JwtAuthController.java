@@ -4,8 +4,7 @@ import com.hr.hrapp.entity.User;
 import com.hr.hrapp.repository.UserRepository;
 import com.hr.hrapp.security.JwtUtil;
 import com.hr.hrapp.service.CustomerUserDetailsService;
-import com.hr.hrapp.service.AuditLogService;
-import com.hr.hrapp.entity.AuditLog;
+// ...existing code...
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,8 +15,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.servlet.http.HttpServletRequest;
-import java.time.LocalDateTime;
+// ...existing code...
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,16 +38,10 @@ public class JwtAuthController {
     @Autowired
     private CustomerUserDetailsService userDetailsService;
 
-    @Autowired
-    private AuditLogService auditLogService;
-
     @PostMapping("/login")
-    public ResponseEntity<?> login(
-            @RequestParam String username,
-            @RequestParam String password,
-            HttpServletRequest request) {
-        
-        String endpoint = request.getRequestURI();
+    public ResponseEntity<?> login(@RequestBody Map<String, String> loginData) {
+        String username = loginData.get("username");
+        String password = loginData.get("password");
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -58,19 +50,13 @@ public class JwtAuthController {
                     )
             );
             User user = userRepository.findByUsername(username);
-            
+
             UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUsername());
             String token = jwtUtil.generateToken(user.getUsername(), userDetails.getAuthorities());
             Map<String, String> response = new HashMap<>();
             response.put("token", token);
-            // audit success
-            AuditLog log = new AuditLog(username, "LOGIN", endpoint, LocalDateTime.now(), "SUCCESS");
-            auditLogService.save(log);
-            return ResponseEntity.ok("Login successful");
+            return ResponseEntity.ok(response);
         } catch (AuthenticationException e) {
-            // audit failure
-            AuditLog log = new AuditLog(username, "LOGIN", endpoint, LocalDateTime.now(), "FAILURE");
-            auditLogService.save(log);
             return ResponseEntity.status(401).body("Invalid credentials");
         }
     }

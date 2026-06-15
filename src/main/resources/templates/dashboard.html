@@ -2,6 +2,9 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Dashboard</title>
+	
+	<meta name="viewport"
+	      content="width=device-width, initial-scale=1.0">
 
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
@@ -21,19 +24,118 @@
 <!-- ================= HERO ================= -->
 <section class="hero">
     <div class="hero-content">
-        <h1>Good Evening 👋 <span th:text="${username}">SaiGurlinka</span></h1>
-        <p>Manage your work easily</p>
+		<h1>PeopleFlow</h1>
+
+		<p>
+		Workforce Management.<br>
+		Reimagined.
+		</p>
+
+		<div style="margin-top:20px;">
+
+		    <img th:if="${employee.profilePhoto != null}"
+		         th:src="@{'/uploads/profile/' + ${employee.profilePhoto}}"
+		         style="
+		         width:120px;
+		         height:120px;
+		         border-radius:50%;
+		         object-fit:cover;
+		         border:4px solid white;
+		         margin-bottom:15px;">
+
+		    <div class="welcome-user">
+		        Welcome back,
+		        <span th:text="${username}">SaiGurlinka</span> 👋
+		    </div>
+
+		</div>
 
         <div class="buttons">
-            <a th:href="@{/user/profile}" class="btn">My Info</a>
-            <a th:href="@{/user/timesheet}" class="btn">Timesheet</a>
-            <a th:href="@{/user/attendance}" class="btn">Attendance</a>
-			
-			<!--<div th:if="${employee.role != null and employee.role.equals('MANAGER')}"
-			style="display:inline;">-->
+			<div class="buttons">
+
+			    <a th:href="@{/user/profile}" class="btn">
+			        My Info
+			    </a>
+
+			    <a th:href="@{/user/timesheet}" class="btn">
+			        Timesheet
+			    </a>
+				
+				<a th:href="@{/user/holidays}" class="btn">
+				    Holidays
+				</a>
+
+			    <a th:href="@{/user/attendance}" class="btn">
+			        Attendance
+			    </a>
+				
+				<a th:href="@{/user/my-tree}" class="btn">
+					My Tree
+                </a>
+
+			    <a th:href="@{/travel/apply}" class="btn">
+			        ✈️ Travel Request
+			    </a>
+
+			    <a th:href="@{/travel/my-requests}" class="btn">
+			        📋 My Travel Requests
+			    </a>
+			<div th:if="${employee.role != null and employee.role.equals('MANAGER')}"
+			style="display:inline;">
 			    <a href="/admin/manager/leaves" class="btn">Approvals</a>
+				
+				<a href="/travel/manager" class="btn">
+				    ✈️ Travel Approvals
+				</a>
+			
         </div>
+		<a th:href="@{/user/documents}"
+		   class="btn">
+		    📄 My Documents
+		</a>
+
+		<a th:href="@{/user/notifications}"
+		   class="btn">
+		    🔔 Notifications
+		    (<span th:text="${unreadCount}">0</span>)
+		</a>
     </div>
+</section>
+
+
+
+<section class="company-updates">
+
+	<section class="company-feed">
+
+	
+	<h2>📢 Company Feed</h2>
+
+	<div th:each="u : ${updates}" class="feed-card">
+
+	    <h3 th:text="${u.title}">
+	        Update Title
+	    </h3>
+
+	    <div class="feed-date"
+	         th:text="${#temporals.format(u.createdAt,'dd MMM yyyy')}">
+	        30 May 2026
+	    </div>
+
+	    <p th:text="${u.description}">
+	        Update Description
+	    </p>
+
+	</div>
+
+
+	</section>
+
+
+        </div>
+
+    </div>
+
 </section>
 
 <!-- ================= WORKFLOW ================= -->
@@ -57,6 +159,7 @@
         <p>Access your data safely and securely.</p>
     </div>
 </section>
+
 
 <!-- ================= JS ================= -->
 <script>

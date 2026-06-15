@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,8 @@ import com.hr.hrapp.repository.TimesheetRepository;
 @Service
 public class FinancialService {
 	
+	private static final Logger logger = LoggerFactory.getLogger(FinancialService.class);
+
 	@Autowired
     private TimesheetRepository timesheetRepository;
 	
@@ -44,23 +48,31 @@ public class FinancialService {
 
         return result;
     }
-	 public double calculateSalary(Employee emp, int month, int year) {
-		 
-		 LocalDate start = LocalDate.of(year, month, 1);
-		    LocalDate end = 
-		    		start.withDayOfMonth(start.lengthOfMonth());
+		public double calculateSalary(Employee emp, int month, int year) {
 
-	        List<Timesheet> list =
-	            timesheetRepository.findByEmployeeIdAndDateBetween(emp.getEmpId(), start, end);
+			LocalDate start = LocalDate.of(year, month, 1);
+			LocalDate end = start.withDayOfMonth(start.lengthOfMonth());
 
-	        long presentDays = list.stream()
-	            .filter(t -> "PRESENT".equals(t.getStatus()))
-	            .count();
+			List<Timesheet> list = timesheetRepository.findByEmployeeIdAndDateBetween(emp.getEmpId(), start, end);
 
-	        double perDay = emp.getBasicSalary() / 30;
+			// Consider APPROVED timesheets as payable days (keeps backward compatibility with LOCATION_MISMATCH flow)
+			long payableDays = list.stream()
+					.filter(t -> t.getStatus() != null && t.getStatus().equalsIgnoreCase("APPROVED"))
+					.count();
 
-	        return presentDays * perDay;
-	    }
+			int daysInMonth = start.lengthOfMonth();
+
+			if (daysInMonth <= 0) daysInMonth = 30;
+
+			double perDay = emp.getBasicSalary() / (double) daysInMonth;
+
+			double total = payableDays * perDay;
+
+			logger.info("Calculated salary for employeeId={} month={}-{} payableDays={} perDay={} total={}", emp.getEmpId(), month, year, payableDays, perDay, total);
+
+			return total;
+		}
+
 	}
 	
 

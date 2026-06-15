@@ -49,7 +49,7 @@ public class SecurityConfig {
 						       "/swagger-ui.html",
 						       "/login",
 						       "/index",
-						       "/user/dashboard",
+						      
 						       "/css/**",
 						       "/images/**"
 						       ).permitAll()

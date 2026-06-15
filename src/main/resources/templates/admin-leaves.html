@@ -31,19 +31,33 @@
 		    <td th:text="${l.type}"></td>
 		    <td th:text="${l.status}"></td>
 
-		    <td>
+			<td>
 
-		        <a th:href="@{/approve-leave/{id}(id=${l.id})}"
-		           class="btn btn-success btn-sm">
-		            Approve
-		        </a>
+			    <th:block th:if="${l.status == 'PENDING'}">
 
-		        <a th:href="@{/reject-leave/{id}(id=${l.id})}"
-		           class="btn btn-danger btn-sm">
-		            Reject
-		        </a>
+			        <a th:href="@{/admin/approve-leave/{id}(id=${l.id})}"
+			           class="btn btn-success btn-sm">
+			            Approve
+			        </a>
 
-		    </td>
+			        <a th:href="@{/admin/reject-leave/{id}(id=${l.id})}"
+			           class="btn btn-danger btn-sm">
+			            Reject
+			        </a>
+
+			    </th:block>
+
+			    <span th:if="${l.status == 'APPROVED'}"
+			          class="badge bg-success">
+			        Approved
+			    </span>
+
+			    <span th:if="${l.status == 'REJECTED'}"
+			          class="badge bg-danger">
+			        Rejected
+			    </span>
+
+			</td>
 
 		</tr>
 

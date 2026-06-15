@@ -154,6 +154,36 @@ tr:hover{
 <div class="topbar">
     Leave Approvals
 </div>
+<div style="padding:15px;">
+
+    <a href="/admin/manager-timesheets"
+       style="
+       background:black;
+       color:white;
+       padding:10px 15px;
+       text-decoration:none;
+       border-radius:6px;">
+
+       📍 Team Timesheets
+
+    </a>
+
+</div>
+
+<div th:if="${errorMessage}"
+     style="
+     width:90%;
+     margin:10px auto;
+     background:#ffe5e5;
+     color:#b30000;
+     border:1px solid #ffb3b3;
+     padding:12px;
+     border-radius:8px;
+     font-weight:bold;">
+
+     <span th:text="${errorMessage}"></span>
+
+</div>
 
 <div class="container">
 

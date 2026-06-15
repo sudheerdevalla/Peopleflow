@@ -2,8 +2,7 @@ package com.hr.hrapp.controller;
 
 import com.hr.hrapp.entity.Permission;
 import com.hr.hrapp.service.PermissionService;
-import com.hr.hrapp.service.AuditLogService;
-import com.hr.hrapp.entity.AuditLog;
+// ...existing code...
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,14 +19,12 @@ public class PermissionController {
     @Autowired
     private PermissionService permissionService;
 
-    @Autowired
-    private AuditLogService auditLogService;
+    // audit handled by aspect
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<Permission> createPermission(@RequestBody Permission permission, HttpServletRequest request) {
         Permission saved = permissionService.savePermission(permission);
-        auditLogService.save(new AuditLog(request.getUserPrincipal().getName(), "CREATE_PERMISSION", request.getRequestURI(), LocalDateTime.now(), "SUCCESS"));
         return ResponseEntity.ok(saved);
     }
 
@@ -52,10 +49,8 @@ public class PermissionController {
     public ResponseEntity<Permission> updatePermission(@PathVariable Long id, @RequestBody Permission permission, HttpServletRequest request) {
         Permission updated = permissionService.updatePermission(id, permission);
         if (updated == null) {
-            auditLogService.save(new AuditLog(request.getUserPrincipal().getName(), "UPDATE_PERMISSION", request.getRequestURI(), LocalDateTime.now(), "FAILURE"));
             return ResponseEntity.notFound().build();
         }
-        auditLogService.save(new AuditLog(request.getUserPrincipal().getName(), "UPDATE_PERMISSION", request.getRequestURI(), LocalDateTime.now(), "SUCCESS"));
         return ResponseEntity.ok(updated);
     }
 
@@ -63,7 +58,6 @@ public class PermissionController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePermission(@PathVariable Long id, HttpServletRequest request) {
         permissionService.deletePermission(id);
-        auditLogService.save(new AuditLog(request.getUserPrincipal().getName(), "DELETE_PERMISSION", request.getRequestURI(), LocalDateTime.now(), "SUCCESS"));
         return ResponseEntity.noContent().build();
     }
 }

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <title>Admin Travel Requests</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+</head>
+
+<body style="background:#f4f6f9;">
+
+<div class="container mt-5">
+
+    <div class="card shadow p-4">
+
+        <h2 class="mb-4">
+            ✈️ Travel Approval Center
+        </h2>
+		
+		<div class="row mb-4">
+
+		    <div class="col-md-3">
+		        <div class="card p-3 text-center">
+		            <h6>Pending Requests</h6>
+		            <h3 th:text="${pendingCount}">0</h3>
+		        </div>
+		    </div>
+
+		    <div class="col-md-3">
+		        <div class="card p-3 text-center">
+		            <h6>Approved Trips</h6>
+		            <h3 th:text="${approvedCount}">0</h3>
+		        </div>
+		    </div>
+
+		    <div class="col-md-3">
+		        <div class="card p-3 text-center">
+		            <h6>Rejected Trips</h6>
+		            <h3 th:text="${rejectedCount}">0</h3>
+		        </div>
+		    </div>
+
+		    <div class="col-md-3">
+		        <div class="card p-3 text-center">
+		            <h6>Total Requests</h6>
+		            <h3 th:text="${totalCount}">0</h3>
+		        </div>
+		    </div>
+
+		</div>
+		<div class="d-flex gap-3 mb-3">
+
+		    <input type="text"
+		           class="form-control"
+		           placeholder="Search employee or destination">
+
+		    <select class="form-select">
+		        <option>All Status</option>
+		        <option>Pending</option>
+		        <option>Approved</option>
+		        <option>Rejected</option>
+		    </select>
+
+		</div>
+
+        <table class="table table-bordered">
+
+            <thead class="table-dark">
+
+            <tr>
+
+                <th>Employee</th>
+                <th>Destination</th>
+                <th>From</th>
+                <th>To</th>
+                <th>Purpose</th>
+                <th>Status</th>
+                <th>Actions</th>
+				<th>Cost</th>
+				<th>Ticket</th>
+
+            </tr>
+
+            </thead>
+
+            <tbody>
+
+            <tr th:each="req : ${requests}">
+
+                <td th:text="${req.employeeName}"></td>
+
+                <td th:text="${req.destination}"></td>
+
+                <td th:text="${req.fromDate}"></td>
+
+                <td th:text="${req.toDate}"></td>
+
+                <td th:text="${req.purpose}"></td>
+
+                <td th:text="${req.status}"></td>
+				
+				<td>
+				    ₹ <span th:text="${req.estimatedCost}"></span>
+				</td>
+
+				<td>
+
+				    <a th:if="${req.ticketFile != null}"
+				       th:href="@{'/uploads/' + ${req.ticketFile}}"
+				       target="_blank"
+				       class="btn btn-primary btn-sm">
+
+				        📄 View
+
+				    </a>
+
+				</td>
+
+                <td>
+					
+
+                    <a th:href="@{/travel/approve/{id}(id=${req.id})}"
+                       class="btn btn-success">
+
+                        Approve
+
+                    </a>
+
+                    <a th:href="@{/travel/reject/{id}(id=${req.id})}"
+                       class="btn btn-danger">
+
+                        Reject
+
+                    </a>
+
+                </td>
+
+            </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+</body>
+</html>

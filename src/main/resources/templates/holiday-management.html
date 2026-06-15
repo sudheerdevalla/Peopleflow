@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Holiday Management</title>
+
+<style>
+
+body{
+    font-family:Arial,sans-serif;
+    background:#f4f6f9;
+    margin:0;
+}
+
+.header{
+    background:#111827;
+    color:white;
+    padding:20px;
+    font-size:22px;
+    font-weight:bold;
+}
+
+.container{
+    width:90%;
+    margin:30px auto;
+}
+
+.card{
+    background:white;
+    padding:20px;
+    border-radius:10px;
+    box-shadow:0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom:20px;
+}
+
+input,select{
+    width:100%;
+    padding:10px;
+    margin-top:10px;
+    margin-bottom:15px;
+    border:1px solid #ddd;
+    border-radius:6px;
+}
+
+button{
+    background:#111827;
+    color:white;
+    border:none;
+    padding:10px 20px;
+    border-radius:6px;
+    cursor:pointer;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th{
+    background:#111827;
+    color:white;
+    padding:12px;
+}
+
+td{
+    padding:12px;
+    border-bottom:1px solid #ddd;
+}
+
+.delete-btn{
+    background:red;
+    color:white;
+    padding:8px 12px;
+    border-radius:5px;
+    text-decoration:none;
+}
+
+</style>
+
+</head>
+<body>
+
+<div class="header">
+    Holiday Management
+</div>
+
+<div class="container">
+
+    <!-- Add Holiday -->
+
+    <div class="card">
+
+        <h3>Add Holiday</h3>
+
+        <form th:action="@{/admin/save-holiday}"
+              method="post">
+
+            <input type="text"
+                   name="holidayName"
+                   placeholder="Holiday Name"
+                   required>
+
+            <input type="date"
+                   name="holidayDate"
+                   required>
+
+            <select name="holidayType">
+
+                <option value="National">
+                    National
+                </option>
+
+                <option value="Company">
+                    Company
+                </option>
+
+            </select>
+
+            <button type="submit">
+                Save Holiday
+            </button>
+
+        </form>
+
+    </div>
+
+    <!-- Holiday List -->
+
+    <div class="card">
+
+        <h3>Holiday List</h3>
+
+        <table>
+
+            <thead>
+
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Action</th>
+            </tr>
+
+            </thead>
+
+            <tbody>
+
+            <tr th:each="h : ${holidays}">
+
+                <td th:text="${h.id}"></td>
+
+                <td th:text="${h.holidayName}"></td>
+
+                <td th:text="${h.holidayDate}"></td>
+
+                <td th:text="${h.holidayType}"></td>
+
+                <td>
+
+                    <a class="delete-btn"
+                       th:href="@{'/admin/delete-holiday/' + ${h.id}}">
+
+                        Delete
+
+                    </a>
+
+                </td>
+
+            </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+</body>
+</html>

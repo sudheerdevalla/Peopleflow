@@ -19,4 +19,15 @@ public interface TimesheetRepository extends JpaRepository<Timesheet, Long> {
 
     // single day
     Optional<Timesheet> findByEmployeeIdAndDate(Long employeeId, LocalDate date);
+    
+    List<Timesheet> findByEmployeeId(
+            Long employeeId);
+    
+    List<Timesheet>
+    findByStatus(
+            String status);
+    
+    boolean existsByEmployeeIdAndDate(
+            Long employeeId,
+            LocalDate date);
 }

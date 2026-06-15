@@ -22,11 +22,16 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.hr.hrapp.entity.Employee;
 import com.hr.hrapp.entity.EmployeeAttendance;
 import com.hr.hrapp.entity.Leave;
+import com.hr.hrapp.entity.Notification;
+import com.hr.hrapp.entity.Timesheet;
 import com.hr.hrapp.repository.EmployeeAttendanceRepository;
 import com.hr.hrapp.repository.EmployeeRepository;
 import com.hr.hrapp.repository.LeaveRepository;
+import com.hr.hrapp.repository.NotificationRepository;
+import com.hr.hrapp.repository.TimesheetRepository;
 import com.hr.hrapp.service.EmailService;
 import com.hr.hrapp.service.EmployeeSalaryService;
+import com.hr.hrapp.service.ExcelEmployeeService;
 import com.hr.hrapp.service.LeaveService;
 import com.hr.hrapp.service.AuditLogService;
 import com.hr.hrapp.entity.AuditLog;
@@ -34,6 +39,8 @@ import com.hr.hrapp.entity.AuditLog;
 import jakarta.servlet.http.HttpServletRequest;
 
 import com.hr.hrapp.dto.EmployeePayslip;
+import org.springframework.web.multipart.MultipartFile;
+
 
 @Controller
 @RequestMapping("/admin")
@@ -55,7 +62,13 @@ public class EmployeeController {
     private EmailService emailService;
     
     @Autowired
-    private AuditLogService auditLogService;
+    private ExcelEmployeeService excelEmployeeService;
+    
+    @Autowired
+    private NotificationRepository notificationRepository;
+    
+    @Autowired
+    private TimesheetRepository timesheetRepository;
     
     @GetMapping
     @PreAuthorize("hasAuthority('READ_EMPLOYEE')")
@@ -76,19 +89,16 @@ public class EmployeeController {
     	
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('WRITE_EMPLOYEE')")
-    public String deleteEmployee(@PathVariable Long id, HttpServletRequest request) {
+    public String deleteEmployee(@PathVariable Long id) {
         service.deleteEmployee(id);
-        auditLogService.save(new AuditLog(request.getUserPrincipal().getName(), "DELETE_EMPLOYEE", request.getRequestURI(), LocalDateTime.now(), "SUCCESS"));
         return "Employee Deleted"; 
     }
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('WRITE_EMPLOYEE')")
     public Employee updateEmployee(
             @PathVariable Long id,
-            @RequestBody Employee emp,
-            HttpServletRequest request) {
+            @RequestBody Employee emp) {
         Employee updated = service.updateEmployee(id, emp);
-        auditLogService.save(new AuditLog(request.getUserPrincipal().getName(), "UPDATE_EMPLOYEE", request.getRequestURI(), LocalDateTime.now(), "SUCCESS"));
         return updated;
     }
     @GetMapping("/payslip/pdf/{id}")
@@ -118,15 +128,72 @@ public class EmployeeController {
     }
 
     @PostMapping("/update")
-    public String updateEmployee(@ModelAttribute Employee employee) {
-        employeeRepository.save(employee);
+    public String updateEmployee(
+            @ModelAttribute Employee employee) {
+
+        // =========================
+        // EXISTING EMPLOYEE FETCH
+        // =========================
+
+        Employee existingEmployee =
+                employeeRepository
+                .findById(employee.getEmpId())
+                .orElseThrow();
+
+        // =========================
+        // BASIC DETAILS
+        // =========================
+
+        existingEmployee.setName(
+                employee.getName());
+
+        existingEmployee.setEmail(
+                employee.getEmail());
+
+        existingEmployee.setJoiningDate(
+                employee.getJoiningDate());
+
+        existingEmployee.setStatus(
+                employee.getStatus());
+        
+        existingEmployee.setDepartment(
+                employee.getDepartment());
+
+        // =========================
+        // PAYROLL DETAILS
+        // =========================
+
+        existingEmployee.setBasicSalary(
+                employee.getBasicSalary());
+
+        existingEmployee.setPfNumber(
+                employee.getPfNumber());
+
+        existingEmployee.setUanNumber(
+                employee.getUanNumber());
+
+        existingEmployee.setHraPercentage(
+                employee.getHraPercentage());
+
+        existingEmployee.setBonusPercentage(
+                employee.getBonusPercentage());
+        
+        existingEmployee.setTravelAllowance(
+                employee.getTravelAllowance());
+
+        // =========================
+        // SAVE
+        // =========================
+
+        employeeRepository.save(
+                existingEmployee);
+
         return "redirect:/admin/employees";
     }
     @GetMapping("/delete/{id}")
     @PreAuthorize("hasAuthority('WRITE_EMPLOYEE')")
-    public String deleteEmployeeById(@PathVariable Long id, HttpServletRequest request) {
+    public String deleteEmployeeById(@PathVariable Long id) {
         employeeRepository.deleteById(id);
-        auditLogService.save(new AuditLog(request.getUserPrincipal().getName(), "DELETE_EMPLOYEE", request.getRequestURI(), LocalDateTime.now(), "SUCCESS"));
         return "redirect:/admin/employees";
     }
     @GetMapping("/update")
@@ -171,18 +238,25 @@ public class EmployeeController {
     }
     @PostMapping("/save-employees")
     @PreAuthorize("hasAuthority('WRITE_EMPLOYEE')")
-    public String saveEmployee(@ModelAttribute Employee employee, RedirectAttributes ra, HttpServletRequest request) {
+    public String saveEmployee(@ModelAttribute Employee employee, RedirectAttributes ra) {
         employeeRepository.save(employee);
-        auditLogService.save(new AuditLog(request.getUserPrincipal().getName(), "CREATE_EMPLOYEE", request.getRequestURI(), LocalDateTime.now(), "SUCCESS"));
         ra.addFlashAttribute("success", "Employee saved successfully!");
         return "redirect:/admin/employees";
     }
   
-    @GetMapping("/add-employees")
+    /*@GetMapping("/add-employee-form")
     public String showAddemployeesForm(Model model) {
-    	model.addAttribute("employees", new Employee());
-        return "add-employees";
-    }
+
+        Employee employee = new Employee();
+
+        List<Employee> managers = employeeRepository.findAll();
+
+        model.addAttribute("employee", employee);
+
+        model.addAttribute("managers", managers);
+
+        return "add-employee";
+    }*/
     
     @GetMapping("/attendance")
     public String attendancePage(Model model) {
@@ -193,12 +267,15 @@ public class EmployeeController {
     @PostMapping("/mark-attendance")
     @PreAuthorize("hasAuthority('WRITE_EMPLOYEE')")
     public String markAttendance(@RequestParam Long empId,
-    		                     @RequestParam int totalDays,
+                                 @RequestParam int totalDays,
                                  @RequestParam int presentDays) {
 
         EmployeeAttendance att = new EmployeeAttendance();
+
         att.setEmployeeId(empId);
+
         att.setTotalDays(totalDays);
+
         att.setPresentDays(presentDays);
 
         attendanceRepository.save(att);
@@ -239,18 +316,36 @@ public class EmployeeController {
         return "admin-leaves";
     }
     @GetMapping("/manager/leaves")
-    public String managerLeaves(Model model,
-                                Principal principal) {
+    public String managerLeaves(
+            Model model,
+            Principal principal,
+            @RequestParam(required = false) String error) {
+
+        if (principal == null) {
+            return "redirect:/login";
+        }
 
         String username = principal.getName();
+
+        System.out.println("Logged User = " + username);
 
         Employee manager =
                 employeeRepository
                 .findByEmail(username);
 
+        if (manager == null) {
+
+            System.out.println(
+                    "Manager not found for email : "
+                    + username);
+
+            return "redirect:/admin/dashboard";
+        }
+
         List<Employee> employees =
                 employeeRepository
-                .findByManager_EmpId(manager.getEmpId());
+                .findByManager_EmpId(
+                        manager.getEmpId());
 
         List<Leave> managerLeaves =
                 new ArrayList<>();
@@ -258,11 +353,12 @@ public class EmployeeController {
         Map<Long, String> employeeNames =
                 new HashMap<>();
 
-        for(Employee emp : employees){
+        for (Employee emp : employees) {
 
             List<Leave> leaves =
                     leaveRepository
-                    .findByEmpId(emp.getEmpId());
+                    .findByEmpId(
+                            emp.getEmpId());
 
             managerLeaves.addAll(leaves);
 
@@ -270,6 +366,19 @@ public class EmployeeController {
                     emp.getEmpId(),
                     emp.getName()
             );
+        }
+
+        // Error Messages
+        if ("SickLeavesOver".equals(error)) {
+            model.addAttribute(
+                    "errorMessage",
+                    "You can't approve this leave. Sick Leaves are over.");
+        }
+
+        if ("AnnualLeavesOver".equals(error)) {
+            model.addAttribute(
+                    "errorMessage",
+                    "You can't approve this leave. Annual Leaves are over.");
         }
 
         model.addAttribute(
@@ -284,6 +393,82 @@ public class EmployeeController {
 
         return "manager-leaves";
     }
+    @GetMapping("/manager-timesheets")
+    public String managerTimesheets(
+            Model model,
+            Principal principal) {
+
+        if (principal == null) {
+            return "redirect:/login";
+        }
+
+        String username = principal.getName();
+
+        Employee manager =
+                employeeRepository
+                        .findByEmail(username);
+
+        List<Employee> employees =
+                employeeRepository
+                        .findByManager_EmpId(
+                                manager.getEmpId());
+
+        List<Timesheet> managerTimesheets =
+                new ArrayList<>();
+
+        for(Employee emp : employees){
+
+            List<Timesheet> timesheets =
+                    timesheetRepository
+                            .findByEmployeeId(
+                                    emp.getEmpId());
+
+            managerTimesheets.addAll(
+                    timesheets);
+        }
+
+        model.addAttribute(
+                "timesheets",
+                managerTimesheets);
+
+        return "manager-timesheets";
+    }
+    @GetMapping("/manager/approve-location/{id}")
+    public String approveLocation(
+            @PathVariable Long id) {
+
+        Timesheet t =
+                timesheetRepository
+                        .findById(id)
+                        .orElse(null);
+
+        if(t != null) {
+
+            t.setStatus("APPROVED");
+
+            timesheetRepository.save(t);
+        }
+
+        return "redirect:/admin/manager-timesheets";
+    }
+    @GetMapping("/manager/reject-location/{id}")
+    public String rejectLocation(
+            @PathVariable Long id) {
+
+        Timesheet t =
+                timesheetRepository
+                        .findById(id)
+                        .orElse(null);
+
+        if(t != null) {
+
+            t.setStatus("REJECTED");
+
+            timesheetRepository.save(t);
+        }
+
+        return "redirect:/admin/manager-timesheets";
+    }
     @GetMapping("/approve-leave/{id}")
     @PreAuthorize("hasAuthority('WRITE_EMPLOYEE')")
     public String approveLeave(@PathVariable Long id) {
@@ -294,110 +479,152 @@ public class EmployeeController {
             return "redirect:/admin/leaves";
         }
 
-        Employee emp = employeeRepository.findById(leave.getEmpId()).orElse(null);
+        Employee emp =
+                employeeRepository
+                .findById(leave.getEmpId())
+                .orElse(null);
 
         if (emp != null) {
 
-            if ("SICK".equals(leave.getType())) {
-                emp.setSickLeaves(emp.getSickLeaves() - 1);
+            // Leave balance validation
+            if ("SICK".equalsIgnoreCase(leave.getType())) {
+
+                if (emp.getSickLeaves() <= 0) {
+                    return "redirect:/admin/manager/leaves?error=SickLeavesOver";
+                }
+
+                emp.setSickLeaves(
+                        emp.getSickLeaves() - 1);
+
             } else {
-                emp.setAnnualLeaves(emp.getAnnualLeaves() - 1);
+
+                if (emp.getAnnualLeaves() <= 0) {
+                    return "redirect:/admin/manager/leaves?error=AnnualLeavesOver";
+                }
+
+                emp.setAnnualLeaves(
+                        Math.max(0,
+                                emp.getAnnualLeaves() - 1));
             }
 
             leave.setStatus("APPROVED");
-            
+
             String body = """
-            		<html>
+                    <html>
 
-            		<body style='font-family:Arial;background:#f4f4f4;padding:20px;'>
+                    <body style='font-family:Arial;background:#f4f4f4;padding:20px;'>
 
-            		<div style='max-width:600px;
-            		margin:auto;
-            		background:white;
-            		border-radius:10px;
-            		overflow:hidden;'>
+                    <div style='max-width:600px;
+                    margin:auto;
+                    background:white;
+                    border-radius:10px;
+                    overflow:hidden;'>
 
-            		<div style='background:#0f172a;
+                    <div style='background:#0f172a;
                     text-align:center;'>
 
-                   <img src='http://localhost:8080/images/LeaveBanner.PNG'
-                   width='600'
-                   height='170'
-                   style='display:block;
-                   width:100%%;
-                   max-width:600px;
-                   margin:auto;' />
+                    <img src='http://localhost:8080/images/LeaveBanner.PNG'
+                    width='600'
+                    height='170'
+                    style='display:block;
+                    width:100%%;
+                    max-width:600px;
+                    margin:auto;' />
 
-                   </div>
+                    </div>
 
-            		<div style='padding:30px;'>
+                    <div style='padding:30px;'>
 
-            		<h2 style='color:green;'>
-            		Leave Approved ✅
-            		</h2>
+                    <h2 style='color:green;'>
+                    Leave Approved ✅
+                    </h2>
 
-            		<p>Hello <b>%s</b>,</p>
+                    <p>Hello <b>%s</b>,</p>
 
-            		<p>Your leave request has been approved.</p>
+                    <p>Your leave request has been approved.</p>
 
-            		<h3>Leave Details</h3>
+                    <h3>Leave Details</h3>
 
-            		<table border='1'
-            		cellpadding='10'
-            		style='border-collapse:collapse;width:100%%;'>
+                    <table border='1'
+                    cellpadding='10'
+                    style='border-collapse:collapse;width:100%%;'>
 
-            		<tr>
-            		<td><b>Leave Type</b></td>
-            		<td>%s</td>
-            		</tr>
+                    <tr>
+                    <td><b>Leave Type</b></td>
+                    <td>%s</td>
+                    </tr>
 
-            		<tr>
-            		<td><b>Leave From</b></td>
-            		<td>%s</td>
-            		</tr>
+                    <tr>
+                    <td><b>Leave Date</b></td>
+                    <td>%s</td>
+                    </tr>
 
-            		<tr>
-            		<td><b>Leave To</b></td>
-            		<td>%s</td>
-            		</tr>
+                    <tr>
+                    <td><b>Approved By</b></td>
+                    <td>Manager</td>
+                    </tr>
 
-            		<tr>
-            		<td><b>Approved By</b></td>
-            		<td>Manager</td>
-            		</tr>
+                    </table>
 
-            		</table>
+                    <br>
 
-            		<br>
+                    <p style='color:gray;font-size:13px;'>
+                    This is an auto-generated email.
+                    Please do not reply.
+                    </p>
 
-            		<p style='color:gray;font-size:13px;'>
-            		This is an auto-generated email.
-            		Please do not reply.
-            		</p>
+                    </div>
+                    </div>
 
-            		</div>
-            		</div>
+                    </body>
+                    </html>
+                    """.formatted(
+                            emp.getName(),
+                            leave.getType(),
+                            leave.getDate()
+                    );
 
-            		</body>
-            		</html>
-            		""".formatted(
-            		    emp.getName(),
-            		    leave.getType(),
-            		    leave.getDate(),
-            		    leave.getDate()
-            		);
+            emailService.sendMail(
+                    emp.getEmail(),
+                    "Leave Approved",
+                    body
+            );
 
-            		emailService.sendMail(
-            		    emp.getEmail(),
-            		    "Leave Approved",
-            		    body
-            		);
+            Notification n = new Notification();
+
+            n.setEmployeeId(
+                    leave.getEmpId());
+
+            n.setMessage(
+                    "Your leave request has been approved");
+
+            n.setRead(false);
+
+            n.setCreatedAt(
+                    java.time.LocalDateTime.now());
+
+            notificationRepository.save(n);
+
             leaveRepository.save(leave);
+
             employeeRepository.save(emp);
         }
 
         return "redirect:/admin/manager/leaves";
     }
+    
+    @GetMapping("/hierarchy")
+    public String employeeHierarchy(Model model) {
+
+        List<Employee> managers =
+                employeeRepository.findByManagerIsNull();
+
+        model.addAttribute("managers", managers);
+
+        return "employee-hierarchy";
+    }
+    
+    
     @GetMapping("/reject-leave/{id}")
     @PreAuthorize("hasAuthority('WRITE_EMPLOYEE')")
     public String rejectLeave(@PathVariable Long id) {
@@ -412,91 +639,118 @@ public class EmployeeController {
                 .findById(leave.getEmpId())
                 .orElse(null);
 
+        if (emp == null) {
+            return "redirect:/admin/leaves";
+        }
+
         leave.setStatus("REJECTED");
 
         String body = """
-        		<html>
+                <html>
 
-        		<body style='font-family:Arial;background:#f4f4f4;padding:20px;'>
+                <body style='font-family:Arial;background:#f4f4f4;padding:20px;'>
 
-        		<div style='max-width:600px;
-        		margin:auto;
-        		background:white;
-        		border-radius:10px;
-        		overflow:hidden;'>
+                <div style='max-width:600px;
+                margin:auto;
+                background:white;
+                border-radius:10px;
+                overflow:hidden;'>
 
-        		<div style='background:#0f172a;
-        		text-align:center;'>
+                <div style='background:#0f172a;
+                text-align:center;'>
 
-        		    <img src='http://localhost:8080/images/LeaveBanner.PNG'
-                    width='600'
-                   height='170'
-                   style='display:block;
-                   width:100%;
-                   max-width:600px;
-                   margin:auto;' />
-        		</div>
+                    <img src='http://localhost:8080/images/LeaveBanner.PNG'
+                         width='600'
+                         height='170'
+                         style='display:block;
+                         width:100%%;
+                         max-width:600px;
+                         margin:auto;' />
+                </div>
 
-        		<div style='padding:30px;'>
+                <div style='padding:30px;'>
 
-        		<h2 style='color:red;'>
-        		Leave Rejected ❌
-        		</h2>
+                <h2 style='color:red;'>
+                Leave Rejected ❌
+                </h2>
 
-        		<p>Hello <b>%s</b>,</p>
+                <p>Hello <b>%s</b>,</p>
 
-        		<p>Your leave request has been rejected.</p>
+                <p>Your leave request has been rejected.</p>
 
-        		<h3>Leave Details</h3>
+                <h3>Leave Details</h3>
 
-        		<table border='1'
-        		cellpadding='10'
-        		style='border-collapse:collapse;width:100%%;'>
+                <table border='1'
+                       cellpadding='10'
+                       style='border-collapse:collapse;width:100%%;'>
 
-        		<tr>
-        		<td><b>Leave Type</b></td>
-        		<td>%s</td>
-        		</tr>
+                    <tr>
+                        <td><b>Leave Type</b></td>
+                        <td>%s</td>
+                    </tr>
 
-        		<tr>
-        		<td><b>Leave Date</b></td>
-        		<td>%s</td>
-        		</tr>
+                    <tr>
+                        <td><b>Leave Date</b></td>
+                        <td>%s</td>
+                    </tr>
 
-        		<tr>
-        		<td><b>Rejected By</b></td>
-        		<td>Manager</td>
-        		</tr>
+                    <tr>
+                        <td><b>Rejected By</b></td>
+                        <td>Manager</td>
+                    </tr>
 
-        		</table>
+                </table>
 
-        		<br>
+                <br>
 
-        		<p style='color:gray;font-size:13px;'>
-        		This is an auto-generated email.
-        		Please do not reply.
-        		</p>
+                <p style='color:gray;font-size:13px;'>
+                This is an auto-generated email.
+                Please do not reply.
+                </p>
 
-        		</div>
-        		</div>
+                </div>
+                </div>
 
-        		</body>
-        		</html>
+                </body>
+                </html>
+                """.formatted(
+                        emp.getName(),
+                        leave.getType(),
+                        leave.getDate()
+                );
 
-        		""".formatted(
-        		        emp.getName(),
-        		        leave.getType(),
-        		        leave.getDate()
-        		);
+        emailService.sendMail(
+                emp.getEmail(),
+                "Leave Rejected",
+                body
+        );
 
-        		emailService.sendMail(
-        		        emp.getEmail(),
-        		        "Leave Rejected",
-        		        body
-        		);
+        Notification n = new Notification();
+
+        n.setEmployeeId(leave.getEmpId());
+        n.setMessage("Your leave request has been rejected");
+        n.setRead(false);
+        n.setCreatedAt(java.time.LocalDateTime.now());
+
+        notificationRepository.save(n);
 
         leaveRepository.save(leave);
 
         return "redirect:/admin/manager/leaves";
     }
+    @PostMapping("/employees/upload")
+    public String uploadEmployees(
+            @RequestParam("file") MultipartFile file,
+            RedirectAttributes ra) {
+
+        excelEmployeeService.importEmployees(file);
+
+        ra.addFlashAttribute(
+                "success",
+                "Employees imported successfully!"
+        );
+
+        return "redirect:/admin/employees";
+    }
+    
 }

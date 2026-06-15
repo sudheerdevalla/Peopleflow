@@ -2,6 +2,9 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>My Timesheet</title>
+	
+	<meta name="viewport"
+	      content="width=device-width, initial-scale=1.0">
 
     <!-- FONT -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -98,13 +101,13 @@
             border-bottom: 1px solid #eee;
         }
 
-        /* STATUS */
-            background: black;
-            color: white;
-            padding: 4px 8px;
-            border-radius: 5px;
-            font-size: 12px;
-        }
+		.status-approved {
+		    background: black;
+		    color: white;
+		    padding: 4px 8px;
+		    border-radius: 5px;
+		    font-size: 12px;
+		}
 
         .status-pending {
             background: #ddd;
@@ -147,11 +150,56 @@
         }
 
         /* GRID */
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-        }
+		.grid {
+		    display: grid;
+		    grid-template-columns: repeat(7, 1fr);
+		    gap: 10px;
+		}
+
+		/* MOBILE RESPONSIVE */
+
+		@media(max-width:768px){
+
+		    .container{
+		        padding:10px;
+		    }
+
+		    table{
+		        display:block;
+		        overflow-x:auto;
+		    }
+
+		    .summary{
+		        flex-direction:column;
+		    }
+
+		    .grid{
+		        grid-template-columns:1fr;
+		    }
+
+		    .header{
+		        flex-direction:column;
+		        gap:10px;
+		    }
+
+		    .banner{
+		        padding-left:15px;
+		        height:150px;
+		    }
+
+		    .banner h1{
+		        font-size:20px;
+		    }
+
+		    input,
+		    select,
+		    button{
+		        width:100%;
+		        margin-bottom:10px;
+		    }
+			
+	    }
+		
 
         .card-day {
             background: white;
@@ -201,16 +249,22 @@
     <div class="box">
         <h4>Apply Leave</h4>
 
-        <form action="/user/apply-leave" method="post">
-            <input type="date" name="date" required>
+		<form th:action="@{/user/apply-leave}" method="post">
 
-            <select name="type">
-                <option value="SICK">Sick Leave</option>
-                <option value="ANNUAL">Annual Leave</option>
-            </select>
+		   
 
-            <button type="submit" class="btn">Apply Leave</button>
-        </form>
+		    <input type="date" name="date" required>
+
+		    <select name="type">
+		        <option value="SICK">Sick Leave</option>
+		        <option value="ANNUAL">Annual Leave</option>
+		    </select>
+
+		    <button type="submit" class="btn">
+		        Apply Leave
+		    </button>
+
+		</form>
     </div>
 
     <!-- LEAVES TABLE -->
@@ -248,37 +302,61 @@
             <h2 th:text="${annualLeaves}"></h2>
         </div>
     </div>
+	<div class="box">
 
-    <!-- WEEK GRID -->
-    <div class="box">
-        <div class="grid">
+	    <h3 style="text-align:center;">
+	        Week :
+	        <span th:text="${weekDates[0]}"></span>
+	        →
+	        <span th:text="${weekDates[6]}"></span>
+	    </h3>
 
-            <div class="card-day"
-                 th:each="date : ${weekDates}"
-                 th:if="${date.dayOfWeek.toString() != 'SATURDAY' and date.dayOfWeek.toString() != 'SUNDAY'}">
+	</div>
+	
 
-                <div class="day" th:text="${date.dayOfWeek}"></div>
+	<!-- WEEK GRID -->
+	<div class="box">
 
-                <!-- LEAVE -->
-                <div th:if="${leaveDates.contains(date)}">
-                    <span class="leave-tag">On Leave</span>
-                </div>
+	    <div class="grid">
 
-                <!-- INPUT -->
-                <div th:unless="${leaveDates.contains(date)}">
-                    <input type="text" placeholder="Location"
-                           th:value="${weekLocation[date.dayOfWeek.toString()]}">
+	        <div class="card-day"
+	             th:each="date : ${weekDates}">
 
-                    <input type="text" placeholder="Hours"
-                           th:value="${weekData[date.dayOfWeek.toString()]}">
-                </div>
+	            <div class="day"
+	                 th:text="${date.dayOfWeek}">
+	            </div>
 
-            </div>
+	            <div style="font-size:12px;
+	                        color:gray;
+	                        margin-bottom:10px;"
+	                 th:text="${date}">
+	            </div>
 
-        </div>
-    </div>
+	            <!-- LEAVE -->
+	            <div th:if="${leaveDates.contains(date)}">
+	                <span class="leave-tag">
+	                    On Leave
+	                </span>
+	            </div>
 
-</div>
+	            <!-- INPUT -->
+	            <div th:unless="${leaveDates.contains(date)}">
+
+	                <input type="text"
+	                       placeholder="Location"
+	                       th:value="${weekLocation[date.dayOfWeek.toString()]}">
+
+	                <input type="text"
+	                       placeholder="Hours"
+	                       th:value="${weekData[date.dayOfWeek.toString()]}">
+
+	            </div>
+
+	        </div>
+
+	    </div>
+
+	</div>
 
 </body>
 </html>

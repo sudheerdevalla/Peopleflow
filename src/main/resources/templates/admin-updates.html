@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Company Updates</title>
+
+
+<style>
+    *{
+        margin:0;
+        padding:0;
+        box-sizing:border-box;
+        font-family:'Segoe UI',sans-serif;
+    }
+
+    body{
+        background:#f5f5f7;
+        padding:40px;
+    }
+
+    .container{
+        max-width:1200px;
+        margin:auto;
+    }
+
+    .header{
+        margin-bottom:30px;
+    }
+
+    .header h1{
+        font-size:40px;
+        color:#111827;
+    }
+
+    .header p{
+        color:#6b7280;
+        margin-top:8px;
+    }
+
+    .card{
+        background:white;
+        border-radius:20px;
+        padding:30px;
+        box-shadow:0 10px 30px rgba(0,0,0,.05);
+        margin-bottom:30px;
+    }
+
+    input,
+    textarea{
+        width:100%;
+        padding:14px;
+        border:1px solid #d1d5db;
+        border-radius:12px;
+        margin-top:10px;
+        margin-bottom:20px;
+    }
+
+    button{
+        background:#0071e3;
+        color:white;
+        border:none;
+        padding:14px 24px;
+        border-radius:12px;
+        cursor:pointer;
+        font-size:15px;
+    }
+
+    button:hover{
+        opacity:.9;
+    }
+
+    .updates-grid{
+        display:grid;
+        grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+        gap:20px;
+    }
+
+    .update-card{
+        background:white;
+        padding:25px;
+        border-radius:20px;
+        box-shadow:0 10px 30px rgba(0,0,0,.05);
+    }
+
+    .update-card h3{
+        color:#111827;
+        margin-bottom:10px;
+    }
+
+    .update-card p{
+        color:#6b7280;
+        line-height:1.6;
+    }
+
+    .date{
+        margin-top:15px;
+        color:#9ca3af;
+        font-size:13px;
+    }
+
+    .back-btn{
+        display:inline-block;
+        margin-bottom:20px;
+        text-decoration:none;
+        color:#0071e3;
+        font-weight:600;
+    }
+</style>
+
+
+</head>
+
+<body>
+
+<div class="container">
+
+<a href="/admin/dashboard" class="back-btn">
+    ← Back to Dashboard
+</a>
+
+<div class="header">
+    <h1>📢 Company Updates</h1>
+    <p>Create announcements visible to all employees.</p>
+</div>
+
+<div class="card">
+
+    <form th:action="@{/admin/updates/save}" method="post">
+
+        <label>Title</label>
+
+        <input
+                type="text"
+                name="title"
+                placeholder="Enter update title"
+                required>
+
+        <label>Description</label>
+
+        <textarea
+                name="description"
+                rows="5"
+                placeholder="Enter update description"
+                required></textarea>
+
+        <button type="submit">
+            Publish Update
+        </button>
+
+    </form>
+
+</div>
+
+<h2 style="margin-bottom:20px;">
+    Latest Updates
+</h2>
+
+<div class="updates-grid">
+
+	<div class="update-card"
+	     th:each="u : ${updates}">
+
+	    <h3 th:text="${u.title}">
+	        Title
+	    </h3>
+
+	    <p th:text="${u.description}">
+	        Description
+	    </p>
+
+	    <div class="date"
+	         th:text="${#temporals.format(u.createdAt,'dd MMM yyyy HH:mm')}">
+	    </div>
+
+	    <br>
+
+	    <a th:href="@{/admin/updates/delete/{id}(id=${u.id})}"
+	       style="
+	       display:inline-block;
+	       background:#dc2626;
+	       color:white;
+	       text-decoration:none;
+	       padding:10px 16px;
+	       border-radius:10px;">
+	       Delete
+	    </a>
+
+	</div>
+
+</div>
+
+
+</div>
+
+</body>
+</html>

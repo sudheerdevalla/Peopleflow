@@ -17,5 +17,7 @@ public interface LeaveRepository extends JpaRepository<Leave, Long> {
 
     // 🔹 Get all leaves for employee
     List<Leave> findByEmpId(Long empId);
+    
+    long countByStatus(String status);
 
 }

@@ -43,11 +43,24 @@ public class EmployeeSalaryService {
     public EmployeePayslip calculateSalary(Employee emp, int leaves) {
 
         double basicSalary = emp.getBasicSalary();
+
         double hra = basicSalary * 0.2;
+
         double pf = basicSalary * 0.12;
 
+        double travelAllowance =
+                emp.getTravelAllowance() == null
+                ? 0
+                : emp.getTravelAllowance();
+
         double deduction = leaves * 500;
-        double netSalary = basicSalary + hra - pf - deduction;
+
+        double netSalary =
+                basicSalary
+                + hra
+                + travelAllowance
+                - pf
+                - deduction;
 
         EmployeePayslip payslip = new EmployeePayslip();
 
@@ -56,6 +69,7 @@ public class EmployeeSalaryService {
         payslip.setBasicSalary(basicSalary);
         payslip.setHra(hra);
         payslip.setPf(pf);
+        payslip.setTravelAllowance(travelAllowance);
         payslip.setLeaveDeduction(deduction);
         payslip.setNetSalary(netSalary);
 

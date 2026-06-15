@@ -34,10 +34,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     	String path = request.getServletPath();
 
     	if (path.startsWith("/swagger-ui") ||
-    	    path.startsWith("/v3/api-docs")) {
-    	    filterChain.doFilter(request, response);
-    	    return;
-    	}
+    		    path.startsWith("/v3/api-docs")) {
+    		    filterChain.doFilter(request, response);
+    		    return;
+    		}
         final String authHeader = request.getHeader("Authorization");
         String username = null;
         String jwt = null;

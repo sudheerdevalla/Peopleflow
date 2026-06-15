@@ -177,7 +177,363 @@ function getPayslip() {
 
     fetch(`/employees/${id}/payslip?leaves=${leaves}`)
     .then(res => res.json())
-    .then(data => {
+    .then(data => {	<!DOCTYPE html>
+	<html>
+	<head>
+	    <title>PeopleFlow</title>
+
+	    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+	    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+	    <style>
+
+	        *{
+	            font-family:'Inter',sans-serif;
+	        }
+
+	        body{
+	            background: linear-gradient(180deg,#f8fafc,#eef2ff);
+	            min-height:100vh;
+	        }
+
+	        .navbar-custom{
+	            background: rgba(255,255,255,.85);
+	            backdrop-filter: blur(20px);
+	            border-bottom:1px solid rgba(0,0,0,.08);
+	            box-shadow:0 2px 15px rgba(0,0,0,.05);
+	        }
+
+	        .brand-title{
+	            font-size:1.5rem;
+	            font-weight:800;
+	            color:#111827;
+	        }
+
+	        .hero{
+	            text-align:center;
+	            padding:60px 0 40px 0;
+	        }
+
+	        .hero h1{
+	            font-size:4rem;
+	            font-weight:800;
+	            color:#111827;
+	            margin-bottom:15px;
+	        }
+
+	        .hero p{
+	            font-size:1.1rem;
+	            color:#6b7280;
+	        }
+
+	        .apple-card{
+	            background:white;
+	            border:none;
+	            border-radius:24px;
+	            padding:25px;
+	            margin-bottom:25px;
+	            box-shadow:0 15px 40px rgba(0,0,0,.08);
+	            transition:.3s ease;
+	        }
+
+	        .apple-card:hover{
+	            transform:translateY(-4px);
+	        }
+
+	        .section-title{
+	            font-size:1.3rem;
+	            font-weight:700;
+	            color:#111827;
+	            margin-bottom:20px;
+	        }
+
+	        .form-control{
+	            border-radius:14px;
+	            padding:12px;
+	            border:1px solid #d1d5db;
+	        }
+
+	        .form-control:focus{
+	            box-shadow:none;
+	            border-color:#111827;
+	        }
+
+	        .btn-apple{
+	            background:#111827;
+	            color:white;
+	            border:none;
+	            border-radius:14px;
+	            padding:12px 22px;
+	            font-weight:600;
+	        }
+
+	        .btn-apple:hover{
+	            background:black;
+	            color:white;
+	        }
+
+	        .btn-success,
+	        .btn-warning,
+	        .btn-danger{
+	            border-radius:12px;
+	        }
+
+	        .table{
+	            overflow:hidden;
+	            border-radius:18px;
+	        }
+
+	        .table thead{
+	            background:#111827;
+	            color:white;
+	        }
+
+	        #payslipResult{
+	            background:#111827;
+	            color:white;
+	            border-radius:18px;
+	            min-height:180px;
+	            padding:20px;
+	        }
+
+	    </style>
+	</head>
+
+	<body>
+
+	<nav class="navbar navbar-custom">
+	    <div class="container">
+	        <span class="brand-title">PeopleFlow</span>
+	    </div>
+	</nav>
+
+	<div class="container">
+
+	    <div class="hero">
+	        <h1>Manage People.<br>Effortlessly.</h1>
+
+	        <p>
+	            Employee management, payroll and payslips
+	            in one modern platform.
+	        </p>
+	    </div>
+
+	    <div class="apple-card">
+
+	        <h4 class="section-title">Add Employee</h4>
+
+	        <div class="row">
+	            <div class="col">
+	                <input type="text" id="name" class="form-control" placeholder="Employee Name">
+	            </div>
+
+	            <div class="col">
+	                <input type="number" id="salary" class="form-control" placeholder="Salary">
+	            </div>
+
+	            <div class="col">
+	                <button class="btn btn-apple w-100" onclick="addEmployee()">
+	                    Add Employee
+	                </button>
+	            </div>
+	        </div>
+
+	    </div>
+
+	    <div class="apple-card">
+
+	        <h4 class="section-title">Employees</h4>
+
+	        <button class="btn btn-apple mb-3" onclick="getEmployees()">
+	            Load Employees
+	        </button>
+
+	        <table class="table table-bordered">
+
+	            <thead>
+	            <tr>
+	                <th>ID</th>
+	                <th>Name</th>
+	                <th>Salary</th>
+	                <th>Actions</th>
+	            </tr>
+	            </thead>
+
+	            <tbody id="empTable"></tbody>
+
+	        </table>
+
+	    </div>
+
+	    <div class="apple-card">
+
+	        <h4 class="section-title">Generate Payslip</h4>
+
+	        <div class="row mb-3">
+
+	            <div class="col">
+	                <input type="number"
+	                       id="empId"
+	                       class="form-control"
+	                       placeholder="Employee ID">
+	            </div>
+
+	            <div class="col">
+	                <input type="number"
+	                       id="leaves"
+	                       class="form-control"
+	                       placeholder="Leaves">
+	            </div>
+
+	            <div class="col">
+
+	                <button class="btn btn-warning"
+	                        onclick="getPayslip()">
+	                    Generate
+	                </button>
+
+	                <button class="btn btn-danger"
+	                        onclick="downloadPDF()">
+	                    Download PDF
+	                </button>
+
+	            </div>
+
+	        </div>
+
+	        <pre id="payslipResult"></pre>
+
+	    </div>
+
+	</div>
+
+	<script>
+
+	function addEmployee() {
+
+	    let name = document.getElementById("name").value;
+	    let salary = document.getElementById("salary").value;
+
+	    fetch("/employees", {
+	        method: "POST",
+	        headers: {
+	            "Content-Type": "application/json"
+	        },
+	        body: JSON.stringify({
+	            name: name,
+	            salary: salary
+	        })
+	    })
+	    .then(res => res.json())
+	    .then(data => {
+	        alert("Employee Added!");
+	        getEmployees();
+	    });
+	}
+
+	function getEmployees() {
+
+	    fetch("/employees")
+	    .then(res => res.json())
+	    .then(data => {
+
+	        let table = document.getElementById("empTable");
+
+	        table.innerHTML = "";
+
+	        data.forEach(emp => {
+
+	            let row = `
+	                <tr>
+	                    <td>${emp.id}</td>
+	                    <td>${emp.name}</td>
+	                    <td>${emp.basicSalary}</td>
+
+	                    <td>
+
+	                        <button class="btn btn-sm btn-warning"
+	                        onclick="editEmployee(${emp.id}, '${emp.name}', ${emp.basicSalary})">
+	                        Edit
+	                        </button>
+
+	                        <button class="btn btn-sm btn-danger"
+	                        onclick="deleteEmployee(${emp.id})">
+	                        Delete
+	                        </button>
+
+	                    </td>
+	                </tr>
+	            `;
+
+	            table.innerHTML += row;
+	        });
+	    });
+	}
+
+	function downloadPDF() {
+
+	    let id = document.getElementById("empId").value;
+	    let leaves = document.getElementById("leaves").value;
+
+	    window.open(`/employees/payslip/pdf/${id}?leaves=${leaves}`);
+	}
+
+	function deleteEmployee(id) {
+
+	    fetch(`/employees/${id}`, {
+	        method: "DELETE"
+	    })
+	    .then(res => res.text())
+	    .then(msg => {
+	        alert(msg);
+	        getEmployees();
+	    });
+	}
+
+	function editEmployee(id, name, salary) {
+
+	    let newName = prompt("Enter new name:", name);
+	    let newSalary = prompt("Enter new salary:", salary);
+
+	    if (!newName || !newSalary) return;
+
+	    fetch(`/employees/${id}`, {
+	        method: "PUT",
+	        headers: {
+	            "Content-Type": "application/json"
+	        },
+	        body: JSON.stringify({
+	            name: newName,
+	            salary: parseFloat(newSalary)
+	        })
+	    })
+	    .then(res => res.json())
+	    .then(data => {
+	        alert("Employee Updated!");
+	        getEmployees();
+	    });
+	}
+
+	function getPayslip() {
+
+	    let id = document.getElementById("empId").value;
+	    let leaves = document.getElementById("leaves").value;
+
+	    fetch(`/employees/${id}/payslip?leaves=${leaves}`)
+	    .then(res => res.json())
+	    .then(data => {
+
+	        document.getElementById("payslipResult").innerText =
+	            JSON.stringify(data, null, 2);
+
+	    });
+	}
+
+	</script>
+
+	</body>
+	</html>
         document.getElementById("payslipResult").innerText =
             JSON.stringify(data, null, 2);
     });

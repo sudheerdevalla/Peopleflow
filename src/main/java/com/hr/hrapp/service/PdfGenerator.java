@@ -3,19 +3,29 @@ package com.hr.hrapp.service;
 import com.hr.hrapp.entity.Salary;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import jakarta.servlet.http.HttpServletResponse;
 
 public class PdfGenerator {
 
+    private static final Logger logger = LoggerFactory.getLogger(PdfGenerator.class);
+
     public static void generate(HttpServletResponse response, Salary salary) throws Exception {
 
-        Document document = new Document(PageSize.A4);
+        if (salary == null) {
+            logger.warn("No salary provided to PdfGenerator.generate");
+            response.sendError(HttpServletResponse.SC_NOT_FOUND, "Salary not found");
+            return;
+        }
+
+        Document document = new Document(PageSize.A4, 36, 36, 36, 36);
         PdfWriter.getInstance(document, response.getOutputStream());
 
         document.open();
 
-        // 🔹 Title
+        // Title
         Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18);
         Paragraph title = new Paragraph("EMPLOYEE PAYSLIP", titleFont);
         title.setAlignment(Element.ALIGN_CENTER);
@@ -23,15 +33,14 @@ public class PdfGenerator {
 
         document.add(new Paragraph(" ")); // space
 
-        // 🔹 Table
+        // Table
         PdfPTable table = new PdfPTable(2);
         table.setWidthPercentage(100);
 
-        // Helper method
         addRow(table, "Month", salary.getMonth());
-        addRow(table, "Basic Salary", String.valueOf(salary.getBasicSalary()));
-        addRow(table, "Net Salary", String.valueOf(salary.getNetSalary()));
-        addRow(table, "Hike Amount", String.valueOf(salary.getHikeAmount()));
+        addRow(table, "Basic Salary", String.format("₹ %.2f", salary.getBasicSalary()));
+        addRow(table, "Net Salary", String.format("₹ %.2f", salary.getNetSalary()));
+        addRow(table, "Hike Amount", String.format("₹ %.2f", salary.getHikeAmount()));
 
         document.add(table);
 
