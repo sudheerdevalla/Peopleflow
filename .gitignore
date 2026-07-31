@@ -31,3 +31,9 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# PeopleFlow Production
+src/main/resources/application.properties.backup
+src/main/resources/keystore/*.p12
+uploads/
+*.log
