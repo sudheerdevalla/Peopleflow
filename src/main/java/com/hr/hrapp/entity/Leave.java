@@ -2,14 +2,18 @@ package com.hr.hrapp.entity;
 
 import java.time.LocalDate;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 @Entity
-@Table(name = "leaves")
+@Table(name = "leaves", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"empId", "date", "type"}, name = "uk_leave_empid_date_type")
+})
 public class Leave {
 
     @Id

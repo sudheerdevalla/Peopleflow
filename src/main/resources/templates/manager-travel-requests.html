@@ -13,61 +13,383 @@
 
     <style>
 
+        :root{
+            --bg-start:#f8fafc;
+            --bg-end:#eef2ff;
+            --surface:rgba(255,255,255,.92);
+            --surface-solid:#ffffff;
+            --border:#e2e8f0;
+            --text-primary:#0f172a;
+            --text-secondary:#475569;
+            --text-muted:#94a3b8;
+            --brand:#2563eb;
+            --brand-dark:#1d4ed8;
+            --brand-soft:#eff6ff;
+            --shadow-sm:0 12px 30px rgba(15,23,42,.06);
+            --shadow-md:0 22px 56px rgba(15,23,42,.10);
+            --shadow-lg:0 28px 80px rgba(37,99,235,.16);
+        }
+
+        *{
+            box-sizing:border-box;
+        }
+
         body{
-            background:#f4f6f9;
-            font-family:Arial,sans-serif;
+            background:
+                radial-gradient(circle at top left,rgba(37,99,235,.12),transparent 30%),
+                radial-gradient(circle at bottom right,rgba(59,130,246,.10),transparent 24%),
+                linear-gradient(135deg,var(--bg-start) 0%,var(--bg-end) 100%);
+            font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',sans-serif;
+            color:var(--text-primary);
         }
 
         .sidebar{
-            width:240px;
+            width:260px;
             height:100vh;
             position:fixed;
-            background:#0f172a;
-            color:white;
-            padding:25px;
+            background:rgba(255,255,255,.90);
+            color:var(--text-primary);
+            padding:28px 16px 24px;
+            border-right:1px solid rgba(226,232,240,.92);
+            backdrop-filter:blur(18px);
+            box-shadow:inset -1px 0 0 rgba(255,255,255,.65);
         }
 
         .sidebar h3{
-            margin-bottom:40px;
+            margin:0 0 28px;
+            font-size:22px;
+            font-weight:800;
+            letter-spacing:-.6px;
+            padding:0 8px;
+        }
+
+        .sidebar h3::after{
+            content:'Manager workspace';
+            display:block;
+            font-size:11px;
+            font-weight:700;
+            letter-spacing:.8px;
+            text-transform:uppercase;
+            color:var(--text-muted);
+            margin-top:6px;
         }
 
         .sidebar a{
-            display:block;
-            color:#cbd5e1;
+            display:flex;
+            align-items:center;
+            gap:12px;
+            color:#64748b;
             text-decoration:none;
-            padding:12px;
-            border-radius:10px;
+            padding:12px 14px;
+            border-radius:12px;
             margin-bottom:10px;
+            font-size:13px;
+            font-weight:600;
+            border:1px solid transparent;
+            transition:.2s ease;
         }
 
         .sidebar a:hover{
-            background:#1e293b;
-            color:white;
+            background:var(--brand-soft);
+            color:var(--brand);
+            border-color:#dbeafe;
+            transform:translateX(2px);
+        }
+
+        .sidebar a[href="/travel/manager"]{
+            background:linear-gradient(135deg,#eff6ff 0%,#dbeafe 100%);
+            color:var(--brand);
+            border-color:#bfdbfe;
+            box-shadow:0 10px 22px rgba(37,99,235,.10);
         }
 
         .main-content{
-            margin-left:260px;
-            padding:35px;
+            margin-left:284px;
+            padding:28px;
+        }
+
+        .page-shell{
+            max-width:1280px;
+            margin:0 auto;
         }
 
         .topbar{
-            background:white;
-            padding:20px;
-            border-radius:15px;
-            margin-bottom:25px;
-            box-shadow:0 2px 10px rgba(0,0,0,0.08);
+            position:relative;
+            overflow:hidden;
+            background:linear-gradient(135deg,#0f172a 0%,#1e3a8a 52%,#2563eb 100%);
+            padding:30px 32px;
+            border-radius:28px;
+            margin-bottom:24px;
+            box-shadow:var(--shadow-lg);
+            color:white;
+        }
+
+        .topbar::before,
+        .topbar::after{
+            content:'';
+            position:absolute;
+            border-radius:50%;
+            background:radial-gradient(circle,rgba(255,255,255,.18),transparent 68%);
+        }
+
+        .topbar::before{
+            width:360px;
+            height:360px;
+            top:-180px;
+            right:-100px;
+        }
+
+        .topbar::after{
+            width:220px;
+            height:220px;
+            bottom:-120px;
+            left:-20px;
+        }
+
+        .topbar-content{
+            position:relative;
+            z-index:1;
+        }
+
+        .topbar h3{
+            margin:0 0 10px;
+            font-size:36px;
+            font-weight:800;
+            letter-spacing:-1px;
+        }
+
+        .topbar p{
+            margin:0;
+            max-width:720px;
+            font-size:14px;
+            line-height:1.8;
+            color:rgba(255,255,255,.82);
+        }
+
+        .stats-grid{
+            display:grid;
+            grid-template-columns:repeat(3,minmax(0,1fr));
+            gap:18px;
+            margin-bottom:24px;
+        }
+
+        .stat-card{
+            background:rgba(255,255,255,.88);
+            backdrop-filter:blur(16px);
+            border:1px solid rgba(226,232,240,.92);
+            border-radius:22px;
+            padding:22px;
+            box-shadow:var(--shadow-sm);
+        }
+
+        .stat-label{
+            font-size:11px;
+            font-weight:800;
+            text-transform:uppercase;
+            letter-spacing:.8px;
+            color:var(--text-muted);
+            margin-bottom:10px;
+        }
+
+        .stat-value{
+            font-size:20px;
+            font-weight:800;
+            color:var(--text-primary);
+            margin-bottom:6px;
+        }
+
+        .stat-copy{
+            font-size:13px;
+            line-height:1.6;
+            color:var(--text-secondary);
         }
 
         .table-card{
-            background:white;
-            border-radius:18px;
-            padding:25px;
-            box-shadow:0 2px 12px rgba(0,0,0,0.08);
+            background:rgba(255,255,255,.92);
+            border-radius:26px;
+            padding:0;
+            box-shadow:var(--shadow-md);
+            border:1px solid rgba(226,232,240,.92);
+            overflow:hidden;
+            backdrop-filter:blur(16px);
+        }
+
+        .table-header{
+            padding:24px 26px 18px;
+            border-bottom:1px solid rgba(226,232,240,.9);
+            display:flex;
+            justify-content:space-between;
+            align-items:flex-start;
+            gap:16px;
+            flex-wrap:wrap;
+        }
+
+        .table-title{
+            font-size:22px;
+            font-weight:800;
+            color:var(--text-primary);
+            margin-bottom:8px;
+            letter-spacing:-.5px;
+        }
+
+        .table-subtitle{
+            font-size:13px;
+            line-height:1.7;
+            color:var(--text-secondary);
+        }
+
+        .table-chip{
+            background:var(--brand-soft);
+            color:var(--brand);
+            border:1px solid #bfdbfe;
+            border-radius:999px;
+            padding:8px 12px;
+            font-size:11px;
+            font-weight:800;
+            text-transform:uppercase;
+            letter-spacing:.7px;
+        }
+
+        .table-shell{
+            overflow-x:auto;
+            padding:0 14px 14px;
+        }
+
+        .table{
+            width:100%;
+            margin-bottom:0;
+            border-collapse:separate;
+            border-spacing:0 12px;
+        }
+
+        .table thead.table-dark{
+            background:transparent;
+        }
+
+        .table thead.table-dark th{
+            background:transparent;
+            border:none;
+            color:var(--text-muted);
+            padding:0 14px 8px;
+            font-size:11px;
+            font-weight:800;
+            text-transform:uppercase;
+            letter-spacing:.8px;
+            white-space:nowrap;
+        }
+
+        .table tbody tr{
+            transition:transform .2s ease;
+        }
+
+        .table tbody tr:hover{
+            transform:translateY(-2px);
+        }
+
+        .table tbody td{
+            padding:16px 14px;
+            background:var(--surface-solid);
+            border-top:1px solid #eef2f7;
+            border-bottom:1px solid #eef2f7;
+            color:#334155;
+            vertical-align:middle;
+        }
+
+        .table tbody td:first-child{
+            border-left:1px solid #eef2f7;
+            border-top-left-radius:16px;
+            border-bottom-left-radius:16px;
+        }
+
+        .table tbody td:last-child{
+            border-right:1px solid #eef2f7;
+            border-top-right-radius:16px;
+            border-bottom-right-radius:16px;
         }
 
         .badge{
-            padding:10px 15px;
-            border-radius:20px;
+            padding:8px 12px;
+            border-radius:999px;
+            font-size:11px;
+            font-weight:800;
+            letter-spacing:.7px;
+            text-transform:uppercase;
+        }
+
+        .btn{
+            border-radius:12px;
+            padding:9px 14px;
+            font-size:12px;
+            font-weight:700;
+            border:1px solid transparent;
+            transition:all .2s ease;
+        }
+
+        .btn-success{
+            background:#ecfdf5;
+            color:#065f46;
+            border-color:#bbf7d0;
+        }
+
+        .btn-success:hover{
+            background:#d1fae5;
+            color:#065f46;
+            transform:translateY(-1px);
+        }
+
+        .btn-danger{
+            background:#fef2f2;
+            color:#991b1b;
+            border-color:#fecaca;
+        }
+
+        .btn-danger:hover{
+            background:#fee2e2;
+            color:#991b1b;
+            transform:translateY(-1px);
+        }
+
+        @media (max-width:1024px){
+            .stats-grid{
+                grid-template-columns:1fr;
+            }
+        }
+
+        @media (max-width:768px){
+            .sidebar{
+                width:100%;
+                height:auto;
+                position:relative;
+                border-right:none;
+                border-bottom:1px solid rgba(226,232,240,.92);
+            }
+
+            .main-content{
+                margin-left:0;
+                padding:18px;
+            }
+
+            .page-shell{
+                width:100%;
+            }
+
+            .topbar{
+                padding:24px 20px;
+                border-radius:22px;
+            }
+
+            .topbar h3{
+                font-size:28px;
+            }
+
+            .table-card,
+            .stat-card{
+                border-radius:20px;
+            }
+
+            .table-header{
+                padding:20px;
+            }
         }
 
     </style>
@@ -101,17 +423,57 @@
 <!-- Main -->
 <div class="main-content">
 
+    <div class="page-shell">
+
     <!-- Top -->
     <div class="topbar">
+
+        <div class="topbar-content">
 
         <h3>
             ✈️ Manager Travel Approval Center
         </h3>
 
+        <p>
+            Review team travel requests, inspect approval stages, and complete manager decisions through the existing PeopleFlow workflow with a refined enterprise layout.
+        </p>
+
+        </div>
+
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">Workspace</div>
+            <div class="stat-value">Manager Travel Review</div>
+            <div class="stat-copy">Focused approval surface for requests that require manager action before HR processing.</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Decision Flow</div>
+            <div class="stat-value">Approve / Reject</div>
+            <div class="stat-copy">All existing action links remain intact while decision visibility is improved.</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Status Tracking</div>
+            <div class="stat-value">Multi-stage Approval</div>
+            <div class="stat-copy">Current manager, HR, and rejection states are emphasized for faster review.</div>
+        </div>
     </div>
 
     <!-- Table -->
     <div class="table-card">
+
+        <div class="table-header">
+            <div>
+                <div class="table-title">Travel Requests Queue</div>
+                <div class="table-subtitle">Inspect employee, destination, travel window, purpose, approval status, and decision controls in a cleaner PeopleFlow manager table.</div>
+            </div>
+            <div class="table-chip">Manager Queue</div>
+        </div>
+
+        <div class="table-shell">
 
         <table class="table table-hover align-middle">
 
@@ -203,6 +565,10 @@
             </tbody>
 
         </table>
+
+        </div>
+
+    </div>
 
     </div>
 

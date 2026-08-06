@@ -9,6 +9,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,9 @@ public class CEOReportService {
 
     @Autowired
     private JavaMailSender mailSender;
+
+    @Value("${app.admin.email}")
+    private String adminEmail;
 
     public void sendCEOReport() {
 
@@ -138,8 +142,8 @@ public class CEOReportService {
                             message,
                             true);
 
-            helper.setTo(
-                    "asha.renwion@gmail.com");
+            helper.setFrom("connect@renwion.in");
+            helper.setTo(adminEmail);
 
             helper.setSubject(
                     "PeopleFlow Consolidated Payroll Report");

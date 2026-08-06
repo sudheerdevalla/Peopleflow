@@ -2,105 +2,87 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="UTF-8">
-<title>Notifications</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notifications · PeopleFlow</title>
 <style>
-
-body{
-    font-family:Poppins,sans-serif;
-    background:#f4f7fb;
-    margin:0;
-    padding:0;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+:root{
+ --bg:#f8fafc;--card:#fff;--brand:#2563eb;--brand2:#1d4ed8;
+ --text:#0f172a;--muted:#64748b;--border:#e2e8f0;
+ --shadow:0 18px 45px rgba(15,23,42,.08);
 }
-
-.header{
-    background:#0f172a;
-    color:white;
-    padding:20px;
-    text-align:center;
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Inter,system-ui,sans-serif;background:linear-gradient(135deg,#f8fafc,#eef2ff);color:var(--text)}
+.sidebar{position:fixed;left:0;top:0;width:280px;height:100vh;background:#fff;border-right:1px solid var(--border);padding:24px}
+.sidebar h2{margin-bottom:24px}
+.sidebar a{display:block;padding:12px 14px;border-radius:12px;text-decoration:none;color:#334155;margin-bottom:8px}
+.sidebar a:hover,.active{background:#eff6ff;color:var(--brand)}
+.main{margin-left:280px;padding:32px}
+.hero{background:linear-gradient(135deg,#0f172a,#1e3a8a,#2563eb);border-radius:28px;color:#fff;padding:32px;display:flex;justify-content:space-between;gap:24px;box-shadow:0 20px 50px rgba(37,99,235,.25)}
+.panel{background:rgba(255,255,255,.12);padding:20px;border-radius:20px;backdrop-filter:blur(8px)}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:24px 0}
+.kpi{background:#fff;border-radius:22px;padding:22px;box-shadow:var(--shadow)}
+.list{background:#fff;border-radius:24px;box-shadow:var(--shadow);padding:24px}
+.note{display:flex;gap:16px;padding:18px;border:1px solid var(--border);border-radius:18px;margin-bottom:16px;transition:.2s}
+.note:hover{transform:translateY(-2px)}
+.icon{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#eff6ff;font-size:22px}
+.msg{font-weight:700;margin-bottom:6px}
+.time{font-size:13px;color:var(--muted)}
+.empty{text-align:center;padding:60px 20px}
+.btn{display:inline-block;padding:12px 18px;background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;text-decoration:none;border-radius:14px;margin-top:20px}
+@media(max-width:900px){
+.sidebar{position:static;width:100%;height:auto}
+.main{margin-left:0;padding:18px}
+.hero{flex-direction:column}
+.kpis{grid-template-columns:1fr}
 }
-
-.container{
-    width:90%;
-    max-width:900px;
-    margin:30px auto;
-}
-
-.notification-card{
-    background:white;
-    padding:18px;
-    border-radius:12px;
-    margin-bottom:15px;
-    box-shadow:0 2px 10px rgba(0,0,0,0.08);
-    border-left:5px solid #2563eb;
-}
-
-.notification-title{
-    font-size:18px;
-    font-weight:bold;
-    color:#111827;
-}
-
-.notification-time{
-    color:gray;
-    font-size:13px;
-    margin-top:5px;
-}
-
-.back-btn{
-    display:inline-block;
-    margin-top:20px;
-    padding:10px 20px;
-    background:#2563eb;
-    color:white;
-    text-decoration:none;
-    border-radius:8px;
-}
-
-.back-btn:hover{
-    background:#1d4ed8;
-}
-
-.empty{
-    background:white;
-    padding:30px;
-    border-radius:12px;
-    text-align:center;
-    color:gray;
-}
-
 </style>
-
 </head>
-
 <body>
-
-<div class="header">
-    <h1>🔔 My Notifications</h1>
+<div class="sidebar">
+<h2>PeopleFlow</h2>
+<a href="/user/dashboard">🏠 Dashboard</a>
+<a class="active" href="/user/notifications">🔔 Notifications</a>
+<a href="/logout">🚪 Logout</a>
 </div>
 
-<div class="container">
-
-    <!-- Temporary Sample Notifications -->
-
-	<div th:each="n : ${notifications}"
-	     class="notification-card">
-
-	    <div class="notification-title"
-	         th:text="${n.message}">
-	    </div>
-
-	    <div class="notification-time"
-	         th:text="${n.createdAt}">
-	    </div>
-
-	</div>
-
-    <a href="/user/dashboard" class="back-btn">
-        ← Back to Dashboard
-    </a>
-
+<div class="main">
+<div class="hero">
+<div>
+<h1>Notifications Center</h1>
+<p>Stay informed with the latest PeopleFlow updates, approvals and system activity.</p>
+</div>
+<div class="panel">
+<div style="font-size:12px;opacity:.8">Workspace</div>
+<h3>Inbox</h3>
+<p>All existing backend workflows remain unchanged.</p>
+</div>
 </div>
 
+<div class="kpis">
+<div class="kpi"><h4>Total</h4><p>Messages</p></div>
+<div class="kpi"><h4>Status</h4><p>Live Feed</p></div>
+<div class="kpi"><h4>Experience</h4><p>Premium UI</p></div>
+</div>
+
+<div class="list">
+<div th:if="${!notifications.isEmpty()}">
+<div class="note" th:each="n : ${notifications}">
+<div class="icon">🔔</div>
+<div>
+<div class="msg" th:text="${n.message}">Notification</div>
+<div class="time" th:text="${n.createdAt}">Today</div>
+</div>
+</div>
+</div>
+
+<div th:if="${notifications.isEmpty()}" class="empty">
+<div style="font-size:64px">📭</div>
+<h2>No Notifications</h2>
+<p style="color:#64748b;margin-top:8px">You're all caught up.</p>
+<a href="/user/dashboard" class="btn">Back to Dashboard</a>
+</div>
+</div>
+</div>
 </body>
 </html>

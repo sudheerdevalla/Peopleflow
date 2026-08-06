@@ -12,6 +12,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -49,10 +50,18 @@ public class JwtAuthController {
                             password
                     )
             );
-            User user = userRepository.findByUsername(username);
+            User user = userRepository
+                    .findByUsername(username)
+                    .orElseThrow(() ->
+                            new UsernameNotFoundException("User not found"));
 
-            UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUsername());
-            String token = jwtUtil.generateToken(user.getUsername(), userDetails.getAuthorities());
+            UserDetails userDetails =
+                    userDetailsService.loadUserByUsername(user.getUsername());
+
+            String token =
+                    jwtUtil.generateToken(
+                            user.getUsername(),
+                            userDetails.getAuthorities());
             Map<String, String> response = new HashMap<>();
             response.put("token", token);
             return ResponseEntity.ok(response);

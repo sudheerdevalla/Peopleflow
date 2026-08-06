@@ -23,11 +23,9 @@ public class CustomerUserDetailsService implements UserDetailsService {
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-		User user = repo.findByUsername(username);
-
-		if (user == null) {
-			throw new UsernameNotFoundException("User not found");
-		}
+		User user = repo.findByUsername(username)
+		        .orElseThrow(() ->
+		                new UsernameNotFoundException("User not found"));
 		Set<SimpleGrantedAuthority> authorities = new HashSet<>();
 		// Add role as authority
 		authorities.add(new SimpleGrantedAuthority("ROLE_" + user.getRole().trim()));

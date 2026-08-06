@@ -1,279 +1,1706 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
-<title>Dashboard</title>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+
+<title>PeopleFlow Dashboard</title>
+
+
+<link rel="stylesheet"
+      th:href="@{/css/style.css}">
+
+
+<link rel="preconnect"
+      href="https://fonts.googleapis.com">
+
+
+<link rel="preconnect"
+      href="https://fonts.gstatic.com"
+      crossorigin>
+
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet">
+
 
 <style>
-	@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
-	*{
-	    margin:0;
-	    padding:0;
-	    box-sizing:border-box;
-	    font-family:'Inter',sans-serif;
-	}
 
-	body{
-	    background:#f5f5f7;
-	    color:#1d1d1f;
-	}
+:root{
 
-	/* TOPBAR */
+--primary:#2563EB;
 
-	.topbar{
-	    height:70px;
-	    background:rgba(255,255,255,.85);
-	    backdrop-filter:blur(20px);
-	    border-bottom:1px solid #e5e7eb;
-	    display:flex;
-	    justify-content:space-between;
-	    align-items:center;
-	    padding:0 40px;
-	    position:sticky;
-	    top:0;
-	}
+--primary-dark:#1E40AF;
 
-	.topbar h2{
-	    font-weight:800;
-	    font-size:28px;
-	}
+--background:#F8FAFC;
 
-	.topbar input{
-	    border:none;
-	    background:#f1f1f1;
-	    padding:12px 18px;
-	    border-radius:14px;
-	}
+--card:#FFFFFF;
 
-	.logout-btn{
-	    background:#111827;
-	    color:white;
-	    border:none;
-	    border-radius:14px;
-	    padding:12px 18px;
-	    margin-left:10px;
-	}
+--text:#0F172A;
 
-	/* HERO */
+--muted:#64748B;
 
-	.hero{
-	    margin:30px;
-	    border-radius:35px;
-	    min-height:420px;
+--border:#E2E8F0;
 
-	    background:
-	    linear-gradient(
-	    rgba(0,0,0,.45),
-	    rgba(0,0,0,.45)
-	    ),
-	    url("https://images.unsplash.com/photo-1497366811353-6870744d04b2?q=80&w=1800");
+--success:#16A34A;
 
-	    background-size:cover;
-	    background-position:center;
+--warning:#F59E0B;
 
-	    display:flex;
-	    align-items:center;
+--danger:#DC2626;
 
-	    padding:70px;
 
-	    box-shadow:
-	    0 25px 60px rgba(0,0,0,.12);
-	}
+--shadow:
+0 18px 45px rgba(15,23,42,.08);
 
-	.hero h1{
-	    font-size:72px;
-	    font-weight:900;
-	    color:white;
-	    margin-bottom:15px;
-	    letter-spacing:-2px;
-	}
+}
 
-	.hero p{
-	    font-size:22px;
-	    color:#e5e7eb;
-	    margin-bottom:25px;
-	}
 
-	/* BUTTONS */
 
-	.btn{
-	    display:inline-block;
-	    padding:14px 24px;
-	    border-radius:18px;
-	    text-decoration:none;
+*{
 
-	    background:white;
-	    color:#111827;
+margin:0;
+padding:0;
+box-sizing:border-box;
 
-	    border:none;
+}
 
-	    font-weight:600;
 
-	    margin-right:12px;
 
-	    transition:.3s;
-	}
+body{
 
-	.btn:hover{
-	    transform:translateY(-3px);
-	}
+font-family:
+Inter,
+-apple-system,
+BlinkMacSystemFont,
+"Segoe UI",
+sans-serif;
 
-	/* REMOVE OLD ORACLE LINES */
 
-	.wave-bg{
-	    display:none;
-	}
+background:
 
-	/* FEATURE CARDS */
+radial-gradient(
+circle at top left,
+rgba(37,99,235,.10),
+transparent 35%
+),
 
-	.cards{
-	    display:grid;
-	    grid-template-columns:1fr 1fr;
-	    gap:25px;
-	    margin:30px;
-	}
+linear-gradient(
+135deg,
+#F8FAFC,
+#EEF2FF);
 
-	.card{
-	    border-radius:30px;
-	    padding:35px;
-	    color:white;
-	    min-height:220px;
 
-	    font-size:24px;
-	    font-weight:700;
+color:var(--text);
 
-	    box-shadow:
-	    0 15px 40px rgba(0,0,0,.08);
-	}
+}
 
-	.card1{
-	    background:
-	    linear-gradient(
-	    135deg,
-	    #111827,
-	    #374151
-	    );
-	}
 
-	.card2{
-	    background:
-	    linear-gradient(
-	    135deg,
-	    #2563eb,
-	    #60a5fa
-	    );
-	}
 
-	/* TIME CARDS */
+/* ========================= */
+/* NAVBAR */
+/* ========================= */
 
-	.time-row{
-	    display:grid;
-	    grid-template-columns:
-	    repeat(4,1fr);
 
-	    gap:20px;
+.navbar{
 
-	    margin:30px;
-	}
+height:80px;
 
-	.time-card{
+padding:0 70px;
 
-	    background:white;
+display:flex;
 
-	    border-radius:28px;
+align-items:center;
 
-	    padding:30px;
+justify-content:space-between;
 
-	    text-align:center;
 
-	    font-size:22px;
+background:
 
-	    font-weight:700;
+rgba(255,255,255,.80);
 
-	    box-shadow:
-	    0 10px 30px rgba(0,0,0,.05);
 
-	    transition:.3s;
-	}
+backdrop-filter:blur(18px);
 
-	.time-card:hover{
-	    transform:translateY(-6px);
-	}
 
-	@media(max-width:900px){
+border-bottom:
 
-	    .hero h1{
-	        font-size:46px;
-	    }
+1px solid var(--border);
 
-	    .cards{
-	        grid-template-columns:1fr;
-	    }
 
-	    .time-row{
-	        grid-template-columns:1fr 1fr;
-	    }
-	}
+position:sticky;
+
+top:0;
+
+z-index:1000;
+
+}
+
+
+
+.logo{
+
+font-size:24px;
+
+font-weight:700;
+
+letter-spacing:-.5px;
+
+color:#0F172A;
+
+}
+
+
+
+.logo span{
+
+color:var(--primary);
+
+}
+
+
+
+.logout{
+
+background:white;
+
+border:1px solid var(--border);
+
+padding:12px 22px;
+
+border-radius:16px;
+
+text-decoration:none;
+
+color:#0F172A;
+
+font-weight:600;
+
+transition:.3s;
+
+}
+
+
+
+.logout:hover{
+
+background:#EFF6FF;
+
+color:var(--primary);
+
+}
+
+
+
+
+
+/* ========================= */
+/* HERO */
+/* ========================= */
+
+
+.hero{
+
+margin:45px 70px;
+
+padding:55px;
+
+border-radius:32px;
+
+
+background:
+
+linear-gradient(
+135deg,
+#111827,
+#1E3A8A,
+#2563EB
+);
+
+
+color:white;
+
+
+box-shadow:
+
+0 30px 70px rgba(37,99,235,.20);
+
+
+position:relative;
+
+overflow:hidden;
+
+}
+
+
+
+.hero::after{
+
+content:"";
+
+position:absolute;
+
+width:400px;
+
+height:400px;
+
+right:-120px;
+
+top:-120px;
+
+border-radius:50%;
+
+
+background:
+
+rgba(255,255,255,.12);
+
+}
+
+
+
+.hero-content{
+
+position:relative;
+
+z-index:2;
+
+}
+
+
+
+.hero h1{
+
+font-size:46px;
+
+font-weight:750;
+
+letter-spacing:-1px;
+
+margin-bottom:15px;
+
+}
+
+
+
+.hero p{
+
+font-size:17px;
+
+line-height:1.8;
+
+color:#E0E7FF;
+
+max-width:650px;
+
+}
+
+
+
+
+
+.profile-photo{
+
+width:120px;
+
+height:120px;
+
+border-radius:50%;
+
+object-fit:cover;
+
+border:4px solid white;
+
+margin-top:25px;
+
+}
+
+
+
+
+
+.welcome-user{
+
+margin-top:15px;
+
+display:inline-block;
+
+
+padding:10px 20px;
+
+
+border-radius:999px;
+
+
+background:
+
+rgba(255,255,255,.15);
+
+
+backdrop-filter:blur(10px);
+
+
+font-weight:600;
+
+}
+
+
+
+
+
+/* ========================= */
+/* BUTTONS */
+/* ========================= */
+
+
+.buttons{
+
+display:flex;
+
+flex-wrap:wrap;
+
+gap:14px;
+
+margin-top:30px;
+
+}
+
+
+
+.btn{
+
+padding:12px 20px;
+
+border-radius:14px;
+
+background:white;
+
+color:#2563EB;
+
+font-weight:600;
+
+text-decoration:none;
+
+font-size:14px;
+
+transition:.3s;
+
+
+}
+
+
+
+.btn:hover{
+
+transform:translateY(-3px);
+
+box-shadow:
+
+0 15px 35px rgba(0,0,0,.15);
+
+}
+
+
+
+
+/* ========================= */
+/* CARDS */
+/* ========================= */
+
+
+.card{
+
+background:white;
+
+border-radius:26px;
+
+border:1px solid var(--border);
+
+box-shadow:var(--shadow);
+
+padding:30px;
+
+}
+
+
+
+.section{
+
+margin:40px 70px;
+
+}
+
+
+
+
+
+/* ========================= */
+/* FEED */
+/* ========================= */
+
+
+.company-feed{
+
+margin:40px 70px;
+
+background:white;
+
+padding:35px;
+
+border-radius:28px;
+
+box-shadow:var(--shadow);
+
+}
+
+
+
+.feed-card{
+
+padding:20px;
+
+margin-top:18px;
+
+border-radius:18px;
+
+background:#F8FAFC;
+
+border:1px solid var(--border);
+
+}
+
+
+
+
+
+/* ========================= */
+/* RESPONSIVE */
+/* ========================= */
+
+
+@media(max-width:900px){
+
+
+.navbar{
+
+padding:0 20px;
+
+}
+
+
+
+.hero{
+
+margin:25px 20px;
+
+padding:35px;
+
+}
+
+
+
+.hero h1{
+
+font-size:34px;
+
+}
+
+
+
+.section,
+.company-feed{
+
+margin:25px 20px;
+
+}
+
+
+
+.buttons{
+
+flex-direction:column;
+
+}
+
+
+
+.btn{
+
+width:100%;
+
+}
+
+
+
+}
+
+
 </style>
+
+
 </head>
 
 <body>
 
-<!-- ===== HEADER ===== -->
-<div class="topbar">
-   <h2>PeopleFlow</h2>
+
+<!-- ================= NAVBAR ================= -->
+
+
+<header class="navbar">
+
+
+    <div class="logo">
+
+        Renowion
+        <span>
+            HRMS
+        </span>
+
+    </div>
+
+
 
     <div>
-        <input type="text" placeholder="Search">
-        <a href="/logout">
-            <button class="logout-btn">Logout</button>
+
+        <a href="/logout"
+           class="logout">
+
+            Logout
+
         </a>
-    </div>
-</div>
 
-<!-- ===== HERO ===== -->
-<div class="hero">
-    <h1>
-        Good Evening,
-        <span th:text="${employee.name}">User</span> 👋
-    </h1>
-
-	<p>
-	Work smarter with attendance, timesheets,
-	leave management and approvals.
-	</p>
-
-    <div>
-        <a href="/user/profile" class="btn">My Information</a>
-        <a href="/user/timesheet" class="btn">My Timesheet</a>
-        <a href="/user/attendance" class="btn">Attendance</a>
-		
-    </div>
-</div>
-
-<!-- ===== ORACLE LINES ===== -->
-<div class="wave-bg"></div>
-
-<!-- ===== CARDS ===== -->
-<div class="cards">
-    <div class="card card1">
-        📊 Weekly Performance <br>
-        Track your productivity
     </div>
 
-    <div class="card card2">
-        📢 Announcements <br>
-        HR updates available
-    </div>
+
+</header>
+
+
+
+
+<!-- ================= HERO ================= -->
+
+
+<section class="hero">
+
+
+<div class="hero-content">
+
+
+
+<h1>
+
+    PeopleFlow
+
+</h1>
+
+
+
+<p>
+
+    Workforce Management.
+    <br>
+
+    Reimagined for modern enterprises.
+
+</p>
+
+
+
+
+
+<!-- PROFILE PHOTO -->
+
+
+<div>
+
+
+<img th:if="${employee.profilePhoto != null}"
+
+     th:src="@{'/uploads/profile/' + ${employee.profilePhoto}}"
+
+     class="profile-photo">
+
+
+
+<div class="welcome-user">
+
+
+Welcome back,
+
+<span th:text="${username}">
+
+User
+
+</span>
+
+👋
+
+
 </div>
 
-<!-- ===== TIME ===== -->
-<div class="time-row">
-    <div class="time-card">India<br>5:30 PM</div>
-    <div class="time-card">London<br>12:00 PM</div>
-    <div class="time-card">New York<br>7:00 AM</div>
-    <div class="time-card">Australia<br>8:30 PM</div>
+
+
 </div>
+
+
+
+
+
+
+<!-- ================= ACTION BUTTONS ================= -->
+
+
+<div class="buttons">
+
+
+
+<a th:href="@{/user/profile}"
+
+   class="btn">
+
+    👤 My Info
+
+</a>
+
+
+
+
+<a th:href="@{/user/timesheet}"
+
+   class="btn">
+
+    📝 Timesheet
+
+</a>
+
+
+
+
+<a th:href="@{/user/holidays}"
+
+   class="btn">
+
+    🎉 Holidays
+
+</a>
+
+
+
+
+<a th:href="@{/user/attendance}"
+
+   class="btn">
+
+    📅 Attendance
+
+</a>
+
+
+
+
+<a th:href="@{/user/my-tree}"
+
+   class="btn">
+
+    🌳 My Tree
+
+</a>
+
+
+
+
+<a th:href="@{/travel/apply}"
+
+   class="btn">
+
+    ✈️ Travel Request
+
+</a>
+
+
+
+
+<a th:href="@{/travel/my-requests}"
+
+   class="btn">
+
+    📋 My Travel Requests
+
+</a>
+
+
+
+
+
+
+<!-- MANAGER SECTION -->
+
+
+<div th:if="${employee.role != null and employee.role.equals('MANAGER')}">
+
+
+
+<a href="/admin/manager/leaves"
+
+   class="btn">
+
+    ✅ Approvals
+
+</a>
+
+
+
+
+<a href="/travel/manager"
+
+   class="btn">
+
+    ✈️ Travel Approvals
+
+</a>
+
+
+
+</div>
+
+
+
+
+
+
+<a th:href="@{/user/documents}"
+
+   class="btn">
+
+    📄 My Documents
+
+</a>
+
+
+
+
+
+<a th:href="@{/user/notifications}"
+
+   class="btn">
+
+
+    🔔 Notifications
+
+    (
+
+    <span th:text="${unreadCount}">
+
+    0
+
+    </span>
+
+    )
+
+
+</a>
+
+
+
+
+</div>
+
+
+
+
+</div>
+
+
+</section>
+<!-- ========================= -->
+<!-- EMPLOYEE SUMMARY -->
+<!-- ========================= -->
+
+
+<section class="section">
+
+
+<h2 style="
+font-size:28px;
+font-weight:750;
+margin-bottom:25px;
+letter-spacing:-.5px;
+">
+
+Dashboard Overview
+
+</h2>
+
+
+
+<div style="
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+gap:22px;
+">
+
+
+
+<!-- Attendance Card -->
+
+
+<div class="card">
+
+
+<div style="
+font-size:32px;
+margin-bottom:15px;
+">
+
+📅
+
+</div>
+
+
+
+<h3 style="
+font-size:16px;
+color:#64748B;
+font-weight:500;
+">
+
+Attendance
+
+</h3>
+
+
+<h1 style="
+font-size:34px;
+margin-top:8px;
+font-weight:750;
+">
+
+Present
+
+</h1>
+
+
+
+<p style="
+margin-top:8px;
+color:#16A34A;
+font-weight:600;
+">
+
+● Active Today
+
+</p>
+
+
+</div>
+
+
+
+
+
+
+<!-- Timesheet Card -->
+
+
+<div class="card">
+
+
+<div style="
+font-size:32px;
+margin-bottom:15px;
+">
+
+📝
+
+</div>
+
+
+
+<h3 style="
+font-size:16px;
+color:#64748B;
+font-weight:500;
+">
+
+Weekly Timesheet
+
+</h3>
+
+
+
+<h1 style="
+font-size:34px;
+margin-top:8px;
+font-weight:750;
+">
+
+Submitted
+
+</h1>
+
+
+
+<p style="
+margin-top:8px;
+color:#2563EB;
+font-weight:600;
+">
+
+Current Week
+
+</p>
+
+
+</div>
+
+
+
+
+
+
+
+<!-- Leave Card -->
+
+
+<div class="card">
+
+
+<div style="
+font-size:32px;
+margin-bottom:15px;
+">
+
+🌴
+
+</div>
+
+
+
+<h3 style="
+font-size:16px;
+color:#64748B;
+font-weight:500;
+">
+
+Leave Balance
+
+</h3>
+
+
+
+<h1 style="
+font-size:34px;
+margin-top:8px;
+font-weight:750;
+">
+
+14
+
+</h1>
+
+
+
+<p style="
+margin-top:8px;
+color:#F59E0B;
+font-weight:600;
+">
+
+Days Available
+
+</p>
+
+
+</div>
+
+
+
+
+
+
+
+<!-- Notification Card -->
+
+
+<div class="card">
+
+
+<div style="
+font-size:32px;
+margin-bottom:15px;
+">
+
+🔔
+
+</div>
+
+
+
+<h3 style="
+font-size:16px;
+color:#64748B;
+font-weight:500;
+">
+
+Notifications
+
+</h3>
+
+
+
+<h1 style="
+font-size:34px;
+margin-top:8px;
+font-weight:750;
+">
+
+<span th:text="${unreadCount}">
+
+0
+
+</span>
+
+</h1>
+
+
+
+<p style="
+margin-top:8px;
+color:#DC2626;
+font-weight:600;
+">
+
+Unread Messages
+
+</p>
+
+
+</div>
+
+
+
+</div>
+
+
+</section>
+
+
+
+
+
+
+<!-- ========================= -->
+<!-- QUICK ACCESS -->
+<!-- ========================= -->
+
+
+<section class="section">
+
+
+<h2 style="
+font-size:28px;
+font-weight:750;
+margin-bottom:25px;
+">
+
+Quick Access
+
+</h2>
+
+
+
+
+<div style="
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+gap:22px;
+">
+
+
+
+
+
+<a th:href="@{/user/profile}"
+
+style="text-decoration:none;color:inherit;">
+
+
+<div class="card">
+
+
+<div style="
+font-size:34px;
+margin-bottom:15px;
+">
+
+👤
+
+</div>
+
+
+<h3>
+
+My Profile
+
+</h3>
+
+
+<p style="
+margin-top:8px;
+color:#64748B;
+">
+
+View employee information
+
+</p>
+
+
+</div>
+
+
+</a>
+
+
+
+
+
+
+
+<a th:href="@{/user/timesheet}"
+
+style="text-decoration:none;color:inherit;">
+
+
+<div class="card">
+
+
+<div style="
+font-size:34px;
+margin-bottom:15px;
+">
+
+⏱️
+
+</div>
+
+
+<h3>
+
+Fill Timesheet
+
+</h3>
+
+
+<p style="
+margin-top:8px;
+color:#64748B;
+">
+
+Manage weekly work logs
+
+</p>
+
+
+</div>
+
+
+</a>
+
+
+
+
+
+
+
+<a th:href="@{/user/attendance}"
+
+style="text-decoration:none;color:inherit;">
+
+
+<div class="card">
+
+
+<div style="
+font-size:34px;
+margin-bottom:15px;
+">
+
+📊
+
+</div>
+
+
+<h3>
+
+Attendance
+
+</h3>
+
+
+<p style="
+margin-top:8px;
+color:#64748B;
+">
+
+Track working hours
+
+</p>
+
+
+</div>
+
+
+</a>
+
+
+
+
+
+
+
+<a th:href="@{/user/documents}"
+
+style="text-decoration:none;color:inherit;">
+
+
+<div class="card">
+
+
+<div style="
+font-size:34px;
+margin-bottom:15px;
+">
+
+📄
+
+</div>
+
+
+<h3>
+
+Documents
+
+</h3>
+
+
+<p style="
+margin-top:8px;
+color:#64748B;
+">
+
+Access personal documents
+
+</p>
+
+
+</div>
+
+
+</a>
+
+
+
+
+
+
+</div>
+
+
+</section>
+<!-- ========================= -->
+<!-- COMPANY FEED -->
+<!-- ========================= -->
+
+
+<section class="company-feed">
+
+
+<h2>
+
+📢 Company Feed
+
+</h2>
+
+
+
+<div th:each="u : ${updates}"
+     class="feed-card">
+
+
+<h3 th:text="${u.title}">
+
+Update Title
+
+</h3>
+
+
+
+<div class="feed-date"
+     th:text="${#temporals.format(u.createdAt,'dd MMM yyyy')}">
+
+30 May 2026
+
+</div>
+
+
+
+
+<p th:text="${u.description}">
+
+Update Description
+
+</p>
+
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ========================= -->
+<!-- SMART WORKFLOW -->
+<!-- ========================= -->
+
+
+<section class="section">
+
+
+<div class="card"
+     style="
+     display:grid;
+     grid-template-columns:1fr 1fr;
+     gap:30px;
+     align-items:center;
+     ">
+
+
+<div>
+
+
+<h2 style="
+font-size:32px;
+font-weight:750;
+margin-bottom:15px;
+">
+
+Smart Workflow
+
+</h2>
+
+
+
+<p style="
+color:#64748B;
+font-size:16px;
+line-height:1.8;
+">
+
+Improve productivity and manage your daily
+employee activities with PeopleFlow intelligent
+workflow solutions.
+
+</p>
+
+
+
+<div style="
+margin-top:25px;
+display:flex;
+gap:15px;
+flex-wrap:wrap;
+">
+
+
+
+<div style="
+padding:14px 20px;
+border-radius:16px;
+background:#EFF6FF;
+color:#2563EB;
+font-weight:600;
+">
+
+⚡ Faster Work
+
+</div>
+
+
+
+
+<div style="
+padding:14px 20px;
+border-radius:16px;
+background:#ECFDF5;
+color:#16A34A;
+font-weight:600;
+">
+
+✓ Secure Process
+
+</div>
+
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+<div style="
+height:260px;
+border-radius:26px;
+
+background:
+linear-gradient(
+135deg,
+#DBEAFE,
+#2563EB
+);
+
+display:flex;
+align-items:center;
+justify-content:center;
+
+font-size:90px;
+">
+
+🚀
+
+
+</div>
+
+
+
+
+</div>
+
+
+</section>
+
+
+
+
+
+
+
+
+<!-- ========================= -->
+<!-- SECURE ACCESS -->
+<!-- ========================= -->
+
+
+<section class="section">
+
+
+
+<div class="card"
+style="
+text-align:center;
+">
+
+
+
+<div class="secure-time"
+     id="globalTime">
+
+</div>
+
+
+
+
+<h2 style="
+font-size:32px;
+font-weight:750;
+margin-bottom:12px;
+">
+
+🔐 Secure Access
+
+</h2>
+
+
+
+
+<p style="
+color:#64748B;
+font-size:16px;
+">
+
+Your employee information is protected with
+enterprise-grade security.
+
+</p>
+
+
+
+
+<div style="
+display:flex;
+justify-content:center;
+gap:15px;
+flex-wrap:wrap;
+margin-top:30px;
+">
+
+
+
+<div style="
+padding:15px 22px;
+border-radius:18px;
+background:#ECFDF5;
+color:#16A34A;
+font-weight:700;
+">
+
+✓ Secure Login
+
+</div>
+
+
+
+<div style="
+padding:15px 22px;
+border-radius:18px;
+background:#EFF6FF;
+color:#2563EB;
+font-weight:700;
+">
+
+✓ Data Protection
+
+</div>
+
+
+
+
+<div style="
+padding:15px 22px;
+border-radius:18px;
+background:#FEF3C7;
+color:#B45309;
+font-weight:700;
+">
+
+✓ Enterprise Ready
+
+</div>
+
+
+
+</div>
+
+
+
+</div>
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ========================= -->
+<!-- GLOBAL TIME SCRIPT -->
+<!-- ========================= -->
+
+
+<script>
+
+
+function updateTimes(){
+
+
+const now = new Date();
+
+
+
+function formatTime(zone){
+
+
+return now.toLocaleTimeString(
+
+"en-US",
+
+{
+
+timeZone:zone,
+
+hour:"2-digit",
+
+minute:"2-digit"
+
+}
+
+);
+
+
+}
+
+
+
+
+document.getElementById("globalTime").innerText =
+
+
+"🇮🇳 India: "
++
+formatTime("Asia/Kolkata")
+
++
+
+" | 🇺🇸 USA: "
++
+formatTime("America/New_York")
+
++
+
+" | 🇬🇧 UK: "
++
+formatTime("Europe/London")
+
++
+
+" | 🇦🇪 UAE: "
++
+formatTime("Asia/Dubai");
+
+
+
+}
+
+
+
+setInterval(updateTimes,1000);
+
+
+updateTimes();
+
+
+
+</script>
+
+
 
 </body>
+
 </html>

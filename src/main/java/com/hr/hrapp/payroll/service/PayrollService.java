@@ -36,7 +36,7 @@ public class PayrollService {
 
         double hra =
                 basicSalary
-                * employee.getHraPercentage()
+                * (employee.getHraPercentage() != null ? employee.getHraPercentage() : 0.0)
                 / 100;
 
         // =========================
@@ -45,7 +45,7 @@ public class PayrollService {
 
         double bonus =
                 basicSalary
-                * employee.getBonusPercentage()
+                * (employee.getBonusPercentage() != null ? employee.getBonusPercentage() : 0.0)
                 / 100;
         
         double travelAllowance =

@@ -5,6 +5,9 @@ import java.time.Period;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.hr.hrapp.entity.Employee;
@@ -90,6 +93,12 @@ public class EmployeeSalaryService {
 
     public List<Employee> getAllEmployees() {
         return repo.findAll();
+    }
+
+    // NEW: Paginated version to avoid full table scans in production
+    public Page<Employee> getAllEmployeesPaginated(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return repo.findAll(pageable);
     }
 
     public void deleteEmployee(Long id) {

@@ -129,7 +129,8 @@ public class EmployeeController {
 
     @PostMapping("/update")
     public String updateEmployee(
-            @ModelAttribute Employee employee) {
+            @ModelAttribute Employee employee,
+            @RequestParam(required = false) Long managerId) {
 
         // =========================
         // EXISTING EMPLOYEE FETCH
@@ -180,6 +181,27 @@ public class EmployeeController {
         
         existingEmployee.setTravelAllowance(
                 employee.getTravelAllowance());
+
+        // =========================
+        // ROLE
+        // =========================
+
+        existingEmployee.setRole(
+                employee.getRole());
+
+        // =========================
+        // MANAGER
+        // =========================
+
+        if (managerId != null && managerId > 0) {
+            Employee manager = 
+                    employeeRepository
+                    .findById(managerId)
+                    .orElse(null);
+            existingEmployee.setManager(manager);
+        } else {
+            existingEmployee.setManager(null);
+        }
 
         // =========================
         // SAVE
@@ -240,6 +262,22 @@ public class EmployeeController {
     @PreAuthorize("hasAuthority('WRITE_EMPLOYEE')")
     public String saveEmployee(@ModelAttribute Employee employee, RedirectAttributes ra) {
         employeeRepository.save(employee);
+
+        // Send welcome email to new employee
+        try {
+            String body = "<p>Dear " + employee.getName() + ",</p>"
+                    + "<p>Welcome to Renwion Clean Enviro Solutions Private Limited. Your account has been created.</p>"
+                    + "<p>Regards,<br/>HR Team</p>";
+
+            emailService.sendMail(
+                    employee.getEmail(),
+                    "Welcome to Renwion Clean Enviro Solutions",
+                    body
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         ra.addFlashAttribute("success", "Employee saved successfully!");
         return "redirect:/admin/employees";
     }

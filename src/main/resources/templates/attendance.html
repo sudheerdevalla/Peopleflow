@@ -7,42 +7,236 @@
 
     <style>
         body {
-            background: #f5f7fb;
+            background:
+                radial-gradient(circle at top left, rgba(37, 99, 235, 0.12), transparent 30%),
+                radial-gradient(circle at bottom right, rgba(59, 130, 246, 0.10), transparent 24%),
+                linear-gradient(135deg, #F8FAFC 0%, #EEF2FF 100%);
+            color: #0F172A;
+            font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+            min-height: 100vh;
+        }
+
+        .page-shell {
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        .hero-card {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 52%, #2563EB 100%);
+            color: white;
+            padding: 30px 32px;
+            border-radius: 28px;
+            box-shadow: 0 28px 80px rgba(37, 99, 235, 0.16);
+            margin-bottom: 24px;
+        }
+
+        .hero-card::before {
+            content: '';
+            position: absolute;
+            top: -120px;
+            right: -120px;
+            width: 360px;
+            height: 360px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.18), transparent 68%);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-title {
+            font-size: 34px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 10px;
+        }
+
+        .hero-copy {
+            font-size: 14px;
+            line-height: 1.8;
+            color: rgba(255, 255, 255, 0.82);
+            max-width: 700px;
+        }
+
+        .top-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: #0F172A;
+            letter-spacing: -0.3px;
+        }
+
+        .summary-card,
+        .saved-card,
+        .card-day {
+            background: rgba(255, 255, 255, 0.90);
+            border: 1px solid rgba(226, 232, 240, 0.92);
+            border-radius: 22px;
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+            backdrop-filter: blur(16px);
+        }
+
+        .saved-card,
+        .summary-card {
+            padding: 24px;
+            margin-bottom: 22px;
+        }
+
+        .saved-card h5,
+        .summary-card h4 {
+            margin-bottom: 14px;
+            font-weight: 800;
+            color: #0F172A;
+        }
+
+        .saved-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .saved-item {
+            padding: 14px 16px;
+            border-radius: 16px;
+            background: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%);
+            border: 1px solid rgba(226, 232, 240, 0.92);
+            color: #334155;
+            line-height: 1.7;
+            font-size: 14px;
+        }
+
+        .saved-item a {
+            color: #2563EB;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .saved-item a:hover {
+            text-decoration: underline;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .summary-pill {
+            padding: 12px;
+            border-radius: 16px;
+            background: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%);
+            border: 1px solid rgba(226, 232, 240, 0.92);
+            text-align: center;
+            font-size: 12px;
+            color: #475569;
+        }
+
+        .summary-pill strong {
+            display: block;
+            color: #0F172A;
+            font-size: 14px;
+            margin-top: 4px;
         }
 
         .card-day {
-            border-radius: 12px;
-            padding: 15px;
+            padding: 18px 14px;
             text-align: center;
-            background: white;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
             transition: 0.2s;
         }
 
         .card-day:hover {
             transform: translateY(-3px);
+            box-shadow: 0 18px 34px rgba(15, 23, 42, 0.10);
         }
 
         .hours {
-            font-size: 24px;
-            font-weight: bold;
-            color: #2c7be5;
+            font-size: 28px;
+            font-weight: 800;
+            color: #2563EB;
+            margin-top: 8px;
         }
 
         .header {
-            background: linear-gradient(to right, #2c7be5, #00c6ff);
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
+            display: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+            border: none;
+            border-radius: 14px;
+            padding: 11px 18px;
+            font-weight: 700;
+            box-shadow: 0 14px 30px rgba(37, 99, 235, 0.22);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 18px 34px rgba(37, 99, 235, 0.28);
+        }
+
+        .week-grid {
+            margin-top: 10px;
+        }
+
+        @media (max-width: 992px) {
+            .summary-grid {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-card {
+                padding: 24px 20px;
+                border-radius: 22px;
+            }
+
+            .hero-title {
+                font-size: 28px;
+            }
+
+            .top-toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .summary-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .saved-card,
+            .summary-card,
+            .card-day {
+                border-radius: 20px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 
 <body class="container mt-4">
 
+<div class="page-shell">
+
 <!-- TOP BAR -->
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>My Timesheet</h2>
+<div class="top-toolbar">
+    <h2 class="section-title">My Timesheet</h2>
 
     <a href="/user/fill-timesheet" class="btn btn-primary">
         Fill Timesheet
@@ -50,14 +244,20 @@
 </div>
 
 <!-- HEADER -->
-<div class="header mb-4">
-    <h4>Track your weekly work</h4>
+<div class="hero-card">
+    <div class="hero-content">
+        <div class="hero-title">Track your weekly work</div>
+        <div class="hero-copy">Review saved entries, inspect weekly hour totals, and jump back into the existing timesheet submission workflow from a cleaner PeopleFlow workspace.</div>
+    </div>
 </div>
-<h4>Weekly Summary</h4>
-<h5>Saved Timesheets</h5>
 
-<div th:each="t : ${list}">
-    <p>
+<div class="saved-card">
+    <h5>Saved Timesheets</h5>
+
+    <div class="saved-list">
+
+<div th:each="t : ${list}" class="saved-item">
+    <p style="margin:0;">
         <b th:text="${t.date}"></b> -
         <span th:text="${t.workLocation}"></span> -
         <span th:text="${t.hours}"></span> hrs
@@ -65,18 +265,25 @@
         👉 <a th:href="@{'/user/edit-timesheet/' + ${t.id}}">Edit</a>
     </p>
 </div>
-<div>
-    Monday: <span th:text="${weekData['MONDAY']} ?: 0"></span><br>
-    Tuesday: <span th:text="${weekData['TUESDAY']} ?: 0"></span><br>
-    Wednesday: <span th:text="${weekData['WEDNESDAY']} ?: 0"></span><br>
-    Thursday: <span th:text="${weekData['THURSDAY']} ?: 0"></span><br>
-    Friday: <span th:text="${weekData['FRIDAY']} ?: 0"></span><br>
-    Saturday: <span th:text="${weekData['SATURDAY']} ?: 0"></span><br>
-    Sunday: <span th:text="${weekData['SUNDAY']} ?: 0"></span><br>
+
+    </div>
+</div>
+
+<div class="summary-card">
+    <h4>Weekly Summary</h4>
+    <div class="summary-grid">
+        <div class="summary-pill">Monday<strong th:text="${weekData['MONDAY']} ?: 0"></strong></div>
+        <div class="summary-pill">Tuesday<strong th:text="${weekData['TUESDAY']} ?: 0"></strong></div>
+        <div class="summary-pill">Wednesday<strong th:text="${weekData['WEDNESDAY']} ?: 0"></strong></div>
+        <div class="summary-pill">Thursday<strong th:text="${weekData['THURSDAY']} ?: 0"></strong></div>
+        <div class="summary-pill">Friday<strong th:text="${weekData['FRIDAY']} ?: 0"></strong></div>
+        <div class="summary-pill">Saturday<strong th:text="${weekData['SATURDAY']} ?: 0"></strong></div>
+        <div class="summary-pill">Sunday<strong th:text="${weekData['SUNDAY']} ?: 0"></strong></div>
+    </div>
 </div>
 
 <!-- WEEK CARDS -->
-<div class="row text-center">
+<div class="row text-center week-grid">
 
     <div class="col" th:each="day : ${T(java.time.DayOfWeek).values()}">
 
@@ -104,6 +311,8 @@
         </div>
 
     </div>
+
+</div>
 
 </div>
 

@@ -1,114 +1,98 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Holiday Calendar</title>
-
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
-
-    <style>
-        body{
-            font-family:Poppins,sans-serif;
-            background:#f5f7fb;
-            margin:0;
-            padding:0;
-        }
-
-        .container{
-            width:90%;
-            margin:40px auto;
-        }
-
-        .page-title{
-            text-align:center;
-            margin-bottom:30px;
-            color:#1e293b;
-        }
-
-        .holiday-grid{
-            display:grid;
-            grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-            gap:20px;
-        }
-
-        .holiday-card{
-            background:white;
-            border-radius:15px;
-            padding:20px;
-            box-shadow:0 4px 15px rgba(0,0,0,0.08);
-            transition:0.3s;
-        }
-
-        .holiday-card:hover{
-            transform:translateY(-5px);
-        }
-
-        .holiday-date{
-            font-size:22px;
-            font-weight:700;
-            color:#2563eb;
-        }
-
-        .holiday-name{
-            font-size:18px;
-            margin-top:10px;
-            font-weight:600;
-        }
-
-        .holiday-type{
-            margin-top:8px;
-            color:#64748b;
-        }
-
-        .back-btn{
-            display:inline-block;
-            margin-top:30px;
-            padding:10px 20px;
-            background:#2563eb;
-            color:white;
-            text-decoration:none;
-            border-radius:8px;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PeopleFlow | Holidays</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" th:href="@{/css/style.css}">
+<style>
+:root{--bg:#f4f7fc;--card:#fff;--text:#0f172a;--muted:#64748b;--line:#e2e8f0;--b1:#16244f;--b2:#2563eb;}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body{background:linear-gradient(135deg,#eef4ff,#f8fbff);color:var(--text)}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:270px;background:#fff;border-right:1px solid var(--line);padding:28px;position:fixed;top:0;left:0;bottom:0}
+.logo{font-size:38px;font-weight:800;margin-bottom:8px}
+.sub{font-size:12px;color:#94a3b8;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:30px}
+.sidebar a{display:block;padding:14px 16px;margin-bottom:8px;text-decoration:none;color:#475569;border-radius:16px;font-weight:600}
+.sidebar a.active,.sidebar a:hover{background:#eaf2ff;color:#2563eb}
+.main{margin-left:270px;padding:36px;width:calc(100% - 270px)}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:20px}
+.badge{display:inline-block;background:#fff;border:1px solid #dbeafe;color:#2563eb;padding:8px 16px;border-radius:999px;font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase}
+h1{font-size:56px;font-weight:800;letter-spacing:-1.5px;margin:16px 0}
+.desc{font-size:20px;color:#64748b;max-width:700px;line-height:1.7}
+.back{background:#fff;padding:14px 22px;border-radius:18px;text-decoration:none;color:#111827;font-weight:700;box-shadow:0 10px 30px rgba(0,0,0,.06)}
+.hero{margin-top:28px;background:linear-gradient(135deg,var(--b1),var(--b2));color:#fff;border-radius:30px;padding:38px;display:flex;justify-content:space-between;gap:30px}
+.hero h2{font-size:46px;font-weight:800;line-height:1.1}
+.hero p{margin-top:16px;font-size:18px;line-height:1.7;color:#e2e8f0}
+.panel{background:rgba(255,255,255,.12);padding:24px;border-radius:24px;min-width:320px;border:1px solid rgba(255,255,255,.18)}
+.panel small{text-transform:uppercase;font-weight:800;letter-spacing:1px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin:28px 0}
+.stat{background:#fff;border-radius:24px;padding:28px;box-shadow:0 18px 40px rgba(15,23,42,.08)}
+.stat label{display:block;font-size:12px;color:#94a3b8;font-weight:800;letter-spacing:1px;text-transform:uppercase}
+.stat h3{font-size:34px;margin:12px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:22px}
+.card{background:#fff;border-radius:24px;padding:28px;box-shadow:0 18px 40px rgba(15,23,42,.08);transition:.25s}
+.card:hover{transform:translateY(-6px)}
+.date{display:inline-block;background:#eff6ff;color:#2563eb;padding:8px 14px;border-radius:999px;font-weight:700}
+.name{font-size:24px;font-weight:800;margin:18px 0 10px}
+.type{color:#64748b;font-size:16px}
+@media(max-width:960px){
+.sidebar{position:static;width:100%;height:auto}
+.main{margin-left:0;width:100%}
+.layout{display:block}
+.top,.hero{flex-direction:column}
+.stats{grid-template-columns:1fr}
+h1{font-size:42px}
+}
+</style>
 </head>
-
 <body>
+<div class="layout">
+<aside class="sidebar">
+<div class="logo">PeopleFlow</div>
+<div class="sub">Employee Workspace</div>
+<a th:href="@{/user/dashboard}">🏠 Dashboard</a>
+<a class="active" href="#">🎉 Holidays</a>
+</aside>
 
-<div class="container">
-
-    <h1 class="page-title">
-        🎉 Holiday Calendar
-    </h1>
-
-    <div class="holiday-grid">
-
-        <div class="holiday-card"
-             th:each="h : ${holidays}">
-
-            <div class="holiday-date"
-                 th:text="${h.holidayDate}">
-            </div>
-
-            <div class="holiday-name"
-                 th:text="${h.holidayName}">
-            </div>
-
-            <div class="holiday-type"
-                 th:text="${h.holidayType}">
-            </div>
-
-        </div>
-
-    </div>
-
-    <center>
-        <a th:href="@{/user/dashboard}"
-           class="back-btn">
-            ← Back to Dashboard
-        </a>
-    </center>
-
+<main class="main">
+<div class="top">
+<div>
+<span class="badge">PeopleFlow Holiday Calendar</span>
+<h1>Company Holidays</h1>
+<p class="desc">View official holidays and plan your work schedule with a modern PeopleFlow experience.</p>
+</div>
+<a class="back" th:href="@{/user/dashboard}">← Back to Dashboard</a>
 </div>
 
+<section class="hero">
+<div>
+<h2>Stay informed about every holiday.</h2>
+<p>The existing holiday workflow and Thymeleaf bindings are preserved while the experience is modernized.</p>
+</div>
+<div class="panel">
+<small>Workspace</small>
+<h3 style="margin-top:10px">Holiday Calendar</h3>
+<p style="margin-top:10px">Official company holidays displayed from the existing backend.</p>
+</div>
+</section>
+
+<section class="stats">
+<div class="stat"><label>Calendar</label><h3>2026</h3><p>Official company holidays.</p></div>
+<div class="stat"><label>Status</label><h3>Active</h3><p>Backend integration unchanged.</p></div>
+<div class="stat"><label>Experience</label><h3>Premium</h3><p>Enterprise PeopleFlow UI.</p></div>
+</section>
+
+<section class="grid">
+<div class="card" th:each="h : ${holidays}">
+<div class="date" th:text="${h.holidayDate}">01 Jan</div>
+<div class="name" th:text="${h.holidayName}">New Year</div>
+<div class="type" th:text="${h.holidayType}">Public Holiday</div>
+</div>
+</section>
+
+</main>
+</div>
 </body>
 </html>

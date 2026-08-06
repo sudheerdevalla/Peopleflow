@@ -18,6 +18,9 @@ public class ExcelEmployeeService {
 	
 	@Autowired
 	private EmployeeRepository employeeRepository;
+    
+	@Autowired
+	private com.hr.hrapp.service.EmailService emailService;
 
 	public void importEmployees(MultipartFile file) {
 
@@ -52,7 +55,22 @@ public class ExcelEmployeeService {
 	            emp.setStatus("Active");
 	            emp.setRole("USER");
 
-	            employeeRepository.save(emp);
+							employeeRepository.save(emp);
+
+							// Send welcome email for imported employee
+							try {
+								String body = "<p>Dear " + emp.getName() + ",</p>"
+										+ "<p>Welcome to Renwion Clean Enviro Solutions Private Limited. Your account has been created.</p>"
+										+ "<p>Regards,<br/>HR Team</p>";
+
+								emailService.sendMail(
+										emp.getEmail(),
+										"Welcome to Renwion Clean Enviro Solutions",
+										body
+								);
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
 	        }
 
 	    } catch (Exception e) {

@@ -12,6 +12,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import org.springframework.core.io.ByteArrayResource;
 
 @Service
 public class EmailService {
@@ -43,6 +44,7 @@ public class EmailService {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
+            helper.setFrom("connect@renwion.in");
             helper.setTo(toEmail);
             helper.setSubject("Payslip - " + salary.getMonth());
 
@@ -71,6 +73,7 @@ public class EmailService {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
+            helper.setFrom("connect@renwion.in");
             helper.setTo(to);
             helper.setSubject(subject);
             helper.setText(body, true);
@@ -80,6 +83,49 @@ public class EmailService {
 
         } catch (Exception e) {
             logger.error("Failed to send mail to {} subject={}: {}", to, subject, e.getMessage(), e);
+        }
+    }
+    public void sendMailWithAttachment(
+            String to,
+            String subject,
+            String body,
+            byte[] fileData,
+            String fileName) {
+
+        try {
+
+            MimeMessage message =
+                    mailSender.createMimeMessage();
+
+            MimeMessageHelper helper =
+                    new MimeMessageHelper(
+                            message,
+                            true,
+                            "UTF-8");
+
+            helper.setFrom("connect@renwion.in");
+            helper.setTo(to);
+
+            helper.setSubject(subject);
+
+            helper.setText(body, true);
+
+            helper.addAttachment(
+                    fileName,
+                    new ByteArrayResource(fileData));
+
+            mailSender.send(message);
+
+            logger.info(
+                    "Mail with attachment sent to {}",
+                    to);
+
+        } catch (Exception e) {
+
+            logger.error(
+                    "Failed attachment mail : {}",
+                    e.getMessage(),
+                    e);
         }
     }
 }

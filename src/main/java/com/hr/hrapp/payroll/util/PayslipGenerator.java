@@ -7,6 +7,8 @@ import com.hr.hrapp.entity.Employee;
 import com.hr.hrapp.payroll.entity.Payroll;
 import com.hr.hrapp.repository.EmployeeRepository;
 import com.itextpdf.text.BaseColor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.Font;
@@ -16,8 +18,12 @@ import com.itextpdf.text.Phrase;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.text.Image;
+import com.itextpdf.text.BaseColor;
 
 public class PayslipGenerator {
+
+    private static final Logger logger = LoggerFactory.getLogger(PayslipGenerator.class);
 
     public static ByteArrayInputStream generatePayslip(
             Payroll payroll, Employee employee) {
@@ -43,7 +49,7 @@ public class PayslipGenerator {
 
         	String password;
 
-        	if (employee.getDateOfBirth() != null) {
+            	if (employee.getDateOfBirth() != null) {
 
         	    String year =
         	            String.valueOf(
@@ -57,15 +63,10 @@ public class PayslipGenerator {
         	            firstTwoLetters
         	            + lastTwoDigits;
 
-        	} else {
-
-        	    System.out.println(
-        	            "DOB is NULL for employee: "
-        	            + employee.getName());
-
-        	    password =
-        	            firstTwoLetters + "00";
-        	}
+            	} else {
+            	    logger.warn("DOB is NULL for employee: {}", employee.getName());
+            	    password = firstTwoLetters + "00";
+            	}
 
             // =========================
             // PDF WRITER
@@ -83,6 +84,23 @@ public class PayslipGenerator {
                     PdfWriter.STANDARD_ENCRYPTION_128);
 
             document.open();
+            
+            try {
+
+                Image logo =
+                        Image.getInstance(
+                        "src/main/resources/static/images/logo.png");
+
+                logo.scaleToFit(80, 80);
+
+                logo.setAlignment(
+                        Element.ALIGN_CENTER);
+
+                document.add(logo);
+
+            } catch (Exception e) {
+                logger.warn("Failed to add logo to payslip: {}", e.getMessage());
+            }
 
             // =========================
             // COMPANY TITLE
@@ -91,12 +109,12 @@ public class PayslipGenerator {
             Font titleFont =
                     FontFactory.getFont(
                             FontFactory.HELVETICA_BOLD,
-                            22,
+                            16,
                             BaseColor.BLUE);
 
             Paragraph title =
                     new Paragraph(
-                            "Renwion",
+                            "RENWION CLEAN ENVIRO SOLUTIONS PRIVATE LIMITED",
                             titleFont);
 
             title.setAlignment(
@@ -113,10 +131,18 @@ public class PayslipGenerator {
                             FontFactory.HELVETICA,
                             12,
                             BaseColor.DARK_GRAY);
+            Paragraph address =
+                    new Paragraph(
+                    "Hyderabad, Telangana, India");
+
+            address.setAlignment(
+                    Element.ALIGN_CENTER);
+
+            document.add(address);
 
             Paragraph subTitle =
                     new Paragraph(
-                            "Employee Salary Payslip",
+                            "EMPLOYEE PAYSLIP",
                             subTitleFont);
 
             subTitle.setAlignment(
@@ -217,11 +243,24 @@ public class PayslipGenerator {
                                     + payroll.getNetSalary()));
 
             netSalaryCell.setBackgroundColor(
-                    BaseColor.YELLOW);
+                    new BaseColor(144, 238, 144));
 
             salaryTable.addCell(netSalaryCell);
 
             document.add(salaryTable);
+            
+            document.add(new Paragraph(" "));
+            document.add(new Paragraph(" "));
+            document.add(new Paragraph(" "));
+
+            Paragraph sign =
+                    new Paragraph(
+                    "Authorized Signature");
+
+            sign.setAlignment(
+                    Element.ALIGN_RIGHT);
+
+            document.add(sign);
 
             // =========================
             // FOOTER
@@ -231,7 +270,7 @@ public class PayslipGenerator {
 
             Paragraph footer =
                     new Paragraph(
-                            "This is a system generated payslip from Renwion HRMS.");
+                            "\"This is a computer generated payslip and does not require physical signature.\"");
 
             footer.setAlignment(
                     Element.ALIGN_CENTER);
@@ -241,8 +280,7 @@ public class PayslipGenerator {
             document.close();
 
         } catch (Exception e) {
-
-            e.printStackTrace();
+            logger.error("Failed to generate payslip PDF: {}", e.getMessage(), e);
         }
 
         return new ByteArrayInputStream(

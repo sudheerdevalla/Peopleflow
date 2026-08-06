@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PeopleFlow Recruitment</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0;padding:30px;font-family:Inter,sans-serif;background:#F8FAFC;color:#0F172A}
+.hero{background:linear-gradient(135deg,#111827,#2563EB);color:white;padding:45px;border-radius:30px}
+.card{background:white;border-radius:24px;padding:25px;box-shadow:0 15px 35px rgba(0,0,0,.08);margin-top:25px}
+.btn{background:#2563EB;color:white;padding:12px 20px;border-radius:14px;text-decoration:none}
+table{width:100%;border-collapse:collapse}
+td,th{padding:15px;border-bottom:1px solid #E2E8F0;text-align:left}
+.badge{padding:8px 12px;border-radius:999px;font-weight:600}
+</style>
+</head>
+<body>
+
+<div class="hero">
+<h1>🎯 Recruitment Pipeline</h1>
+<p>Manage candidates, interviews, offers and hiring workflow.</p>
+<a href="/candidates/add" class="btn">+ Add Candidate</a>
+</div>
+
+<div class="card">
+<table>
+<thead>
+<tr>
+<th>ID</th><th>Name</th><th>Email</th><th>Mobile</th><th>Position</th><th>Status</th><th>Action</th><th>Resume</th>
+</tr>
+</thead>
+<tbody>
+
+<tr th:each="c : ${candidates}">
+<td th:text="${c.id}"></td>
+<td th:text="${c.name}"></td>
+<td th:text="${c.email}"></td>
+<td th:text="${c.mobile}"></td>
+<td th:text="${c.positionApplied}"></td>
+
+<td>
+<span class="badge" th:if="${c.status == 'APPLIED'}">Applied</span>
+<span class="badge" th:if="${c.status == 'SHORTLISTED'}">Shortlisted</span>
+<span class="badge" th:if="${c.status == 'INTERVIEW_SCHEDULED'}">Interview Scheduled</span>
+<span class="badge" th:if="${c.status == 'SELECTED'}">Selected</span>
+<span class="badge" th:if="${c.status == 'OFFER_SENT'}">Offer Sent</span>
+<span class="badge" th:if="${c.status == 'REJECTED'}">Rejected</span>
+</td>
+
+<td>
+<a th:if="${c.status == 'APPLIED'}"
+th:href="@{/candidates/status/{id}/{status}(id=${c.id},status='SHORTLISTED')}"
+class="btn">Shortlist</a>
+
+<a th:if="${c.status == 'SHORTLISTED'}"
+th:href="@{/candidates/status/{id}/{status}(id=${c.id},status='INTERVIEW_SCHEDULED')}"
+class="btn">Interview</a>
+
+<a th:if="${c.status == 'INTERVIEW_SCHEDULED'}"
+th:href="@{/candidates/status/{id}/{status}(id=${c.id},status='SELECTED')}"
+class="btn">Select</a>
+
+<a th:if="${c.status == 'SELECTED'}"
+th:href="@{/candidates/offer/{id}(id=${c.id})}"
+class="btn">Offer Letter</a>
+</td>
+
+<td>
+<a th:if="${c.resumeFile != null}"
+th:href="@{'/uploads/resumes/' + ${c.resumeFile}}"
+target="_blank"
+class="btn">View Resume</a>
+<span th:if="${c.resumeFile == null}">No Resume</span>
+</td>
+
+</tr>
+
+</tbody>
+</table>
+</div>
+
+</body>
+</html>

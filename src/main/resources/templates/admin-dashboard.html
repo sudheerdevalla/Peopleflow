@@ -1,573 +1,641 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Admin Dashboard</title>
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard · PeopleFlow</title>
     <style>
-		
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
-		@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-		
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-		body{
-		    margin:0;
-		    padding:0;
-		    background:#f5f5f7;
-		    font-family:'Inter',sans-serif;
-		    color:#1d1d1f;
-		}
+        html, body {
+            height: 100%;
+            width: 100%;
+        }
 
-		/* SIDEBAR */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
+            color: #0F172A;
+        }
 
-		.sidebar{
-		    width:260px;
-		    height:100vh;
-		    position:fixed;
-		    left:0;
-		    top:0;
-		    background:rgba(255,255,255,0.92);
-		    backdrop-filter:blur(25px);
-		    border-right:1px solid #e5e7eb;
-		    padding-top:30px;
-		    overflow-y:auto;
-		}
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: 280px;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid #E2E8F0;
+            padding-top: 28px;
+            overflow-y: auto;
+            z-index: 1000;
+            scroll-behavior: smooth;
+        }
 
-		.sidebar h2{
-		    color:#111827;
-		    text-align:center;
-		    margin-bottom:45px;
-		    font-weight:800;
-		    font-size:42px;
-		    letter-spacing:-1px;
-		}
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
 
-		.sidebar a{
-		    display:block;
-		    color:#6b7280;
-		    padding:15px 24px;
-		    text-decoration:none;
-		    font-size:17px;
-		    border-radius:14px;
-		    margin:8px 12px;
-		    transition:all .3s ease;
-		    font-weight:500;
-		}
+        .sidebar::-webkit-scrollbar-track {
+            background: transparent;
+        }
 
-		.sidebar a:hover{
-		    background:#111827;
-		    color:white;
-		    transform:translateX(4px);
-		}
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 3px;
+        }
 
-		/* MAIN */
+        .sidebar-brand {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 0 20px;
+        }
 
-		.main{
-		    margin-left:260px;
-		    padding:40px;
-		}
+        .sidebar-brand h2 {
+            font-size: 24px;
+            font-weight: 800;
+            color: #0F172A;
+            letter-spacing: -0.5px;
+            margin-bottom: 4px;
+        }
 
-		/* HERO SECTION */
+        .brand-subtitle {
+            font-size: 11px;
+            color: #94A3B8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
 
-		.banner{
-		    height:340px;
-		    border-radius:38px;
-		    overflow:hidden;
-		    position:relative;
-		    margin-bottom:45px;
+        .sidebar-section {
+            padding: 0 12px;
+            margin-bottom: 24px;
+        }
 
-		    background:
-		    linear-gradient(
-		    135deg,
-		    #0f172a,
-		    #1e293b,
-		    #334155
-		    );
+        .sidebar-section-title {
+            font-size: 11px;
+            color: #94A3B8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 700;
+            padding: 0 12px;
+            margin-bottom: 12px;
+        }
 
-		    box-shadow:
-		    0 25px 60px rgba(0,0,0,.15);
-		}
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #64748B;
+            padding: 10px 12px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            transition: all 0.2s ease;
+        }
 
-		.overlay{
-		    display:none;
-		}
+        .sidebar a:hover {
+            background: #EFF6FF;
+            color: #2563EB;
+            transform: translateX(2px);
+        }
 
-		.banner-content{
-		    position:absolute;
-		    top:50%;
-		    left:60px;
-		    transform:translateY(-50%);
-		    color:white;
-		}
+        .sidebar a.active {
+            background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
+            color: #2563EB;
+            font-weight: 600;
+        }
 
-		.banner-content h1{
-		    font-size:78px;
-		    font-weight:900;
-		    margin:0;
-		    line-height:1;
-		    letter-spacing:-3px;
-		}
+        /* ===== MAIN CONTENT ===== */
+        .main {
+            margin-left: 280px;
+            padding: 40px;
+            min-height: 100vh;
+        }
 
-		.banner-content p{
-		    font-size:22px;
-		    margin-top:20px;
-		    opacity:.9;
-		    max-width:700px;
-		}
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
 
-		/* TITLES */
+        .page-title {
+            font-size: 32px;
+            font-weight: 800;
+            color: #0F172A;
+            letter-spacing: -0.5px;
+        }
 
-		.section-title{
-		    font-size:46px;
-		    font-weight:800;
-		    color:#111827;
-		    margin-bottom:30px;
-		    letter-spacing:-1px;
-		}
+        .page-subtitle {
+            font-size: 14px;
+            color: #64748B;
+            margin-top: 4px;
+        }
 
-		/* CARDS */
+        /* ===== HERO BANNER ===== */
+        .banner {
+            background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 50%, #1E40AF 100%);
+            border-radius: 16px;
+            padding: 48px;
+            margin-bottom: 48px;
+            color: white;
+            box-shadow: 0 20px 60px rgba(37, 99, 235, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
 
-		.dashboard-card{
-		    background:white;
-		    border-radius:32px;
-		    padding:35px;
-		    height:100%;
+        .banner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1), transparent);
+            border-radius: 50%;
+        }
 
-		    border:1px solid #ececec;
+        .banner-content {
+            position: relative;
+            z-index: 2;
+        }
 
-		    box-shadow:
-		    0 10px 35px rgba(0,0,0,.05);
+        .banner h1 {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
 
-		    transition:all .35s ease;
-		}
+        .banner p {
+            font-size: 16px;
+            opacity: 0.95;
+            max-width: 500px;
+        }
 
-		.dashboard-card:hover{
-		    transform:translateY(-10px);
+        /* ===== CARDS GRID ===== */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 48px;
+        }
 
-		    box-shadow:
-		    0 25px 55px rgba(0,0,0,.10);
-		}
+        .kpi-card {
+            background: white;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 24px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
 
-		.dashboard-card h5{
-		    font-size:24px;
-		    font-weight:700;
-		    color:#111827;
-		}
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.05), transparent);
+            border-radius: 50%;
+        }
 
-		.dashboard-card h3{
-		    font-size:64px;
-		    font-weight:900;
-		    color:#111827;
-		    margin-top:15px;
-		    margin-bottom:15px;
-		}
+        .kpi-card:hover {
+            border-color: #CBD5E1;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            transform: translateY(-4px);
+        }
 
-		.dashboard-card p{
-		    color:#6b7280;
-		    font-size:17px;
-		    line-height:1.6;
-		}
+        .kpi-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 12px;
+        }
 
-		/* BUTTONS */
+        .kpi-label {
+            font-size: 12px;
+            uppercase;
+            letter-spacing: 0.5px;
+            color: #94A3B8;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
 
-		.btn-dark{
-		    background:#111827;
-		    border:none;
-		    border-radius:18px;
-		    padding:15px;
-		    font-weight:600;
-		    font-size:16px;
-		    transition:.3s;
-		}
+        .kpi-value {
+            font-size: 40px;
+            font-weight: 800;
+            color: #0F172A;
+            margin-bottom: 8px;
+            line-height: 1;
+        }
 
-		.btn-dark:hover{
-		    background:black;
-		    transform:translateY(-2px);
-		}
+        .kpi-description {
+            font-size: 13px;
+            color: #64748B;
+        }
 
-		/* APPLE GLOW EFFECT */
+        /* ===== CHARTS SECTION ===== */
+        .charts-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 24px;
+            margin-bottom: 48px;
+        }
 
-		.dashboard-card:nth-child(1){
-		    position:relative;
-		}
+        .chart-card {
+            background: white;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 28px;
+            transition: all 0.3s ease;
+        }
 
-		.dashboard-card::before{
-		    content:'';
-		    position:absolute;
-		    top:0;
-		    left:0;
-		    width:100%;
-		    height:100%;
-		    border-radius:32px;
-		    pointer-events:none;
-		}
+        .chart-card:hover {
+            border-color: #CBD5E1;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        }
 
-		/* RESPONSIVE */
+        .chart-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #0F172A;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
 
-		@media(max-width:992px){
+        canvas {
+            max-height: 300px;
+        }
 
-		    .sidebar{
-		        width:100%;
-		        height:auto;
-		        position:relative;
-		    }
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 240px;
+            }
 
-		    .main{
-		        margin-left:0;
-		        padding:20px;
-		    }
+            .main {
+                margin-left: 240px;
+                padding: 24px;
+            }
 
-		    .banner{
-		        height:260px;
-		    }
+            .cards-grid {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 16px;
+            }
 
-		    .banner-content{
-		        left:30px;
-		    }
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+        }
 
-		    .banner-content h1{
-		        font-size:46px;
-		    }
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: -280px;
+                width: 280px;
+                height: 100vh;
+                transition: left 0.3s ease;
+                z-index: 2000;
+            }
 
-		    .section-title{
-		        font-size:34px;
-		    }
+            .sidebar.show {
+                left: 0;
+            }
 
-		    .dashboard-card h3{
-		        font-size:42px;
-		    }
-		}
-		
-		.menu-btn{
-		    display:none;
-		}
+            .main {
+                margin-left: 0;
+                padding: 20px;
+            }
 
-		@media(max-width:992px){
+            .menu-btn {
+                display: block !important;
+            }
 
-		    .menu-btn{
-		        display:block;
-		        position:fixed;
-		        top:15px;
-		        left:15px;
-		        z-index:2000;
+            .page-title {
+                font-size: 24px;
+            }
 
-		        border:none;
-		        background:#111827;
-		        color:white;
+            .banner {
+                padding: 32px;
+            }
 
-		        padding:10px 14px;
-		        border-radius:10px;
-		        font-size:22px;
-		    }
+            .banner h1 {
+                font-size: 24px;
+            }
 
-		    .sidebar{
-		        position:fixed;
-		        left:-280px;
-		        top:0;
-		        width:260px;
-		        height:100vh;
-		        transition:.3s;
-		        z-index:1500;
-		    }
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+        }
 
-		    .sidebar.show{
-		        left:0;
-		    }
-		}
+        .menu-btn {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 2001;
+            background: white;
+            border: 1.5px solid #E2E8F0;
+            color: #0F172A;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .menu-btn:hover {
+            background: #F8FAFC;
+            border-color: #CBD5E1;
+        }
 
     </style>
-	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
 </head>
 
 <body>
-	
-	<button class="menu-btn"
-	        onclick="toggleSidebar()">
-	    ☰
-	</button>
 
-<!-- SIDEBAR -->
+    <!-- Mobile Menu Button -->
+    <button class="menu-btn" onclick="toggleSidebar()">☰</button>
 
-<div class="sidebar" id="sidebar">
+    <!-- ===== SIDEBAR ===== -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <h2>PeopleFlow</h2>
+            <p class="brand-subtitle">v1.0</p>
+        </div>
 
-    <h2>PeopleFlow</h2>
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Main</div>
+            <a href="/admin/dashboard" class="active">🏠 Dashboard</a>
+        </div>
 
-    <a href="/admin/dashboard">🏠 Dashboard</a>
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Management</div>
+            <a href="/admin/employees">👥 Employees</a>
+            <a href="/admin/hierarchy">🌳 Hierarchy</a>
+            <a href="/admin/attendance">📅 Attendance</a>
+            <a href="/admin/holidays">🎉 Holidays</a>
+            <a href="/admin/leaves">📝 Leaves</a>
+        </div>
 
-    <a href="/admin/employees">👨 Employees</a>
-	
-	<a href="/admin/hierarchy">🌳 Employee Hierarchy</a>
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Operations</div>
+            <a href="/travel/admin">✈️ Travel Approvals</a>
+            <a href="/candidates/list">🎯 Recruitment</a>
+            <a href="/admin/updates">📢 Company Updates</a>
+        </div>
 
-    <a href="/admin/attendance">📅 Attendance</a>
-	
-	<a href="/admin/holidays">
-	    🎉 Holiday Calendar
-	</a>
-	
-	<a href="/travel/admin">
-	    ✈️ Travel Approvals
-	</a>
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Account</div>
+            <a href="/logout">🚪 Logout</a>
+        </div>
+    </div>
 
-    <a href="/admin/leaves">📝 Leaves</a>
+    <!-- ===== MAIN CONTENT ===== -->
+    <div class="main">
 
-    <a href="/logout">🚪 Logout</a>
-	
-	<a href="/admin/updates">Company Updates</a>
+        <!-- Header -->
+        <div class="header">
+            <div>
+                <h1 class="page-title">Dashboard</h1>
+                <p class="page-subtitle">Welcome back! Here's your workforce overview.</p>
+            </div>
+        </div>
 
-</div>
+        <!-- Hero Banner -->
+        <div class="banner">
+            <div class="banner-content">
+                <h1>Welcome to PeopleFlow Admin Console</h1>
+                <p>Manage your entire workforce, approvals, and operations from one powerful dashboard.</p>
+            </div>
+        </div>
 
-<!-- MAIN -->
+        <!-- KPI Cards -->
+        <div class="cards-grid">
+            <!-- Total Employees -->
+            <div class="kpi-card">
+                <div class="kpi-icon">👥</div>
+                <div class="kpi-label">Total Employees</div>
+                <div class="kpi-value" th:text="${empCount}">0</div>
+                <div class="kpi-description">Active employees in the system</div>
+            </div>
 
-<div class="main">
+            <!-- Pending Leaves -->
+            <div class="kpi-card">
+                <div class="kpi-icon">📝</div>
+                <div class="kpi-label">Pending Leaves</div>
+                <div class="kpi-value" th:text="${pendingLeaves}">0</div>
+                <div class="kpi-description">Awaiting approval</div>
+            </div>
 
-    <!-- BANNER -->
+            <!-- Present Today -->
+            <div class="kpi-card">
+                <div class="kpi-icon">✅</div>
+                <div class="kpi-label">Present Today</div>
+                <div class="kpi-value" th:text="${presentToday}">0</div>
+                <div class="kpi-description">Employees marked present</div>
+            </div>
 
-    <div class="banner">
+            <!-- Travel Requests -->
+            <div class="kpi-card">
+                <div class="kpi-icon">✈️</div>
+                <div class="kpi-label">Travel Requests</div>
+                <div class="kpi-value" th:text="${travelCount}">0</div>
+                <div class="kpi-description">Pending approvals</div>
+            </div>
 
-        <div class="overlay"></div>
+            <!-- Candidates -->
+            <div class="kpi-card">
+                <div class="kpi-icon">🎯</div>
+                <div class="kpi-label">Candidates</div>
+                <div class="kpi-value" th:text="${candidateCount}">0</div>
+                <div class="kpi-description">In recruitment pipeline</div>
+            </div>
 
-        <div class="banner-content">
+            <!-- Departments -->
+            <div class="kpi-card">
+                <div class="kpi-icon">🏢</div>
+                <div class="kpi-label">Departments</div>
+                <div class="kpi-value" th:text="${departmentCount}">0</div>
+                <div class="kpi-description">Configured departments</div>
+            </div>
+        </div>
 
-            <h1>PeopleFlow Admin Console.</h1>
+        <!-- Charts Section -->
+        <div class="charts-section">
+            <!-- Leave Status Chart -->
+            <div class="chart-card">
+                <h3 class="chart-title">📊 Leave Status Overview</h3>
+                <canvas id="leaveChart"></canvas>
+            </div>
 
-			<p>
-			Manage employees, attendence and approvals from one place.
-			</p>
+            <!-- Department Distribution -->
+            <div class="chart-card">
+                <h3 class="chart-title">🏢 Department Distribution</h3>
+                <canvas id="departmentChart"></canvas>
+            </div>
 
+            <!-- Travel Requests Chart -->
+            <div class="chart-card">
+                <h3 class="chart-title">✈️ Travel Requests</h3>
+                <canvas id="travelChart"></canvas>
+            </div>
+
+            <!-- Candidate Pipeline -->
+            <div class="chart-card">
+                <h3 class="chart-title">🎯 Recruitment Pipeline</h3>
+                <canvas id="candidateChart"></canvas>
+            </div>
         </div>
 
     </div>
 
-    <!-- CARDS -->
+    <!-- Chart Scripts -->
+    <script th:inline="javascript">
+        // Leave Chart
+        const approvedLeaves = [[${approvedLeaves}]];
+        const pendingLeaves = [[${pendingLeaves}]];
+        const rejectedLeaves = [[${rejectedLeaves}]];
 
-    <h2 class="section-title">Overview</h2>
+        new Chart(document.getElementById('leaveChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Approved', 'Pending', 'Rejected'],
+                datasets: [{
+                    label: 'Leave Requests',
+                    data: [approvedLeaves, pendingLeaves, rejectedLeaves],
+                    backgroundColor: ['#22C55E', '#F59E0B', '#EF4444'],
+                    borderRadius: 8,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: { legend: { display: false } },
+                scales: { 
+                    y: { beginAtZero: true, grid: { color: '#F1F5F9' } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
 
-    <div class="row g-4">
+        // Department Chart
+        const itCount = [[${itCount}]];
+        const hrCount = [[${hrCount}]];
+        const financeCount = [[${financeCount}]];
+        const adminCount = [[${adminCount}]];
 
-        <!-- TOTAL EMPLOYEES -->
+        new Chart(document.getElementById('departmentChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['IT', 'HR', 'Finance', 'Admin'],
+                datasets: [{
+                    data: [itCount, hrCount, financeCount, adminCount],
+                    backgroundColor: ['#2563EB', '#7C3AED', '#F59E0B', '#EF4444'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: { legend: { position: 'bottom' } }
+            }
+        });
 
-		<div class="row g-4">
+        // Travel Chart
+        const approvedTravel = [[${approvedTravel}]];
+        const pendingTravel = [[${pendingTravel}]];
+        const rejectedTravel = [[${rejectedTravel}]];
 
-		    <!-- TOTAL EMPLOYEES -->
-		    <div class="col-md-4">
-		        <div class="dashboard-card text-center">
-		            <h5>Total Employees</h5>
-		            <h3 th:text="${empCount}">0</h3>
-		            <p>Total employees available in company</p>
-		        </div>
-		    </div>
+        new Chart(document.getElementById('travelChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Approved', 'Pending', 'Rejected'],
+                datasets: [{
+                    label: 'Travel Requests',
+                    data: [approvedTravel, pendingTravel, rejectedTravel],
+                    backgroundColor: ['#22C55E', '#F59E0B', '#EF4444'],
+                    borderRadius: 8,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: { legend: { display: false } },
+                scales: { 
+                    y: { beginAtZero: true, grid: { color: '#F1F5F9' } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
 
-		    <!-- PENDING LEAVES -->
-		    <div class="col-md-4">
-		        <div class="dashboard-card text-center">
-		            <h5>Pending Leaves</h5>
-		            <h3 th:text="${pendingLeaves}">0</h3>
-		            <p>Awaiting approval</p>
-		        </div>
-		    </div>
+        // Candidate Chart
+        const appliedCandidates = [[${appliedCandidates}]];
+        const shortlistedCandidates = [[${shortlistedCandidates}]];
+        const selectedCandidates = [[${selectedCandidates}]];
+        const rejectedCandidates = [[${rejectedCandidates}]];
 
-		    <!-- PRESENT TODAY -->
-		    <div class="col-md-4">
-		        <div class="dashboard-card text-center">
-		            <h5>Present Today</h5>
-		            <h3 th:text="${presentToday}">0</h3>
-		            <p>Employees marked present</p>
-		        </div>
-		    </div>
+        new Chart(document.getElementById('candidateChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Applied', 'Shortlisted', 'Selected', 'Rejected'],
+                datasets: [{
+                    label: 'Candidates',
+                    data: [appliedCandidates, shortlistedCandidates, selectedCandidates, rejectedCandidates],
+                    backgroundColor: ['#3B82F6', '#10B981', '#2563EB', '#EF4444'],
+                    borderRadius: 8,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: { legend: { display: false } },
+                scales: { 
+                    y: { beginAtZero: true, grid: { color: '#F1F5F9' } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    </script>
 
-		    <!-- TRAVEL REQUESTS -->
-		    <div class="col-md-4">
-		        <div class="dashboard-card text-center">
-		            <h5>Travel Requests</h5>
-		            <h3 th:text="${travelCount}">0</h3>
-		            <p>Pending travel approvals</p>
-		        </div>
-		    </div>
-
-		    <!-- DEPARTMENTS -->
-		    <div class="col-md-4">
-		        <div class="dashboard-card text-center">
-		            <h5>Departments</h5>
-		            <h3 th:text="${departmentCount}">0</h3>
-		            <p>Departments configured</p>
-		        </div>
-		    </div>
-
-		    <!-- SYSTEM HEALTH -->
-		    <div class="col-md-4">
-		        <div class="dashboard-card text-center">
-		            <h5>System Health</h5>
-		            <h3>✅</h3>
-		            <p>All PeopleFlow services are operational</p>
-		        </div>
-		    </div>
-			<div class="row mt-5">
-
-			    <div class="col-md-12">
-
-			        <div class="dashboard-card">
-
-			            <h4>📊 Leave Status Overview</h4>
-
-			            <canvas id="leaveChart"></canvas>
-
-			        </div>
-
-			    </div>
-
-			</div>
-			<div class="row mt-5">
-
-			    <div class="col-md-6">
-
-			        <div class="dashboard-card">
-
-			            <h4>🥧 Department Distribution</h4>
-
-			            <canvas id="departmentChart"></canvas>
-
-			        </div>
-
-			    </div>
-
-			</div>
-			<div class="row mt-5">
-
-			    <div class="col-md-12">
-
-			        <div class="dashboard-card">
-
-			            <h4>✈️ Travel Request Overview</h4>
-
-			            <div style="height:350px;">
-			                <canvas id="travelChart"></canvas>
-			            </div>
-
-			        </div>
-
-			    </div>
-
-			</div>
-
-		</div>
-</div>
-<script th:inline="javascript">
-
-const approvedLeaves = [[${approvedLeaves}]];
-const pendingLeaves = [[${pendingLeaves}]];
-const rejectedLeaves = [[${rejectedLeaves}]];
-
-new Chart(
-    document.getElementById('leaveChart'),
-    {
-        type: 'bar',
-        data: {
-            labels: [
-                'Approved',
-                'Pending',
-                'Rejected'
-            ],
-            datasets: [{
-                label: 'Leave Requests',
-                data: [
-                    approvedLeaves,
-                    pendingLeaves,
-                    rejectedLeaves
-                ]
-            }]
+    <script>
+        function toggleSidebar() {
+            document.getElementById("sidebar").classList.toggle("show");
         }
-    }
-);
 
-</script>
-<script th:inline="javascript">
+        // Close sidebar when clicking a link on mobile
+        document.querySelectorAll('.sidebar a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    document.getElementById("sidebar").classList.remove("show");
+                }
+            });
+        });
+    </script>
 
-const itCount = [[${itCount}]];
-const hrCount = [[${hrCount}]];
-const financeCount = [[${financeCount}]];
-const adminCount = [[${adminCount}]];
-
-new Chart(
-    document.getElementById('departmentChart'),
-    {
-        type: 'pie',
-
-        data: {
-            labels: [
-                'IT',
-                'HR',
-                'Finance',
-                'Admin'
-            ],
-
-            datasets: [{
-                data: [
-                    itCount,
-                    hrCount,
-                    financeCount,
-                    adminCount
-                ]
-            }]
-        }
-    }
-);
-
-</script>
-<script th:inline="javascript">
-
-const approvedTravel =
-[[${approvedTravel}]];
-
-const pendingTravel =
-[[${pendingTravel}]];
-
-const rejectedTravel =
-[[${rejectedTravel}]];
-
-new Chart(
-    document.getElementById('travelChart'),
-    {
-        type:'bar',
-
-        data:{
-            labels:[
-                'Approved',
-                'Pending',
-                'Rejected'
-            ],
-
-            datasets:[{
-                label:'Travel Requests',
-
-                data:[
-                    approvedTravel,
-                    pendingTravel,
-                    rejectedTravel
-                ]
-            }]
-        },
-
-        options:{
-            responsive:true,
-            maintainAspectRatio:false
-        }
-    }
-);
-
-</script>
-
-<script>
-
-function toggleSidebar(){
-
-    document
-        .getElementById("sidebar")
-        .classList
-        .toggle("show");
-}
-
-</script>
 </body>
 </html>

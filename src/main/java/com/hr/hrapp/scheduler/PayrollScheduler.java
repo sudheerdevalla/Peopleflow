@@ -3,6 +3,8 @@ package com.hr.hrapp.scheduler;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +17,8 @@ import com.hr.hrapp.repository.EmployeeRepository;
 
 @Component
 public class PayrollScheduler {
+
+    private static final Logger logger = LoggerFactory.getLogger(PayrollScheduler.class);
 
     @Autowired
     private EmployeeRepository employeeRepository;
@@ -39,7 +43,7 @@ public class PayrollScheduler {
     @Scheduled(cron = "0 0 23 L * ?")
     public void autoGeneratePayroll() {
 
-        System.out.println("AUTO PAYROLL STARTED");
+        logger.info("AUTO PAYROLL STARTED");
 
         List<Employee> employees =
                 employeeRepository.findAll();
@@ -56,22 +60,15 @@ public class PayrollScheduler {
                         payroll,
                         employee.getEmail());
 
-                System.out.println(
-                        "PAYROLL SENT TO : "
-                        + employee.getEmail());
+                logger.info("PAYROLL SENT TO : {}", employee.getEmail());
 
             } catch (Exception e) {
 
-                System.out.println(
-                        "FAILED FOR : "
-                        + employee.getEmail());
-
-                e.printStackTrace();
+                logger.error("FAILED FOR : {}", employee.getEmail(), e);
             }
         }
 
-        System.out.println(
-                "AUTO PAYROLL COMPLETED");
+        logger.info("AUTO PAYROLL COMPLETED");
     }
 
     // =========================
@@ -85,13 +82,10 @@ public class PayrollScheduler {
         try {
 
             ceoReportService.sendCEOReport();
-
-            System.out.println(
-                    "CEO REPORT SENT");
+            logger.info("CEO REPORT SENT");
 
         } catch (Exception e) {
-
-            e.printStackTrace();
+            logger.error("Failed to send CEO report", e);
         }
     }
 }

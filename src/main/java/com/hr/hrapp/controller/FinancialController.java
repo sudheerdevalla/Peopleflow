@@ -47,6 +47,9 @@ public class FinancialController {
     @Autowired
     private PayrollRepository payrollRepository;
 
+	//@Autowired
+	//private EmailService emailService;
+
     // ================== MAIN PAGE ==================
     @GetMapping("/financial")
     public String financial(@RequestParam(required = false)

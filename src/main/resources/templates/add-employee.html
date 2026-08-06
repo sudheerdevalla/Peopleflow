@@ -1,168 +1,419 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <title>Add Employee</title>
 
-    <!-- Bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Employee · PeopleFlow</title>
 
     <style>
-        body {
-            background-color: #f4f6f9;
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
+            color: #0F172A;
+        }
+
+        /* ===== SIDEBAR ===== */
         .sidebar {
+            width: 280px;
             height: 100vh;
-            background: #343a40;
-            color: white;
-            padding: 20px;
+            position: fixed;
+            left: 0;
+            top: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid #E2E8F0;
+            padding-top: 28px;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 3px;
+        }
+
+        .sidebar-brand {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .sidebar-brand h2 {
+            font-size: 20px;
+            font-weight: 800;
+            color: #0F172A;
+            letter-spacing: -0.5px;
         }
 
         .sidebar a {
-            color: white;
-            display: block;
-            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #64748B;
+            padding: 10px 12px;
             text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            border-radius: 8px;
+            margin: 0 12px 8px;
+            transition: all 0.2s ease;
         }
 
         .sidebar a:hover {
-            color: #0d6efd;
+            background: #EFF6FF;
+            color: #2563EB;
         }
 
-        .card {
-            border-radius: 15px;
+        /* ===== MAIN ===== */
+        .main {
+            margin-left: 280px;
+            padding: 40px;
+            min-height: 100vh;
         }
+
+        .page-header {
+            margin-bottom: 32px;
+        }
+
+        .page-title {
+            font-size: 32px;
+            font-weight: 800;
+            color: #0F172A;
+            letter-spacing: -0.5px;
+        }
+
+        .page-subtitle {
+            font-size: 14px;
+            color: #64748B;
+            margin-top: 4px;
+        }
+
+        /* ===== FORM CONTAINER ===== */
+        .form-container {
+            max-width: 600px;
+            background: white;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+        }
+
+        .form-section {
+            margin-bottom: 28px;
+        }
+
+        .section-divider {
+            height: 1px;
+            background: #E2E8F0;
+            margin: 32px 0;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #94A3B8;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #1E293B;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1.5px solid #E2E8F0;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #0F172A;
+            background: #F8FAFC;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .form-group input::placeholder {
+            color: #94A3B8;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #2563EB;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-row.full {
+            grid-template-columns: 1fr;
+        }
+
+        /* ===== BUTTONS ===== */
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #2563EB;
+            border: 1.5px solid #2563EB;
+        }
+
+        .btn-secondary:hover {
+            background: #EFF6FF;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 240px;
+            }
+
+            .main {
+                margin-left: 240px;
+                padding: 24px;
+            }
+
+            .form-container {
+                max-width: 100%;
+                padding: 24px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: -280px;
+                width: 280px;
+                height: 100vh;
+                transition: left 0.3s ease;
+                z-index: 2000;
+            }
+
+            .sidebar.show {
+                left: 0;
+            }
+
+            .main {
+                margin-left: 0;
+                padding: 20px;
+            }
+
+            .menu-btn {
+                display: block !important;
+            }
+
+            .page-title {
+                font-size: 24px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+        }
+
+        .menu-btn {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 2001;
+            background: white;
+            border: 1.5px solid #E2E8F0;
+            color: #0F172A;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .menu-btn:hover {
+            background: #F8FAFC;
+        }
+
     </style>
+
 </head>
 
 <body>
 
-<div class="container-fluid">
-    <div class="row">
+    <!-- Mobile Menu Button -->
+    <button class="menu-btn" onclick="toggleSidebar()">☰</button>
 
-        <!-- Sidebar -->
-        <div class="col-md-2 sidebar">
-            <h4>HR Portal</h4>
+    <!-- ===== SIDEBAR ===== -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <h2>PeopleFlow</h2>
+        </div>
+        <a href="/admin/dashboard">🏠 Dashboard</a>
+        <a href="/admin/employees">👥 Employees</a>
+        <a href="/admin/attendance">📅 Attendance</a>
+        <a href="/logout">🚪 Logout</a>
+    </div>
 
-            <a href="/admin/dashboard">🏠 Dashboard</a>
-            <a href="/admin/employees">👨‍💼 Employees</a>
-            <a href="/admin/attendance">📅 Attendance</a>
-            <a href="/logout">🚪 Logout</a>
+    <!-- ===== MAIN ===== -->
+    <div class="main">
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">Add Employee</h1>
+            <p class="page-subtitle">Create a new employee profile</p>
         </div>
 
-        <!-- Main Content -->
-        <div class="col-md-10 p-4">
+        <!-- Form Container -->
+        <div class="form-container">
+            <form th:action="@{/admin/save-employees}" method="post" th:object="${employee}">
 
-            <h2 class="mb-4">Add New Employee</h2>
+                <!-- ===== BASIC DETAILS ===== -->
+                <div class="form-section">
+                    <div class="section-title">👤 Basic Details</div>
 
-            <div class="card shadow p-4" style="max-width:600px;">
-
-                <form th:action="@{/admin/save-employees}"
-                      th:object="${employee}"
-                      method="post">
-
-                    <!-- Employee Name -->
-                    <div class="mb-3">
-                        <label class="form-label">Employee Name</label>
-
-                        <input type="text"
-                               th:field="*{name}"
-                               class="form-control"
-                               placeholder="Enter name"
-                               required>
+                    <div class="form-group">
+                        <label for="name">Employee Name</label>
+                        <input type="text" id="name" th:field="*{name}" placeholder="Enter full name" required>
                     </div>
 
-                    <!-- Email -->
-                    <div class="mb-3">
-                        <label class="form-label">Email</label>
-
-                        <input type="email"
-                               th:field="*{email}"
-                               class="form-control"
-                               placeholder="Enter email"
-                               required>
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" th:field="*{email}" placeholder="Enter email" required>
                     </div>
 
-                    <!-- Salary -->
-                    <div class="mb-3">
-                        <label class="form-label">Salary</label>
-
-                        <input type="number"
-                               th:field="*{basicSalary}"
-                               class="form-control"
-                               placeholder="Enter salary"
-                               required>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="joiningDate">Joining Date</label>
+                            <input type="date" id="joiningDate" th:field="*{joiningDate}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="status">Status</label>
+                            <select id="status" th:field="*{status}" required>
+                                <option value="">Select Status</option>
+                                <option value="Active">Active</option>
+                                <option value="Inactive">Inactive</option>
+                            </select>
+                        </div>
                     </div>
+                </div>
 
-                    <!-- Joining Date -->
-                    <div class="mb-3">
-                        <label class="form-label">Joining Date</label>
+                <div class="section-divider"></div>
 
-                        <input type="date"
-                               th:field="*{joiningDate}"
-                               class="form-control"
-                               required>
+                <!-- ===== PAYROLL DETAILS ===== -->
+                <div class="form-section">
+                    <div class="section-title">💰 Payroll Details</div>
+
+                    <div class="form-group">
+                        <label for="basicSalary">Basic Salary</label>
+                        <input type="number" id="basicSalary" th:field="*{basicSalary}" placeholder="Enter salary" required>
                     </div>
+                </div>
 
-                    <!-- Status -->
-                    <div class="mb-3">
-                        <label class="form-label">Status</label>
+                <div class="section-divider"></div>
 
-                        <select th:field="*{status}"
-                                class="form-control">
+                <!-- ===== MANAGER ASSIGNMENT ===== -->
+                <div class="form-section">
+                    <div class="section-title">🔐 Manager Assignment</div>
 
-                            <option value="Active">Active</option>
-                            <option value="Inactive">Inactive</option>
-
+                    <div class="form-group">
+                        <label for="managerId">Assign Manager</label>
+                        <select id="managerId" name="manager.empId">
+                            <option value="">Select Manager</option>
+                            <option th:each="mgr : ${managers}" th:value="${mgr.empId}" th:text="${mgr.name}">
+                            </option>
                         </select>
                     </div>
+                </div>
 
-                    <!-- Manager Dropdown -->
-                    <div class="mb-3">
+                <!-- ===== BUTTONS ===== -->
+                <div class="button-group">
+                    <button type="submit" class="btn btn-primary">
+                        💾 Save Employee
+                    </button>
+                    <a href="/admin/employees" class="btn btn-secondary">
+                        ✕ Cancel
+                    </a>
+                </div>
 
-                        <label class="form-label">
-                            Assign Manager
-                        </label>
-
-                        <select name="manager.empId"
-                                class="form-control">
-
-                            <option value="">
-                                Select Manager
-                            </option>
-
-                            <option th:each="mgr : ${managers}"
-                                    th:value="${mgr.empId}"
-                                    th:text="${mgr.name}">
-                            </option>
-
-                        </select>
-						
-                    </div>
-
-                    <!-- Buttons -->
-                    <div class="d-flex justify-content-between">
-
-                        <a href="/admin/employees"
-                           class="btn btn-secondary">
-                            ⬅ Back
-                        </a>
-
-                        <button type="submit"
-                                class="btn btn-success">
-                            💾 Save
-                        </button>
-
-                    </div>
-
-                </form>
-
-            </div>
-
+            </form>
         </div>
 
     </div>
-</div>
+
+    <script>
+        function toggleSidebar() {
+            document.getElementById("sidebar").classList.toggle("show");
+        }
+
+        document.querySelectorAll('.sidebar a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    document.getElementById("sidebar").classList.remove("show");
+                }
+            });
+        });
+    </script>
 
 </body>
+
 </html>

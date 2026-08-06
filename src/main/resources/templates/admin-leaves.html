@@ -3,67 +3,682 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Admin Leaves</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leave Requests · PeopleFlow</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-          rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+        :root {
+            --bg-start: #F8FAFC;
+            --bg-end: #EEF2FF;
+            --surface: rgba(255,255,255,0.92);
+            --surface-solid: #FFFFFF;
+            --surface-muted: #F8FAFC;
+            --border: #E2E8F0;
+            --border-strong: #CBD5E1;
+            --text-primary: #0F172A;
+            --text-secondary: #475569;
+            --text-muted: #94A3B8;
+            --brand: #2563EB;
+            --brand-dark: #1D4ED8;
+            --brand-soft: #EFF6FF;
+            --success-soft: #ECFDF5;
+            --success-text: #065F46;
+            --warning-soft: #FFFBEB;
+            --warning-text: #92400E;
+            --danger-soft: #FEF2F2;
+            --danger-text: #991B1B;
+            --shadow-sm: 0 12px 30px rgba(15, 23, 42, 0.06);
+            --shadow-md: 0 22px 55px rgba(15, 23, 42, 0.10);
+            --shadow-lg: 0 28px 80px rgba(37, 99, 235, 0.16);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(37, 99, 235, 0.12), transparent 30%),
+                radial-gradient(circle at bottom right, rgba(59, 130, 246, 0.10), transparent 24%),
+                linear-gradient(135deg, var(--bg-start) 0%, var(--bg-end) 100%);
+            color: var(--text-primary);
+        }
+
+        .sidebar {
+            width: 280px;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            background: rgba(255, 255, 255, 0.90);
+            backdrop-filter: blur(18px);
+            border-right: 1px solid rgba(226, 232, 240, 0.92);
+            padding: 28px 16px 24px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: inset -1px 0 0 rgba(255,255,255,0.65);
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 999px;
+        }
+
+        .sidebar-brand {
+            text-align: left;
+            margin-bottom: 28px;
+            padding: 0 8px;
+        }
+
+        .sidebar-brand h2 {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--text-primary);
+            letter-spacing: -0.6px;
+            margin-bottom: 6px;
+        }
+
+        .sidebar-brand::after {
+            content: 'Admin workspace';
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-secondary);
+            padding: 12px 14px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 12px;
+            margin: 0 0 8px;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+
+        .sidebar a:hover {
+            background: var(--brand-soft);
+            color: var(--brand);
+            border-color: #DBEAFE;
+            transform: translateX(2px);
+        }
+
+        .sidebar a[href="/admin/leaves"] {
+            background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
+            color: var(--brand);
+            border-color: #BFDBFE;
+            box-shadow: 0 10px 22px rgba(37, 99, 235, 0.10);
+        }
+
+        .main {
+            margin-left: 280px;
+            padding: 32px;
+            min-height: 100vh;
+        }
+
+        .page-shell {
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            margin-bottom: 26px;
+        }
+
+        .hero {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 52%, #2563EB 100%);
+            border-radius: 28px;
+            padding: 32px;
+            color: white;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .hero::before,
+        .hero::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,255,0.18), transparent 68%);
+        }
+
+        .hero::before {
+            width: 360px;
+            height: 360px;
+            top: -180px;
+            right: -100px;
+        }
+
+        .hero::after {
+            width: 220px;
+            height: 220px;
+            bottom: -120px;
+            left: -20px;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: minmax(0, 1.4fr) minmax(260px, 0.6fr);
+            gap: 24px;
+            align-items: center;
+        }
+
+        .page-title {
+            font-size: 36px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 10px;
+        }
+
+        .page-subtitle {
+            font-size: 14px;
+            line-height: 1.8;
+            color: rgba(255,255,255,0.82);
+            max-width: 680px;
+        }
+
+        .hero-panel {
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.14);
+            border-radius: 22px;
+            padding: 20px;
+            backdrop-filter: blur(12px);
+        }
+
+        .hero-panel-label {
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: rgba(255,255,255,0.70);
+            margin-bottom: 8px;
+        }
+
+        .hero-panel-value {
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: 6px;
+        }
+
+        .hero-panel-copy {
+            font-size: 13px;
+            line-height: 1.7;
+            color: rgba(255,255,255,0.80);
+        }
+
+        .alert-error {
+            background: rgba(254, 242, 242, 0.92);
+            border: 1px solid #FECACA;
+            color: var(--danger-text);
+            padding: 14px 16px;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: 700;
+            margin: 22px 0;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.88);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(226, 232, 240, 0.92);
+            border-radius: 22px;
+            padding: 22px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .stat-label {
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+        }
+
+        .stat-copy {
+            font-size: 13px;
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+
+        .table-card {
+            background: var(--surface);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(226,232,240,0.92);
+            border-radius: 26px;
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+        }
+
+        .table-header {
+            padding: 26px 28px 18px;
+            border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .table-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+            letter-spacing: -0.4px;
+        }
+
+        .table-subtitle {
+            font-size: 13px;
+            line-height: 1.7;
+            color: var(--text-secondary);
+        }
+
+        .table-chip {
+            background: var(--brand-soft);
+            color: var(--brand);
+            border: 1px solid #BFDBFE;
+            border-radius: 999px;
+            padding: 8px 12px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            padding: 0 14px 14px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 12px;
+        }
+
+        thead {
+            background: transparent;
+            border-bottom: none;
+        }
+
+        th {
+            padding: 0 14px 8px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        tbody tr {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        tbody tr:hover {
+            transform: translateY(-2px);
+        }
+
+        tbody td {
+            background: var(--surface-solid);
+            padding: 18px 14px;
+            font-size: 13px;
+            color: #334155;
+            border-top: 1px solid #EEF2F7;
+            border-bottom: 1px solid #EEF2F7;
+        }
+
+        tbody td:first-child {
+            border-left: 1px solid #EEF2F7;
+            border-top-left-radius: 16px;
+            border-bottom-left-radius: 16px;
+        }
+
+        tbody td:last-child {
+            border-right: 1px solid #EEF2F7;
+            border-top-right-radius: 16px;
+            border-bottom-right-radius: 16px;
+        }
+
+        .badge-status {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 7px 12px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+        }
+
+        .badge-pending {
+            background: var(--warning-soft);
+            color: var(--warning-text);
+            border: 1px solid #FDE68A;
+        }
+
+        .badge-approved {
+            background: var(--success-soft);
+            color: var(--success-text);
+            border: 1px solid #BBF7D0;
+        }
+
+        .badge-rejected {
+            background: var(--danger-soft);
+            color: var(--danger-text);
+            border: 1px solid #FECACA;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 8px 14px;
+            border: 1px solid;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background: white;
+        }
+
+        .btn-approve {
+            background: var(--success-soft);
+            color: var(--success-text);
+            border-color: #BBF7D0;
+        }
+
+        .btn-approve:hover {
+            background: #D1FAE5;
+            border-color: #6EE7B7;
+            transform: translateY(-1px);
+        }
+
+        .btn-reject {
+            background: var(--danger-soft);
+            color: var(--danger-text);
+            border-color: #FECACA;
+        }
+
+        .btn-reject:hover {
+            background: #FEE2E2;
+            border-color: #F87171;
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 240px;
+            }
+
+            .main {
+                margin-left: 240px;
+                padding: 24px;
+            }
+
+            .stats-grid,
+            .hero-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: -280px;
+                width: 280px;
+                height: 100vh;
+                transition: left 0.3s ease;
+                z-index: 2000;
+            }
+
+            .sidebar.show {
+                left: 0;
+            }
+
+            .main {
+                margin-left: 0;
+                padding: 18px;
+            }
+
+            .menu-btn {
+                display: block !important;
+            }
+
+            .page-title {
+                font-size: 28px;
+            }
+
+            .hero,
+            .table-card {
+                border-radius: 22px;
+            }
+
+            .hero {
+                padding: 24px 20px;
+            }
+
+            .table-header {
+                padding: 20px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            table {
+                border-spacing: 0 10px;
+            }
+
+            th,
+            tbody td {
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+        }
+
+        .menu-btn {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 2001;
+            background: rgba(255,255,255,0.95);
+            border: 1.5px solid var(--border);
+            color: var(--text-primary);
+            padding: 10px 12px;
+            border-radius: 12px;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: var(--shadow-sm);
+            backdrop-filter: blur(12px);
+        }
+
+        .menu-btn:hover {
+            background: white;
+        }
+
+    </style>
+
 </head>
 
 <body>
 
-<div class="container mt-5">
+    <!-- Mobile Menu Button -->
+    <button class="menu-btn" onclick="toggleSidebar()">☰</button>
 
-    <h2>Leave Requests</h2>
+    <!-- ===== SIDEBAR ===== -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <h2>PeopleFlow</h2>
+        </div>
+        <a href="/admin/dashboard">🏠 Dashboard</a>
+        <a href="/admin/employees">👥 Employees</a>
+        <a href="/admin/attendance">📅 Attendance</a>
+        <a href="/admin/leaves">📝 Leaves</a>
+        <a href="/logout">🚪 Logout</a>
+    </div>
 
-    <table class="table table-bordered">
+    <!-- ===== MAIN ===== -->
+    <div class="main">
+        <div class="page-shell">
 
-        <tr>
-            <th>Employee ID</th>
-            <th>Date</th>
-            <th>Type</th>
-            <th>Status</th>
-        </tr>
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="hero">
+                    <div class="hero-content">
+                        <div>
+                            <h1 class="page-title">Leave Requests</h1>
+                            <p class="page-subtitle">Review employee leave submissions, monitor approval status clearly, and complete decisions from a unified PeopleFlow admin workspace.</p>
+                        </div>
+                        <div class="hero-panel">
+                            <div class="hero-panel-label">Approval center</div>
+                            <div class="hero-panel-value">PeopleFlow Admin</div>
+                            <div class="hero-panel-copy">Process pending leave requests with the same workflows while presenting a clearer enterprise review experience.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-		<tr th:each="l : ${leaves}">
+            <div class="alert-error" th:if="${errorMessage}">
+                ⚠️ <span th:text="${errorMessage}"></span>
+            </div>
 
-		    <td th:text="${l.empId}"></td>
-		    <td th:text="${l.date}"></td>
-		    <td th:text="${l.type}"></td>
-		    <td th:text="${l.status}"></td>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Workflow</div>
+                    <div class="stat-value">Leave Governance</div>
+                    <div class="stat-copy">Centralized approval management for workforce absence requests.</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Action Model</div>
+                    <div class="stat-value">Approve / Reject</div>
+                    <div class="stat-copy">Existing approval and rejection actions remain unchanged across the page.</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">View</div>
+                    <div class="stat-value">All Requests</div>
+                    <div class="stat-copy">Status visibility is emphasized for faster review and decision making.</div>
+                </div>
+            </div>
 
-			<td>
+            <div class="table-card">
 
-			    <th:block th:if="${l.status == 'PENDING'}">
+                <!-- Table Header -->
+                <div class="table-header">
+                    <div>
+                        <h2 class="table-title">📋 All Leave Requests</h2>
+                        <p class="table-subtitle">Inspect leave type, request date, current status, and available actions without affecting any backend behavior.</p>
+                    </div>
+                    <div class="table-chip">Operations Queue</div>
+                </div>
 
-			        <a th:href="@{/admin/approve-leave/{id}(id=${l.id})}"
-			           class="btn btn-success btn-sm">
-			            Approve
-			        </a>
+                <!-- Table -->
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Employee ID</th>
+                                <th>Date</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="l : ${leaves}">
+                                <td th:text="${l.empId}">-</td>
+                                <td th:text="${l.date}">-</td>
+                                <td th:text="${l.type}">-</td>
+                                <td>
+                                    <span class="badge-status"
+                                          th:classappend="${l.status == 'APPROVED' ? 'badge-approved' : l.status == 'REJECTED' ? 'badge-rejected' : 'badge-pending'}"
+                                          th:text="${l.status}">
+                                        PENDING
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <th:block th:if="${l.status == 'PENDING'}">
+                                            <a th:href="@{/admin/approve-leave/{id}(id=${l.id})}" class="action-btn btn-approve">✓ Approve</a>
+                                            <a th:href="@{/admin/reject-leave/{id}(id=${l.id})}" class="action-btn btn-reject">✕ Reject</a>
+                                        </th:block>
+                                        <th:block th:unless="${l.status == 'PENDING'}">
+                                            <span style="font-size: 12px; color: #94A3B8; font-weight: 700;">Already <span th:text="${l.status}"></span></span>
+                                        </th:block>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
 
-			        <a th:href="@{/admin/reject-leave/{id}(id=${l.id})}"
-			           class="btn btn-danger btn-sm">
-			            Reject
-			        </a>
+            </div>
 
-			    </th:block>
+        </div>
+    </div>
 
-			    <span th:if="${l.status == 'APPROVED'}"
-			          class="badge bg-success">
-			        Approved
-			    </span>
+    <script>
+        function toggleSidebar() {
+            document.getElementById("sidebar").classList.toggle("show");
+        }
 
-			    <span th:if="${l.status == 'REJECTED'}"
-			          class="badge bg-danger">
-			        Rejected
-			    </span>
-
-			</td>
-
-		</tr>
-
-    </table>
-
-</div>
+        document.querySelectorAll('.sidebar a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    document.getElementById("sidebar").classList.remove("show");
+                }
+            });
+        });
+    </script>
 
 </body>
+
 </html>

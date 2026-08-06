@@ -62,12 +62,12 @@ public class LeaveService {
         // Save leave
         leaveRepository.save(leave);
 
-        // Get employee
+        // Get employee (fetch manager with JOIN FETCH to avoid N+1)
         Employee employee = employeeRepository
-                .findById(leave.getEmpId())
+                .findByEmpIdWithManager(leave.getEmpId())
                 .orElseThrow();
 
-        // Get manager
+        // Get manager (already fetched)
         Employee manager = employee.getManager();
 
         // Send mail to manager

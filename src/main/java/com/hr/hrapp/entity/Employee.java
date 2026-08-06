@@ -125,7 +125,7 @@ public class Employee {
     // =========================
 
     @JsonIgnore
-    @OneToMany(mappedBy = "manager")
+    @OneToMany(mappedBy = "manager", fetch = jakarta.persistence.FetchType.LAZY)
     private List<Employee> subordinates =
             new ArrayList<>();
 

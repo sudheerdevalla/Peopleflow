@@ -2,40 +2,194 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>Employee Hierarchy</title>
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-          rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Hierarchy · PeopleFlow</title>
 
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
         body {
-            background: #f4f6f9;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
+            color: #0F172A;
+            min-height: 100vh;
         }
 
-        .tree-card {
+        /* ===== CONTAINER ===== */
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        /* ===== PAGE HEADER ===== */
+        .page-header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .page-title {
+            font-size: 32px;
+            font-weight: 800;
+            color: #0F172A;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            font-size: 14px;
+            color: #64748B;
+        }
+
+        /* ===== HIERARCHY CARD ===== */
+        .hierarchy-card {
             background: white;
+            border: 1px solid #E2E8F0;
             border-radius: 12px;
-            padding: 20px;
+            padding: 28px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease;
+        }
+
+        .hierarchy-card:hover {
+            border-color: #CBD5E1;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            transform: translateY(-4px);
+        }
+
+        /* ===== MANAGER SECTION ===== */
+        .manager-section {
             margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
-        ul {
-            list-style-type: none;
+        .manager-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #2563EB;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
+            border-left: 4px solid #2563EB;
+            border-radius: 6px;
+            margin-bottom: 16px;
         }
 
-        li {
-            margin: 10px 0;
+        .manager-icon {
+            font-size: 20px;
         }
 
-        .manager {
-            font-weight: bold;
-            color: #0d6efd;
+        /* ===== SUBORDINATES LIST ===== */
+        .subordinates-list {
+            list-style: none;
+            margin-left: 0;
         }
 
-        .employee {
-            margin-left: 30px;
+        .subordinate-item {
+            padding: 12px 16px;
+            margin: 8px 0;
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.2s ease;
+            margin-left: 16px;
+        }
+
+        .subordinate-item:hover {
+            background: #EFF6FF;
+            border-color: #BFDBFE;
+            transform: translateX(4px);
+        }
+
+        .subordinate-icon {
+            font-size: 18px;
+            color: #64748B;
+        }
+
+        .subordinate-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #334155;
+        }
+
+        /* ===== EMPTY STATE ===== */
+        .empty-state {
+            background: white;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 48px 32px;
+            text-align: center;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .empty-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0F172A;
+            margin-bottom: 8px;
+        }
+
+        .empty-message {
+            font-size: 13px;
+            color: #64748B;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1024px) {
+            .container {
+                padding: 0 16px;
+            }
+
+            .hierarchy-card {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 24px;
+                flex-direction: column;
+            }
+
+            .container {
+                margin: 20px auto;
+            }
+
+            .hierarchy-card {
+                padding: 16px;
+            }
+
+            .manager-name {
+                font-size: 16px;
+                padding: 10px 12px;
+            }
+
+            .subordinate-item {
+                margin-left: 8px;
+                padding: 10px 12px;
+                font-size: 13px;
+            }
         }
 
     </style>
@@ -44,37 +198,47 @@
 
 <body>
 
-<div class="container mt-5">
+    <!-- ===== CONTAINER ===== -->
+    <div class="container">
 
-    <h2 class="mb-4">
-        🌳 Employee Hierarchy
-    </h2>
-
-    <div class="tree-card"
-         th:each="manager : ${managers}">
-
-        <div class="manager">
-
-            👨‍💼
-            <span th:text="${manager.name}"></span>
-
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">🌳 Employee Hierarchy</h1>
+            <p class="page-subtitle">View the organizational structure and reporting relationships</p>
         </div>
 
-        <ul>
+        <!-- Hierarchy Cards -->
+        <div th:if="${managers != null && !managers.isEmpty()}">
+            <div class="hierarchy-card" th:each="manager : ${managers}">
+                <div class="manager-section">
+                    <div class="manager-name">
+                        <span class="manager-icon">👨‍💼</span>
+                        <span th:text="${manager.name}">Manager Name</span>
+                    </div>
 
-            <li class="employee"
-                th:each="emp : ${manager.subordinates}">
+                    <ul class="subordinates-list">
+                        <li class="subordinate-item" th:each="emp : ${manager.subordinates}">
+                            <span class="subordinate-icon">👤</span>
+                            <span class="subordinate-name" th:text="${emp.name}">Employee Name</span>
+                        </li>
+                    </ul>
 
-                👤
-                <span th:text="${emp.name}"></span>
+                    <div th:if="${manager.subordinates == null || manager.subordinates.isEmpty()}" style="padding: 12px; color: #94A3B8; font-size: 13px; text-align: center;">
+                        📭 No subordinates
+                    </div>
+                </div>
+            </div>
+        </div>
 
-            </li>
-
-        </ul>
+        <!-- Empty State -->
+        <div th:if="${managers == null || managers.isEmpty()}" class="empty-state">
+            <div class="empty-icon">🌳</div>
+            <h2 class="empty-title">No Organization Structure</h2>
+            <p class="empty-message">The organization hierarchy is not yet configured.</p>
+        </div>
 
     </div>
 
-</div>
-
 </body>
+
 </html>

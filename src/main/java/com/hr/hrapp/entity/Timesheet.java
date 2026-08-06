@@ -5,6 +5,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "timesheet", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"employeeId", "date"}, name = "uk_timesheet_empid_date")
+})
 public class Timesheet {
 
     @Id
@@ -102,9 +105,8 @@ public class Timesheet {
         this.status = status;
     }
 
-    public void setHours(String status) {
-        this.status = status;
-    }
+    // NOTE: removed incorrect setHours(String) method that overwrote status.
+    // Keep only the numeric hours setter defined earlier: setHours(Integer hours)
     public String getClientName() {
         return clientName;
     }

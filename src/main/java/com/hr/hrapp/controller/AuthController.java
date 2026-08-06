@@ -3,6 +3,8 @@ package com.hr.hrapp.controller;
 import java.security.Principal;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.hr.hrapp.entity.Employee;
 import com.hr.hrapp.entity.EmployeeAttendance;
 import com.hr.hrapp.entity.User;
+import com.hr.hrapp.repository.CandidateRepository;
 import com.hr.hrapp.repository.CompanyUpdateRepository;
 import com.hr.hrapp.repository.EmployeeAttendanceRepository;
 import com.hr.hrapp.repository.EmployeeRepository;
@@ -24,10 +27,13 @@ import com.hr.hrapp.repository.TravelRequestRepository;
 import com.hr.hrapp.repository.UserRepository;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import jakarta.mail.internet.MimeMessage;
 
 
 @Controller
 public class AuthController {
+	private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 	@Autowired
 	private EmployeeRepository employeeRepository;
 	@Autowired
@@ -44,11 +50,17 @@ public class AuthController {
 	@Autowired
 	private TravelRequestRepository travelRequestRepository;
 	
+    @Autowired
+    private com.hr.hrapp.service.EmailService emailService;
+
 	@Autowired
 	private JavaMailSender mailSender;
 	
 	@Autowired
 	private CompanyUpdateRepository companyUpdateRepository;
+	
+	@Autowired
+	private CandidateRepository candidateRepository;
 	
 	private String generatedOtp;
 	private String otpEmail;
@@ -83,6 +95,21 @@ public class AuthController {
 	    emp.setStatus("Active");
 	    emp.setRole("USER");
 	     employeeRepository.save(emp);
+
+	    // Send welcome email to newly registered employee
+	    try {
+	        String body = "<p>Dear " + name + ",</p>"
+	                + "<p>Welcome to Renwion Clean Enviro Solutions Private Limited. Your account has been created.</p>"
+	                + "<p>Regards,<br/>HR Team</p>";
+
+	        emailService.sendMail(
+	                username,
+	                "Welcome to Renwion Clean Enviro Solutions",
+	                body
+	        );
+		} catch (Exception e) {
+			logger.error("Failed to send welcome email to {}", username, e);
+		}
 
 	    return "redirect:/login";
 	}
@@ -124,19 +151,21 @@ public class AuthController {
 	    otpTime =
 	            java.time.LocalDateTime.now();
 
-	    SimpleMailMessage message =
-	            new SimpleMailMessage();
-
-	    message.setTo(email);
-
-	    message.setSubject(
-	            "PeopleFlow Password Reset OTP");
-
-	    message.setText(
-	            "Your OTP is: "
-	            + generatedOtp);
-
-	    mailSender.send(message);
+	    try {
+	        MimeMessage message = mailSender.createMimeMessage();
+	        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+	        
+	        helper.setFrom("connect@renwion.in");
+	        helper.setTo(email);
+	        helper.setSubject("PeopleFlow Password Reset OTP");
+	        helper.setText("Your OTP is: " + generatedOtp, true);
+	        
+	        mailSender.send(message);
+		} catch (Exception e) {
+			logger.error("Failed to send OTP to {}", email, e);
+			model.addAttribute("error", "Failed to send OTP email");
+			return "forgot-password";
+		}
 
 	    model.addAttribute(
 	            "email",
@@ -149,23 +178,24 @@ public class AuthController {
 	        @RequestParam String email,
 	        @RequestParam String password) {
 
-	    User user =
-	            userRepository
-	                    .findByUsername(email);
+		User user = userRepository
+		        .findByUsername(email)
+		        .orElse(null);
 
-	    if(user != null){
+		if (user != null) {
 
-	        user.setPassword(
-	                encoder.encode(password));
+		    user.setPassword(
+		            encoder.encode(password));
 
-	        userRepository.save(user);
-	        
-	        generatedOtp = null;
-	        otpEmail = null;
-	        otpTime = null;
-	    }
+		    userRepository.save(user);
 
-	    return "redirect:/login";
+		    generatedOtp = null;
+		    otpEmail = null;
+
+		    return "redirect:/login?resetSuccess";
+		}
+
+		return "redirect:/forgot-password?error";
 	}
 	@PostMapping("/verify-otp")
 	public String verifyOtp(
@@ -258,6 +288,21 @@ public class AuthController {
 		long approvedTravel = travelRequestRepository.findByStatus("ADMIN_APPROVED").size();
 
 		long rejectedTravel = travelRequestRepository.findByStatus("REJECTED").size();
+		
+		long candidateCount =
+		        candidateRepository.count();
+
+		long appliedCandidates =
+		        candidateRepository.countByStatus("APPLIED");
+
+		long shortlistedCandidates =
+		        candidateRepository.countByStatus("SHORTLISTED");
+
+		long selectedCandidates =
+		        candidateRepository.countByStatus("SELECTED");
+
+		long rejectedCandidates =
+		        candidateRepository.countByStatus("REJECTED");
 	   
 
 	    model.addAttribute(
@@ -301,6 +346,26 @@ public class AuthController {
 	    model.addAttribute("approvedTravel", approvedTravel);
 	    
 	    model.addAttribute("rejectedTravel", rejectedTravel);
+	    
+	    model.addAttribute(
+	            "candidateCount",
+	            candidateCount);
+
+	    model.addAttribute(
+	            "appliedCandidates",
+	            appliedCandidates);
+
+	    model.addAttribute(
+	            "shortlistedCandidates",
+	            shortlistedCandidates);
+
+	    model.addAttribute(
+	            "selectedCandidates",
+	            selectedCandidates);
+
+	    model.addAttribute(
+	            "rejectedCandidates",
+	            rejectedCandidates);
 
 	    return "admin-dashboard";
 	}

@@ -1,6 +1,7 @@
 package com.hr.hrapp.entity;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -13,7 +14,7 @@ import jakarta.persistence.JoinColumn;
 @Entity
 public class User {
 	
-	 @ManyToMany(fetch = jakarta.persistence.FetchType.EAGER)
+	 @ManyToMany(fetch = jakarta.persistence.FetchType.LAZY)
 	    @JoinTable(
 	        name = "user_roles",
 	        joinColumns = @JoinColumn(name = "user_id"),
@@ -34,6 +35,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @Column(unique = true, nullable = false)
     private String username;
     private String password;
     private String role; // ADMIN or USER

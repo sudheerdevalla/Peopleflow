@@ -9,75 +9,194 @@
 <style>
 body {
     margin: 0;
-    font-family: 'Segoe UI', sans-serif;
-    background: #f4f6f9;
+    font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+    background:
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.12), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(59, 130, 246, 0.10), transparent 24%),
+        linear-gradient(135deg, #F8FAFC 0%, #EEF2FF 100%);
+    color: #0F172A;
 }
 
-/* Banner */
 .header-banner {
-    height: 200px;
-    background: linear-gradient(rgba(0,0,0,0.4),
-                rgba(0,0,0,0.4)),
-                url('/images/leaf.png');
+    min-height: 230px;
+    background:
+        linear-gradient(135deg, rgba(15,23,42,0.84), rgba(37,99,235,0.82)),
+        url('/images/leaf.png');
     display: flex;
     align-items: center;
-    padding: 30px;
+    padding: 40px;
     color: white;
     background-size: cover;
     background-position: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 28px 80px rgba(37, 99, 235, 0.16);
 }
 
-/* Layout */
+.header-banner::before {
+    content: '';
+    position: absolute;
+    top: -140px;
+    right: -140px;
+    width: 380px;
+    height: 380px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,0.18), transparent 68%);
+}
+
+.header-banner > div {
+    position: relative;
+    z-index: 1;
+}
+
+.header-banner h2 {
+    font-size: 38px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin: 0 0 10px;
+}
+
+.header-banner p {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.8;
+    color: rgba(255,255,255,0.84);
+}
+
 .container {
-    padding: 30px;
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 28px 20px 36px;
 }
 
-/* Week Header */
 .week-header{
-    background:white;
-    padding:15px;
-    border-radius:12px;
-    margin-bottom:20px;
+    background: rgba(255,255,255,0.90);
+    padding: 18px 20px;
+    border-radius: 22px;
+    margin-bottom: 20px;
     text-align:center;
-    box-shadow:0 4px 12px rgba(0,0,0,0.08);
+    box-shadow: 0 12px 30px rgba(15,23,42,0.06);
+    border: 1px solid rgba(226,232,240,0.92);
+    backdrop-filter: blur(16px);
 }
 
 .week-header h2{
     margin:0;
     color:#111827;
+    font-size: 24px;
+    letter-spacing: -0.5px;
 }
 
-/* Timesheet Cards Side By Side */
 .timesheet-container {
     display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 10px;
+    grid-template-columns: repeat(7, minmax(180px, 1fr));
+    gap: 16px;
+    align-items: start;
+    overflow-x: auto;
+    padding-bottom: 8px;
 }
 
-/* Card */
 .card {
-    background: white;
-    padding: 10px;
-    border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    background: rgba(255,255,255,0.90);
+    padding: 16px;
+    border-radius: 22px;
+    box-shadow: 0 12px 30px rgba(15,23,42,0.06);
+    border: 1px solid rgba(226,232,240,0.92);
+    backdrop-filter: blur(16px);
 }
 
-/* Text */
 .day{
-    font-size:14px;
-    font-weight:bold;
+    font-size:15px;
+    font-weight:800;
+    color: #0F172A;
+    margin-bottom: 6px;
 }
 
 .date{
-    font-size:10px;
+    font-size:11px;
+    color: #64748B;
+    margin-bottom: 12px;
 }
 
-/* Labels */
 .label {
     font-size: 12px;
     color: #555;
     margin-bottom: 4px;
 }
+
+input,
+textarea {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 12px;
+    margin-bottom: 8px;
+    box-sizing: border-box;
+    border: 1.5px solid #E2E8F0;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%);
+    color: #0F172A;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+input:focus,
+textarea:focus {
+    outline: none;
+    border-color: #2563EB;
+    background: white;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.10);
+}
+
+textarea{
+    height: 72px;
+    resize: vertical;
+}
+
+.btn-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 6px;
+}
+
+.btn-primary {
+    flex: 1;
+    background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+    color: white;
+    border: none;
+    padding: 10px 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 700;
+    box-shadow: 0 14px 30px rgba(37, 99, 235, 0.22);
+}
+
+.btn-secondary {
+    flex: 1;
+    background: #F8FAFC;
+    border: 1.5px solid #E2E8F0;
+    padding: 10px 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 700;
+    color: #334155;
+}
+
+.btn-primary:hover{
+    transform: translateY(-1px);
+    box-shadow: 0 18px 34px rgba(37, 99, 235, 0.28);
+}
+
+.btn-secondary:hover{
+    background:#EFF6FF;
+    border-color: #BFDBFE;
+}
+
+@media(max-width:1200px){
+    .timesheet-container {
+        grid-template-columns: repeat(4, minmax(220px, 1fr));
+    }
+}
+
 @media(max-width:768px){
 
     .week-grid,
@@ -103,60 +222,31 @@ body {
     }
 
     .container{
-        padding:10px;
+        padding:18px 12px 24px;
     }
 
     .week-header{
-        font-size:24px;
         text-align:center;
+        border-radius: 20px;
     }
-}
 
-/* Inputs */
-input,
-textarea {
-    width: 100%;
-    padding: 5px;
-    font-size: 11px;
-    margin-bottom: 6px;
-    box-sizing: border-box;
-}
+    .timesheet-container {
+        grid-template-columns: 1fr;
+        overflow-x: visible;
+    }
 
-textarea{
-    height: 50px;
-}
+    .header-banner {
+        min-height: 200px;
+        padding: 28px 20px;
+    }
 
-/* Buttons */
-.btn-group {
-    display: flex;
-    gap: 10px;
-}
+    .header-banner h2 {
+        font-size: 30px;
+    }
 
-.btn-primary {
-    flex: 1;
-    background: #111827;
-    color: white;
-    border: none;
-    padding: 8px;
-    border-radius: 6px;
-    cursor: pointer;
-}
-
-.btn-secondary {
-    flex: 1;
-    background: #e5e7eb;
-    border: none;
-    padding: 8px;
-    border-radius: 6px;
-    cursor: pointer;
-}
-
-.btn-primary:hover{
-    opacity:0.9;
-}
-
-.btn-secondary:hover{
-    background:#d1d5db;
+    .card {
+        border-radius: 20px;
+    }
 }
 
 
@@ -409,19 +499,1230 @@ function captureLocation(btn) {
                 position.coords.latitude;
 
             form.querySelector('.longitude').value =
-                position.coords.longitude;
+                position.coords.longitude;			<!DOCTYPE html>
+			<html xmlns:th="http://www.thymeleaf.org">
+			<head>
 
-            alert("Location Captured Successfully");
+			<title>Fill Timesheet</title>
 
-        },
-        function(error) {
+			<meta charset="UTF-8">
+			<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-            alert("Location Permission Denied");
+			<link rel="preconnect" href="https://fonts.googleapis.com">
+			<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-        }
-    );
-}
-</script>
+			<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+			      rel="stylesheet">
+
+			<link rel="stylesheet" href="/css/style.css">
+
+			<style>
+
+			:root{
+
+			--primary:#2563EB;
+			--primary-dark:#1D4ED8;
+			--success:#16A34A;
+			--danger:#DC2626;
+			--warning:#F59E0B;
+
+			--bg:#F8FAFC;
+			--card:#FFFFFF;
+
+			--text:#0F172A;
+			--text2:#475569;
+
+			--border:#E2E8F0;
+
+			--shadow:
+			0 10px 30px rgba(15,23,42,.08);
+
+			--shadow-hover:
+			0 22px 50px rgba(37,99,235,.15);
+
+			}
+
+			*{
+			margin:0;
+			padding:0;
+			box-sizing:border-box;
+			}
+
+			html{
+			scroll-behavior:smooth;
+			}
+
+			body{
+
+			font-family:Inter,sans-serif;
+
+			background:
+
+			radial-gradient(circle at top left,
+			rgba(37,99,235,.12),
+			transparent 30%),
+
+			radial-gradient(circle at bottom right,
+			rgba(59,130,246,.08),
+			transparent 28%),
+
+			linear-gradient(
+			135deg,
+			#F8FAFC 0%,
+			#EEF4FF 100%);
+
+			color:var(--text);
+
+			}
+
+			/* ----------------------------- */
+			/* HERO                          */
+			/* ----------------------------- */
+
+			.header-banner{
+
+			position:relative;
+
+			overflow:hidden;
+
+			border-radius:0 0 40px 40px;
+
+			padding:70px;
+
+			min-height:260px;
+
+			display:flex;
+
+			align-items:center;
+
+			background:
+
+			linear-gradient(
+			135deg,
+			rgba(15,23,42,.90),
+			rgba(37,99,235,.82)
+			),
+
+			url('/images/leaf.png');
+
+			background-size:cover;
+
+			background-position:center;
+
+			box-shadow:
+
+			0 25px 70px rgba(37,99,235,.20);
+
+			}
+
+			.header-banner::before{
+
+			content:"";
+
+			position:absolute;
+
+			width:420px;
+			height:420px;
+
+			top:-150px;
+			right:-150px;
+
+			border-radius:50%;
+
+			background:
+
+			radial-gradient(circle,
+			rgba(255,255,255,.22),
+			transparent 70%);
+
+			}
+
+			.header-banner::after{
+
+			content:"";
+
+			position:absolute;
+
+			left:-120px;
+			bottom:-120px;
+
+			width:320px;
+			height:320px;
+
+			border-radius:50%;
+
+			background:
+
+			radial-gradient(circle,
+			rgba(255,255,255,.08),
+			transparent 70%);
+
+			}
+
+			.header-banner>div{
+
+			position:relative;
+
+			z-index:10;
+
+			}
+
+			.header-banner h2{
+
+			font-size:48px;
+
+			font-weight:800;
+
+			letter-spacing:-1px;
+
+			margin-bottom:12px;
+
+			}
+
+			.header-banner p{
+
+			font-size:17px;
+
+			color:rgba(255,255,255,.86);
+
+			max-width:520px;
+
+			line-height:1.8;
+
+			}
+
+			/* ----------------------------- */
+			/* CONTAINER                     */
+			/* ----------------------------- */
+
+			.container{
+
+			max-width:1550px;
+
+			margin:auto;
+
+			padding:35px;
+
+			}
+
+			/* ----------------------------- */
+			/* CARDS                         */
+			/* ----------------------------- */
+
+			.card{
+
+			background:
+
+			rgba(255,255,255,.86);
+
+			backdrop-filter:blur(20px);
+
+			border:1px solid rgba(255,255,255,.55);
+
+			border-radius:26px;
+
+			box-shadow:var(--shadow);
+
+			transition:.35s;
+
+			}
+
+			.card:hover{
+
+			transform:translateY(-5px);
+
+			box-shadow:var(--shadow-hover);
+
+			}
+
+			/* ----------------------------- */
+			/* WEEK HEADER                   */
+			/* ----------------------------- */
+
+			.week-header{
+
+			margin:30px 0;
+
+			padding:24px;
+
+			text-align:center;
+
+			border-radius:24px;
+
+			background:
+
+			linear-gradient(
+			135deg,
+			white,
+			#F8FBFF);
+
+			border:1px solid var(--border);
+
+			box-shadow:var(--shadow);
+
+			}
+
+			.week-header h2{
+
+			font-size:30px;
+
+			font-weight:800;
+
+			}
+
+			/* ----------------------------- */
+			/* HOLIDAY                       */
+			/* ----------------------------- */
+
+			.holiday-card{
+
+			padding:22px;
+
+			margin-bottom:28px;
+
+			background:
+
+			linear-gradient(
+			135deg,
+			#ffffff,
+			#F8FBFF);
+
+			}
+
+			.holiday-card h3{
+
+			font-size:24px;
+
+			margin-bottom:18px;
+
+			}
+
+			.holiday-item{
+
+			display:flex;
+
+			justify-content:space-between;
+
+			align-items:center;
+
+			padding:16px;
+
+			margin-bottom:14px;
+
+			border-radius:16px;
+
+			background:#F8FAFC;
+
+			transition:.25s;
+
+			}
+
+			.holiday-item:hover{
+
+			background:#EEF4FF;
+
+			}
+
+			.badge{
+
+			padding:6px 14px;
+
+			border-radius:30px;
+
+			font-size:12px;
+
+			font-weight:700;
+
+			}
+
+			.badge-success{
+
+			background:#DCFCE7;
+
+			color:#15803D;
+
+			}
+
+			.badge-danger{
+
+			background:#FEE2E2;
+
+			color:#B91C1C;
+
+			}
+
+			.badge-warning{
+
+			background:#FEF3C7;
+
+			color:#B45309;
+
+			}
+
+			/* ----------------------------- */
+			/* GRID                          */
+			/* ----------------------------- */
+
+			.timesheet-container{
+
+			display:grid;
+
+			grid-template-columns:
+
+			repeat(7,minmax(210px,1fr));
+
+			gap:22px;
+
+			align-items:start;
+
+			}
+
+			/* ----------------------------- */
+			/* DAY CARD                      */
+			/* ----------------------------- */
+
+			.day{
+
+			font-size:18px;
+
+			font-weight:700;
+
+			margin-bottom:4px;
+
+			}
+
+			.date{
+
+			font-size:13px;
+
+			color:#64748B;
+
+			margin-bottom:18px;
+
+			}
+
+			/* ----------------------------- */
+			/* INPUTS                        */
+			/* ----------------------------- */
+
+			input,
+			textarea{
+
+			width:100%;
+
+			padding:13px 15px;
+
+			border-radius:14px;
+
+			border:1px solid var(--border);
+
+			background:white;
+
+			font-size:13px;
+
+			margin-bottom:12px;
+
+			transition:.25s;
+
+			font-family:inherit;
+
+			}
+
+			input:focus,
+			textarea:focus{
+
+			outline:none;
+
+			border-color:var(--primary);
+
+			box-shadow:
+
+			0 0 0 4px rgba(37,99,235,.12);
+
+			}
+
+			textarea{
+
+			min-height:90px;
+
+			resize:vertical;
+
+			}
+
+			/* ----------------------------- */
+			/* BUTTONS                       */
+			/* ----------------------------- */
+
+			.btn-primary{
+
+			width:100%;
+
+			border:none;
+
+			cursor:pointer;
+
+			padding:13px;
+
+			font-weight:700;
+
+			border-radius:14px;
+
+			color:white;
+
+			background:
+
+			linear-gradient(
+			135deg,
+			var(--primary),
+			var(--primary-dark));
+
+			box-shadow:
+
+			0 14px 28px rgba(37,99,235,.20);
+
+			transition:.25s;
+
+			}
+
+			.btn-primary:hover{
+
+			transform:translateY(-2px);
+
+			}
+
+			.btn-secondary{
+
+			width:100%;
+
+			padding:13px;
+
+			border-radius:14px;
+
+			cursor:pointer;
+
+			font-weight:700;
+
+			background:white;
+
+			border:1px solid var(--border);
+
+			transition:.25s;
+
+			}
+
+			.btn-secondary:hover{
+
+			background:#EFF6FF;
+
+			}
+
+			.btn-group{
+
+			display:flex;
+
+			gap:10px;
+
+			margin-top:10px;
+
+			}
+
+			/* ----------------------------- */
+			/* MOBILE                        */
+			/* ----------------------------- */
+
+			@media(max-width:1200px){
+
+			.timesheet-container{
+
+			grid-template-columns:
+			repeat(3,1fr);
+
+			}
+
+			}
+
+			@media(max-width:900px){
+
+			.container{
+
+			padding:20px;
+
+			}
+
+			.header-banner{
+
+			padding:40px 25px;
+
+			min-height:220px;
+
+			}
+
+			.header-banner h2{
+
+			font-size:34px;
+
+			}
+
+			.timesheet-container{
+
+			grid-template-columns:1fr;
+
+			}
+
+			}
+
+			</style>
+
+			</head>
+			<body>
+
+			<!-- ========================= -->
+			<!-- APPLE ENTERPRISE HERO -->
+			<!-- ========================= -->
+
+			<div class="header-banner">
+
+			    <div>
+
+			        <span style="
+			            display:inline-block;
+			            background:rgba(255,255,255,.18);
+			            backdrop-filter:blur(12px);
+			            padding:8px 18px;
+			            border-radius:999px;
+			            font-size:13px;
+			            font-weight:600;
+			            margin-bottom:18px;">
+
+			            PeopleFlow HRMS
+
+			        </span>
+
+			        <h2>
+
+			            Welcome Back 👋
+
+			        </h2>
+
+			        <p>
+
+			            Manage your weekly work logs, track project hours,
+			            submit timesheets and stay updated with holidays —
+			            all in one beautiful enterprise workspace.
+
+			        </p>
+
+			    </div>
+
+			</div>
+
+			<!-- ========================= -->
+			<!-- CONTAINER -->
+			<!-- ========================= -->
+
+			<div class="container">
+
+			<!-- ========================= -->
+			<!-- HOLIDAY CARD -->
+			<!-- ========================= -->
+
+			<div class="card holiday-card">
+
+			    <div style="
+			        display:flex;
+			        justify-content:space-between;
+			        align-items:center;
+			        margin-bottom:22px;
+			        flex-wrap:wrap;
+			        gap:15px;">
+
+			        <div>
+
+			            <h3 style="
+			                font-size:28px;
+			                font-weight:800;
+			                color:#0F172A;">
+
+			                Upcoming Holidays
+
+			            </h3>
+
+			            <p style="
+			                color:#64748B;
+			                margin-top:6px;">
+
+			                Plan your work schedule around company holidays.
+
+			            </p>
+
+			        </div>
+
+			        <div style="
+			            background:#EFF6FF;
+			            color:#2563EB;
+			            font-weight:700;
+			            padding:10px 18px;
+			            border-radius:999px;">
+
+			            Company Calendar
+
+			        </div>
+
+			    </div>
+
+			    <div th:each="holiday : ${holidays}"
+			         class="holiday-item">
+
+			        <div>
+
+			            <div style="
+			                font-size:17px;
+			                font-weight:700;
+			                color:#0F172A;">
+
+			                <span th:text="${holiday.holidayName}"></span>
+
+			            </div>
+
+			            <div style="
+			                margin-top:6px;
+			                color:#64748B;">
+
+			                <span th:text="${holiday.holidayDate}"></span>
+
+			            </div>
+
+			        </div>
+
+			        <div>
+
+			            <span class="badge badge-success">
+
+			                <span th:text="${holiday.holidayType}"></span>
+
+			            </span>
+
+			        </div>
+
+			    </div>
+
+			</div>
+
+			<!-- ========================= -->
+			<!-- WEEK HEADER -->
+			<!-- ========================= -->
+
+			<div class="week-header">
+
+			    <div style="
+			        display:flex;
+			        justify-content:space-between;
+			        align-items:center;
+			        flex-wrap:wrap;
+			        gap:15px;">
+
+			        <div style="text-align:left;">
+
+			            <h2>
+
+			                Weekly Timesheet
+
+			            </h2>
+
+			            <p style="
+			                margin-top:8px;
+			                color:#64748B;">
+
+			                Submit your work hours for the current week.
+
+			            </p>
+
+			        </div>
+
+			        <div style="
+			            background:#EFF6FF;
+			            color:#2563EB;
+			            padding:14px 22px;
+			            border-radius:18px;
+			            font-weight:700;">
+
+			            <span th:text="${weekDates[0]}"></span>
+
+			            &nbsp;
+
+			            →
+
+			            &nbsp;
+
+			            <span th:text="${weekDates[weekDates.size()-1]}"></span>
+
+			        </div>
+
+			    </div>
+
+			</div>
+
+			<!-- ========================= -->
+			<!-- TIMESHEET GRID -->
+			<!-- ========================= -->
+
+			<div class="timesheet-container">
+
+			<div class="card"
+
+			     th:each="date : ${weekDates}"
+
+			     style="padding:22px;">
+
+			<!-- Continue from your existing
+			Holiday / Leave / Form logic exactly
+			without changing any Thymeleaf attributes -->
+			<!-- ========================= -->
+			<!-- DAY CARD -->
+			<!-- ========================= -->
+
+			<!-- HOLIDAY -->
+			<div th:if="${holidayMap.containsKey(date)}"
+			     class="card"
+			     style="
+			        background:linear-gradient(135deg,#ECFDF5,#F0FDF4);
+			        border:1px solid rgba(22,163,74,.25);
+			        box-shadow:0 12px 30px rgba(22,163,74,.12);
+			        text-align:center;
+			        padding:28px;">
+
+			    <div style="
+			        width:68px;
+			        height:68px;
+			        margin:auto;
+			        border-radius:50%;
+			        display:flex;
+			        align-items:center;
+			        justify-content:center;
+			        background:#DCFCE7;
+			        font-size:30px;
+			        margin-bottom:16px;">
+
+			        🎉
+
+			    </div>
+
+			    <h3 style="
+			        color:#16A34A;
+			        font-size:22px;
+			        margin-bottom:10px;">
+
+			        Holiday
+
+			    </h3>
+
+			    <p style="
+			        font-weight:700;
+			        color:#0F172A;
+			        margin-bottom:8px;"
+			       th:text="${holidayMap.get(date).holidayName}">
+			    </p>
+
+			    <span class="badge badge-success">
+
+			        Enjoy your holiday
+
+			    </span>
+
+			</div>
+
+			<!-- LEAVE -->
+
+			<div th:if="${!holidayMap.containsKey(date) && leaveDates.contains(date)}"
+			     class="card"
+			     style="
+			        background:linear-gradient(135deg,#FFF1F2,#FFF7F7);
+			        border:1px solid rgba(220,38,38,.20);
+			        box-shadow:0 12px 30px rgba(220,38,38,.12);
+			        text-align:center;
+			        padding:28px;">
+
+			    <div style="
+			        width:68px;
+			        height:68px;
+			        margin:auto;
+			        border-radius:50%;
+			        display:flex;
+			        align-items:center;
+			        justify-content:center;
+			        background:#FEE2E2;
+			        font-size:30px;
+			        margin-bottom:16px;">
+
+			        🌴
+
+			    </div>
+
+			    <h3 style="
+			        color:#DC2626;
+			        font-size:22px;
+			        margin-bottom:10px;">
+
+			        On Leave
+
+			    </h3>
+
+			    <span class="badge badge-danger">
+
+			        Leave Approved
+
+			    </span>
+
+			</div>
+
+			<!-- WORK DAY -->
+
+			<div th:unless="${holidayMap.containsKey(date) || leaveDates.contains(date)}">
+
+			<div style="
+			display:flex;
+			justify-content:space-between;
+			align-items:center;
+			margin-bottom:18px;">
+
+			<div>
+
+			<div class="day"
+			     th:text="${#temporals.format(date,'EEEE')}">
+			</div>
+
+			<div class="date"
+			     th:text="${date}">
+			</div>
+
+			</div>
+
+			<div style="
+			background:#EFF6FF;
+			color:#2563EB;
+			padding:8px 12px;
+			border-radius:999px;
+			font-size:12px;
+			font-weight:700;">
+
+			Work Day
+
+			</div>
+
+			</div>
+
+			<form th:if="${!date.isAfter(today)}"
+			      th:action="@{/user/timesheet}"
+			      method="post">
+
+			<input type="hidden"
+			       name="date"
+			       th:value="${date}" />
+
+			<!-- LOCATION -->
+
+			<label class="label">
+
+			Work Location
+
+			</label>
+
+			<input type="text"
+			       name="workLocation"
+			       class="location-input"
+			       th:value="${timesheetMap.containsKey(date) && timesheetMap.get(date).workLocation != null && !timesheetMap.get(date).workLocation.isEmpty()
+			                  ? timesheetMap.get(date).workLocation
+			                  : employee.location}"
+			       readonly />
+
+			<!-- CLIENT -->
+
+			<label class="label">
+
+			Client
+
+			</label>
+
+			<input type="text"
+			       name="clientName"
+			       placeholder="Client Name">
+
+			<!-- PROJECT -->
+
+			<label class="label">
+
+			Project
+
+			</label>
+
+			<input type="text"
+			       name="projectName"
+			       placeholder="Project Name">
+
+			<!-- DESCRIPTION -->
+
+			<label class="label">
+
+			Work Description
+
+			</label>
+
+			<textarea
+			        name="workDescription"
+			        placeholder="Describe today's work...">
+			</textarea>
+
+			<input type="hidden"
+			       name="latitude"
+			       class="latitude">
+
+			<input type="hidden"
+			       name="longitude"
+			       class="longitude">
+
+			<button
+			        type="button"
+			        class="btn-secondary"
+			        onclick="captureLocation(this)">
+
+			📍 Capture Location
+
+			</button>
+
+			<label class="label">
+
+			Working Hours
+
+			</label>
+
+			<input type="number"
+			       name="hours"
+			       class="hours-input"
+			       th:value="${timesheetMap.containsKey(date) ? timesheetMap.get(date).hours : 0}"
+			       placeholder="Enter hours"
+			       th:readonly="${date.isAfter(today)}">
+
+			<label class="label">
+
+			Training Hours
+
+			</label>
+
+			<input type="number"
+			       name="training"
+			       class="training-input"
+			       th:value="${timesheetMap.containsKey(date) ? timesheetMap.get(date).training : 0}"
+			       placeholder="Enter training hours"
+			       th:readonly="${date.isAfter(today)}">
+			<!-- ========================= -->
+			<!-- STATUS -->
+			<!-- ========================= -->
+
+			<div th:if="${timesheetMap.containsKey(date)}"
+			     style="margin-top:18px;">
+
+			    <div style="
+			        display:flex;
+			        justify-content:space-between;
+			        align-items:center;
+			        padding:14px 16px;
+			        border-radius:16px;
+			        background:#F8FAFC;
+			        border:1px solid #E2E8F0;">
+
+			        <span style="
+			            font-size:13px;
+			            font-weight:700;
+			            color:#475569;">
+
+			            Status
+
+			        </span>
+
+			        <span
+			            th:text="${timesheetMap.get(date).status}"
+			            th:style="${timesheetMap.get(date).status == 'APPROVED'}
+			            ? 'background:#DCFCE7;color:#15803D;padding:8px 16px;border-radius:999px;font-weight:700;font-size:12px;'
+			            : (${timesheetMap.get(date).status == 'LOCATION_MISMATCH'}
+			            ? 'background:#FEE2E2;color:#B91C1C;padding:8px 16px;border-radius:999px;font-weight:700;font-size:12px;'
+			            : 'background:#FEF3C7;color:#B45309;padding:8px 16px;border-radius:999px;font-weight:700;font-size:12px;')">
+
+			        </span>
+
+			    </div>
+
+			</div>
+
+			<!-- ========================= -->
+			<!-- ACTION BUTTONS -->
+			<!-- ========================= -->
+
+			<div class="btn-group"
+			     style="margin-top:18px;">
+
+			    <button type="submit"
+			            class="btn-primary"
+			            th:text="${timesheetMap.containsKey(date) ? 'Update' : 'Submit'}">
+
+			    </button>
+
+			    <button type="button"
+			            class="btn-secondary"
+			            onclick="focusHours(this)"
+			            th:disabled="${date.isAfter(today)}">
+
+			        Edit
+
+			    </button>
+
+			</div>
+
+			</form>
+
+			<!-- ========================= -->
+			<!-- FUTURE DATE -->
+			<!-- ========================= -->
+
+			<div th:if="${date.isAfter(today)}">
+
+			    <div style="
+			        padding:26px;
+			        text-align:center;
+			        border-radius:18px;
+			        background:linear-gradient(135deg,#FEF2F2,#FFF7F7);
+			        border:1px solid rgba(220,38,38,.18);">
+
+			        <div style="
+			            width:70px;
+			            height:70px;
+			            margin:auto;
+			            margin-bottom:16px;
+			            border-radius:50%;
+			            display:flex;
+			            align-items:center;
+			            justify-content:center;
+			            background:#FEE2E2;
+			            font-size:32px;">
+
+			            ⏳
+
+			        </div>
+
+			        <h3 style="
+			            color:#DC2626;
+			            margin-bottom:10px;
+			            font-size:20px;">
+
+			            Future Date
+
+			        </h3>
+
+			        <p style="
+			            color:#64748B;
+			            line-height:1.7;">
+
+			            Timesheet entry is available only on or after this date.
+
+			        </p>
+
+			    </div>
+
+			</div>
+
+			</div>
+
+			<!-- END WORK DAY -->
+
+			</div>
+
+			<!-- END DAY CARD -->
+
+			</div>
+
+			<!-- END GRID -->
+
+			<!-- ========================= -->
+			<!-- WEEKLY SUBMIT -->
+			<!-- ========================= -->
+
+			<div style="
+			text-align:center;
+			margin-top:40px;">
+
+			    <button
+			        style="
+			        background:linear-gradient(135deg,#111827,#1E293B);
+			        color:white;
+			        border:none;
+			        border-radius:18px;
+			        padding:18px 45px;
+			        font-size:17px;
+			        font-weight:700;
+			        cursor:pointer;
+			        box-shadow:0 18px 40px rgba(15,23,42,.18);
+			        transition:.3s;">
+
+			        🚀 Submit Weekly Timesheet
+
+			    </button>
+
+			</div>
+			<!-- ========================= -->
+			<!-- ORIGINAL JAVASCRIPT (UNCHANGED) -->
+			<!-- ========================= -->
+
+			<script>
+
+			function focusHours(btn) {
+
+			    if(btn.disabled){
+			        return;
+			    }
+
+			    let card = btn.closest('.card');
+
+			    let hoursInput =
+			        card.querySelector('.hours-input');
+
+			    let trainingInput =
+			        card.querySelector('.training-input');
+
+			    hoursInput.removeAttribute('readonly');
+			    trainingInput.removeAttribute('readonly');
+
+			    hoursInput.focus();
+			}
+
+			function captureLocation(btn) {
+
+			    let form = btn.closest('form');
+
+			    navigator.geolocation.getCurrentPosition(
+
+			        function(position) {
+
+			            form.querySelector('.latitude').value =
+			                position.coords.latitude;
+
+			            form.querySelector('.longitude').value =
+			                position.coords.longitude;
+
+			            alert("Location Captured Successfully");
+
+			        },
+
+			        function(error) {
+
+			            alert("Location Permission Denied");
+
+			        }
+
+			    );
+			}
+
+			</script>
+
+			
 
 </body>
 </html>
