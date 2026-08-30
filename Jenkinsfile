@@ -28,18 +28,17 @@ pipeline {
         }
 
         stage('Deploy to AWS') {
-            steps {
-                sshagent(['peopleflow-aws']) {
-                    bat '''
-                        scp -o StrictHostKeyChecking=no target\\hrapp-0.0.1-SNAPSHOT.jar ubuntu@peopleflow.renwion.in:/home/ubuntu/Peopleflow/target/hrapp-0.0.1-SNAPSHOT.jar
+    steps {
+        sshagent(['peopleflow-aws']) {
 
-                        ssh -o StrictHostKeyChecking=no ubuntu@peopleflow.renwion.in "sudo systemctl restart peopleflow"
+            bat '"C:\\Program Files\\Git\\usr\\bin\\scp.exe" -o StrictHostKeyChecking=no target\\hrapp-0.0.1-SNAPSHOT.jar ubuntu@peopleflow.renwion.in:/home/ubuntu/Peopleflow/target/hrapp-0.0.1-SNAPSHOT.jar'
 
-                        ssh -o StrictHostKeyChecking=no ubuntu@peopleflow.renwion.in "sudo systemctl is-active peopleflow"
-                    '''
-                }
-            }
+            bat '"C:\\Program Files\\Git\\usr\\bin\\ssh.exe" -o StrictHostKeyChecking=no ubuntu@peopleflow.renwion.in "sudo systemctl restart peopleflow"'
+
+            bat '"C:\\Program Files\\Git\\usr\\bin\\ssh.exe" -o StrictHostKeyChecking=no ubuntu@peopleflow.renwion.in "sudo systemctl is-active peopleflow"'
         }
+    }
+}
     }
 
     post {
