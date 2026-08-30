@@ -39,6 +39,10 @@ public class User {
     private String username;
     private String password;
     private String role; // ADMIN or USER
+    private boolean forcePasswordChange = false;
+
+    private boolean mfaEnabled = false;
+    private String totpSecret;
 
     // Getters and Setters
     public int getId() {
@@ -72,5 +76,28 @@ public class User {
     	public void setRole(String role) {
     	this.role = role;
     	}
+        public boolean isForcePasswordChange() {
+    return forcePasswordChange;
+}
 
+public void setForcePasswordChange(boolean forcePasswordChange) {
+    this.forcePasswordChange = forcePasswordChange;
+}
+
+
+    public boolean isMfaEnabled() {
+        return mfaEnabled;
+    }
+
+    public void setMfaEnabled(boolean mfaEnabled) {
+        this.mfaEnabled = mfaEnabled;
+    }
+
+    public String getTotpSecret() {
+        return totpSecret;
+    }
+
+    public void setTotpSecret(String totpSecret) {
+        this.totpSecret = totpSecret;
+    }
 }

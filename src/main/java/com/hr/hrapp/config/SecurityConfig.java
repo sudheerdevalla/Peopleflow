@@ -68,10 +68,13 @@ public class SecurityConfig {
                             "/images/**",
 
                             "/api/auth/**",
+                "/api/mfa/**",
+                    "/mfa",
 
                             "/swagger-ui/**",
                             "/swagger-ui.html",
-                            "/v3/api-docs/**"
+                            "/v3/api-docs/**",
+                            "/change-password"
 
                     ).permitAll()
 

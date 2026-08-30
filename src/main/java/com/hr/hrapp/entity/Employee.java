@@ -27,6 +27,8 @@ public class Employee {
     private String profilePhoto;
 
     private String name;
+    
+   
 
     private String email;
 
@@ -81,6 +83,7 @@ public class Employee {
     // =========================
 
     private double basicSalary;
+    private double totalCtc;
 
     private String pfNumber;
 
@@ -341,6 +344,13 @@ public class Employee {
 
         this.basicSalary = basicSalary;
     }
+      public double getTotalCtc() {
+    return totalCtc;
+}
+
+public void setTotalCtc(double totalCtc) {
+    this.totalCtc = totalCtc;
+}
 
     public String getPfNumber() {
         return pfNumber;

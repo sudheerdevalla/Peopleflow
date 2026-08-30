@@ -131,11 +131,27 @@
 			<artifactId>h2</artifactId>
 			<scope>runtime</scope>
 		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>com.warrenstrange</groupId>
+            <artifactId>googleauth</artifactId>
+            <version>1.5.0</version>
+        </dependency>
 
-	<build>
-		<plugins>
-			<plugin>
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>core</artifactId>
+            <version>3.5.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>javase</artifactId>
+            <version>3.5.3</version>
+        </dependency>
+    </dependencies>
+<build>
+    <plugins>
+        <plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>

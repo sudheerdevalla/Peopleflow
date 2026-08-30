@@ -1,6 +1,7 @@
 package com.hr.hrapp.controller;
 
 import java.security.Principal;
+import jakarta.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.slf4j.Logger;
@@ -25,6 +26,7 @@ import com.hr.hrapp.repository.EmployeeRepository;
 import com.hr.hrapp.repository.LeaveRepository;
 import com.hr.hrapp.repository.TravelRequestRepository;
 import com.hr.hrapp.repository.UserRepository;
+import com.hr.hrapp.service.MfaService;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -40,6 +42,8 @@ public class AuthController {
 	private EmployeeAttendanceRepository employeeAttendanceRepository;
 	@Autowired
 	private UserRepository userRepository;
+    @Autowired
+    private MfaService mfaService;
 
 	@Autowired
 	private BCryptPasswordEncoder encoder;
@@ -230,24 +234,111 @@ public class AuthController {
 	}
 	
 	@GetMapping("/default")
-	public String loginSuccess(Authentication authentication) {
+public String loginSuccess(Authentication authentication) {
 
-	    String role = authentication.getAuthorities()
-	                                .iterator()
-	                                .next()
-	                                .getAuthority();
+    String username = authentication.getName();
 
-	    if (role.equals("ROLE_ADMIN")) {
-	        return "redirect:/admin/dashboard";
-	    } else {
-	        return "redirect:/user/dashboard";
-	    }
-	}
-	
+    User user = userRepository.findByUsername(username)
+            .orElse(null);
+
+    // Force employee to change temporary password
+    if (user != null && user.isForcePasswordChange()) {
+        return "redirect:/change-password";
+    }
+
+        if (user != null && user.isMfaEnabled() && user.getTotpSecret() != null) {
+            return "redirect:/mfa";
+        }
+
+    String role = authentication.getAuthorities()
+            .iterator()
+            .next()
+            .getAuthority();
+
+    if (role.equals("ROLE_ADMIN")) {
+        return "redirect:/admin/dashboard";
+    } else {
+        return "redirect:/user/dashboard";
+    }
+}
+@GetMapping("/mfa")
+public String mfaPage(Principal principal, Model model) {
+    model.addAttribute("username", principal.getName());
+    return "mfa";
+}
+
+    @PostMapping("/mfa/verify")
+    public String verifyMfa(@RequestParam String code, Principal principal, HttpSession session) {
+        try {
+            int otp = Integer.parseInt(code);
+
+            User user = userRepository.findByUsername(principal.getName())
+                    .orElse(null);
+
+            if (user == null || !user.isMfaEnabled() || user.getTotpSecret() == null) {
+                return "redirect:/login?error";
+            }
+
+            if (!mfaService.verifyCode(user.getTotpSecret(), otp)) {
+                return "redirect:/mfa?error";
+            }
+
+        session.setAttribute("MFA_VERIFIED", true);
+            String role = user.getRole();
+
+            if ("ADMIN".equals(role)) {
+                return "redirect:/admin/dashboard";
+            } else {
+                return "redirect:/user/dashboard";
+            }
+
+        } catch (NumberFormatException e) {
+            return "redirect:/mfa?error";
+        }
+    }
+
+@GetMapping("/change-password")
+public String showChangePasswordPage() {
+    return "change-password";
+}
+
+@PostMapping("/change-password")
+public String changePassword(
+        @RequestParam String newPassword,
+        @RequestParam String confirmPassword,
+        Authentication authentication,
+        Model model) {
+
+    if (!newPassword.equals(confirmPassword)) {
+        model.addAttribute("error", "Passwords do not match");
+        return "change-password";
+    }
+
+    if (newPassword.length() < 8) {
+        model.addAttribute("error", "Password must be at least 8 characters");
+        return "change-password";
+    }
+
+    String username = authentication.getName();
+
+    User user = userRepository.findByUsername(username)
+        .orElse(null);
+
+    if (user == null) {
+        model.addAttribute("error", "User not found");
+        return "change-password";
+    }
+
+    user.setPassword(encoder.encode(newPassword));
+    user.setForcePasswordChange(false);
+
+    userRepository.save(user);
+
+    return "redirect:/user/dashboard";
+}	
 
 	@GetMapping("/admin/dashboard")
 	public String admindashboard(Model model) {
-
 	    long totalEmployees =
 	            employeeRepository.count();
 

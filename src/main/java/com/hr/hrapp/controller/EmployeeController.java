@@ -20,6 +20,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.hr.hrapp.entity.Employee;
+import com.hr.hrapp.entity.User;
+import com.hr.hrapp.repository.UserRepository;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import com.hr.hrapp.entity.EmployeeAttendance;
 import com.hr.hrapp.entity.Leave;
 import com.hr.hrapp.entity.Notification;
@@ -51,6 +54,11 @@ public class EmployeeController {
     
     @Autowired
     private EmployeeRepository employeeRepository;
+    @Autowired
+private UserRepository userRepository;
+
+@Autowired
+private BCryptPasswordEncoder passwordEncoder;
     
     @Autowired
     private EmployeeAttendanceRepository attendanceRepository;
@@ -260,8 +268,28 @@ public class EmployeeController {
     }
     @PostMapping("/save-employees")
     @PreAuthorize("hasAuthority('WRITE_EMPLOYEE')")
-    public String saveEmployee(@ModelAttribute Employee employee, RedirectAttributes ra) {
+    public String saveEmployee(
+        @ModelAttribute Employee employee,
+        @RequestParam String temporaryPassword,
+        RedirectAttributes ra)  {
+         if (employee.getManager() != null && employee.getManager().getEmpId() != null) {
+        Employee manager = employeeRepository
+                .findById(employee.getManager().getEmpId())
+                .orElse(null);
+
+        employee.setManager(manager);
+    } else {
+        employee.setManager(null);
+    }
         employeeRepository.save(employee);
+              User user = new User();
+
+user.setUsername(employee.getEmail());
+user.setPassword(passwordEncoder.encode(temporaryPassword));
+user.setRole("USER");
+user.setForcePasswordChange(true);
+
+userRepository.save(user);
 
         // Send welcome email to new employee
         try {

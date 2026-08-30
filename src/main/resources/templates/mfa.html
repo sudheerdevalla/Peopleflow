@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>MFA Verification - PeopleFlow</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #eef2ff, #f8fafc);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .card {
+            width: 380px;
+            background: white;
+            padding: 40px;
+            border-radius: 18px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+        }
+
+        p {
+            color: #666;
+        }
+
+        input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 14px;
+            margin: 20px 0;
+            font-size: 22px;
+            text-align: center;
+            letter-spacing: 6px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            background: #111827;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .error {
+            color: #dc2626;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="card">
+
+    <h1>MFA Verification</h1>
+
+    <p>Scan this QR code with Google Authenticator.</p>
+
+<div style="margin: 20px 0;">
+    <img id="mfaQrCode"
+         alt="MFA QR Code"
+         style="width:220px;height:220px;border:1px solid #ddd;border-radius:10px;">
+</div>
+
+<p>Then enter the 6-digit code below.</p>
+
+    <div class="error" th:if="${param.error}">
+        Invalid MFA code
+    </div>
+
+    <form th:action="@{/mfa/verify}" method="post">
+
+        <input
+            type="text"
+            name="code"
+            maxlength="6"
+            minlength="6"
+            pattern="[0-9]{6}"
+            inputmode="numeric"
+            placeholder="000000"
+            required
+            autofocus
+        />
+
+        <button type="submit">Verify</button>
+
+    </form>
+
+</div>
+
+
+<script th:inline="javascript">
+document.addEventListener("DOMContentLoaded", async function () {
+
+    const qrImage = document.getElementById("mfaQrCode");
+
+    try {
+        const username = /*[[${username}]]*/ "";
+
+        const response = await fetch(
+            "/api/mfa/setup?username=" + encodeURIComponent(username),
+            {
+                method: "POST"
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error("MFA setup failed");
+        }
+
+        const data = await response.json();
+
+        if (data.qrCode) {
+            qrImage.src = "data:image/png;base64," + data.qrCode;
+        }
+
+    } catch (error) {
+        console.error("MFA QR error:", error);
+    }
+});
+</script>
+
+</body>
+</html>
