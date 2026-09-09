@@ -52,7 +52,7 @@ public class PayrollMailServiceTest {
         Payroll p = new Payroll();
         p.setEmployeeId(123L);
         p.setEmployeeName("John Doe");
-        p.setMonth("June 2026");
+        p.setMonth("Jun 2026");
         p.setBasicSalary(1000);
         p.setStatus("FINALIZED");
 
