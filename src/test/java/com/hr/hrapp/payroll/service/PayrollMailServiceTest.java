@@ -18,6 +18,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import com.hr.hrapp.entity.Employee;
 import com.hr.hrapp.payroll.entity.Payroll;
 import com.hr.hrapp.repository.EmployeeRepository;
+import com.hr.hrapp.repository.LeaveRepository;
 
 import jakarta.mail.BodyPart;
 import jakarta.mail.Multipart;
@@ -33,6 +34,9 @@ public class PayrollMailServiceTest {
 
     @Mock
     private EmployeeRepository employeeRepository;
+    
+    @Mock
+    private LeaveRepository leaveRepository;
 
     @InjectMocks
     private PayrollMailService payrollMailService;
@@ -48,6 +52,12 @@ public class PayrollMailServiceTest {
         e.setDateOfBirth(LocalDate.of(1990, 1, 1));
 
         when(employeeRepository.findById(123L)).thenReturn(Optional.of(e));
+        when(leaveRepository.findByEmpIdAndDateBetweenAndStatus(
+                org.mockito.ArgumentMatchers.eq(123L),
+                org.mockito.ArgumentMatchers.any(LocalDate.class),
+                org.mockito.ArgumentMatchers.any(LocalDate.class),
+                org.mockito.ArgumentMatchers.eq("APPROVED")
+        )).thenReturn(java.util.Collections.emptyList());
 
         Payroll p = new Payroll();
         p.setEmployeeId(123L);
