@@ -1,6 +1,7 @@
 package com.hr.hrapp.scheduler;
 
 import java.util.List;
+import java.time.YearMonth;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.slf4j.Logger;
@@ -54,7 +55,7 @@ public class PayrollScheduler {
 
                 Payroll payroll =
                         payrollService
-                        .calculateSalary(employee);
+                        .finalizePayroll(employee.getEmpId(), YearMonth.now(), "system-scheduler");
 
                 payrollMailService.sendPayslip(
                         payroll,

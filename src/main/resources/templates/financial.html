@@ -524,6 +524,18 @@
             box-shadow: var(--shadow-sm);
         }
 
+        .error-message {
+            background: #FEF2F2;
+            border: 1px solid #FECACA;
+            color: #991B1B;
+            font-weight: 700;
+            margin-top: 0;
+            font-size: 13px;
+            padding: 14px 16px;
+            border-radius: 16px;
+            box-shadow: var(--shadow-sm);
+        }
+
         .side-card {
             background: rgba(255, 255, 255, 0.88);
             backdrop-filter: blur(16px);
@@ -544,6 +556,25 @@
             font-size: 13px;
             line-height: 1.75;
             color: var(--text-secondary);
+        }
+
+        .otp-card {
+            max-width: 520px;
+            margin: 36px auto 0;
+        }
+
+        .otp-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 18px;
+        }
+
+        .otp-note {
+            font-size: 13px;
+            line-height: 1.7;
+            color: var(--text-secondary);
+            margin-top: 14px;
         }
 
         .tip-list {
@@ -673,6 +704,42 @@
             </a>
         </div>
 
+        <p class="success-message" th:if="${message}" th:text="${message}"></p>
+        <p class="error-message" th:if="${error}" th:text="${error}"></p>
+
+        <div th:if="${otpRequired}" class="card otp-card">
+            <div class="card-title">🔐 Verify financial access</div>
+            <p class="section-note">For sensitive salary and payroll information, OTP verification is required before this page can display financial data.</p>
+            <div class="fields-grid">
+                <div class="field">
+                    <div class="field-label">Registered email</div>
+                    <div class="field-value" th:text="${maskedEmail}">your email</div>
+                </div>
+                <div class="field">
+                    <div class="field-label">Protection</div>
+                    <div class="field-value">5-minute OTP · retry-limited · resend-protected</div>
+                </div>
+            </div>
+
+            <div class="otp-actions">
+                <form th:action="@{/user/financial/request-otp}" method="post">
+                    <button type="submit" class="btn btn-primary">Send OTP</button>
+                </form>
+            </div>
+
+            <form th:action="@{/user/financial/verify-otp}" method="post" style="margin-top: 22px;">
+                <div class="form-group">
+                    <label for="otp">One-Time Password</label>
+                    <input type="text" id="otp" name="otp" placeholder="Enter 6-digit OTP" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Verify and Continue</button>
+            </form>
+
+            <p class="otp-note">If you repeatedly request or enter invalid OTPs, PeopleFlow will temporarily block this financial access flow until a fresh OTP is requested.</p>
+        </div>
+
+        <div th:if="${!otpRequired}">
+
         <div class="hero">
             <div class="hero-content">
                 <div>
@@ -738,25 +805,10 @@
                     </div>
 
                     <div th:if="${employee.bankName == null}">
-                        <form th:action="@{/user/financial/save}" method="post">
-                            <div class="form-group">
-                                <label>Bank Name</label>
-                                <input type="text" name="bankName" placeholder="Enter Bank Name" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Account Number</label>
-                                <input type="text" name="accountNumber" placeholder="Enter Account Number" required>
-                            </div>
-                            <div class="form-group">
-                                <label>IFSC Code</label>
-                                <input type="text" name="ifsc" placeholder="Enter IFSC Code" required>
-                            </div>
-                            <div class="form-group">
-                                <label>PAN Number</label>
-                                <input type="text" name="panNumber" placeholder="Enter PAN Number" required>
-                            </div>
-                            <button type="submit" class="btn btn-primary">💾 Save Financial Details</button>
-                        </form>
+                        <div class="field">
+                            <div class="field-label">HR-managed setup</div>
+                            <div class="field-value">Financial and payroll-sensitive fields are maintained by HR/Admin in Employee Master.</div>
+                        </div>
                     </div>
                 </div>
 
@@ -773,12 +825,14 @@
                                     <th>Basic</th>
                                     <th>HRA</th>
                                     <th>Bonus</th>
+                                    <th>Approved Additions</th>
                                     <th>PF</th>
                                     <th>Tax</th>
                                     <th>Net Salary</th>
                                     <th>Payslip</th>
                                 </tr>
                             </thead>
+                                    <td>₹<span th:text="${payroll.approvedAdditions}">0</span></td>
                             <tbody>
                                 <tr th:each="payroll : ${payrollHistory}">
                                     <td th:text="${payroll.month}">-</td>
@@ -801,7 +855,6 @@
                     </div>
                 </div>
 
-                <p class="success-message" th:if="${message}" th:text="${message}"></p>
             </div>
 
             <div class="side-column">
@@ -836,6 +889,8 @@
                     </ul>
                 </div>
             </div>
+        </div>
+
         </div>
 
     </div>

@@ -1,186 +1,179 @@
 package com.hr.hrapp.payroll.service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.hr.hrapp.entity.Employee;
+import com.hr.hrapp.entity.Timesheet;
 import com.hr.hrapp.entity.TravelRequest;
 import com.hr.hrapp.payroll.entity.Payroll;
 import com.hr.hrapp.payroll.repository.PayrollRepository;
+import com.hr.hrapp.repository.EmployeeRepository;
+import com.hr.hrapp.repository.TimesheetRepository;
 import com.hr.hrapp.repository.TravelRequestRepository;
+import com.hr.hrapp.service.AuditTrailService;
+import com.hr.hrapp.util.PayrollMonthUtil;
 
 @Service
 public class PayrollService {
 
+    private static final String FINALIZED = "FINALIZED";
+
+    private static final String DRAFT = "DRAFT";
+
     @Autowired
     private PayrollRepository payrollRepository;
+
+    @Autowired
+    private EmployeeRepository employeeRepository;
+
+    @Autowired
+    private TimesheetRepository timesheetRepository;
     
     @Autowired
     private TravelRequestRepository travelRepository;
 
+    @Autowired
+    private AuditTrailService auditTrailService;
+
+    @Transactional
     public Payroll calculateSalary(Employee employee) {
 
-        // =========================
-        // BASIC SALARY
-        // =========================
+        return calculateSalary(employee, YearMonth.now());
+    }
 
-        double basicSalary =
-                employee.getBasicSalary();
+    @Transactional
+    public Payroll calculateSalary(Employee employee, YearMonth payrollMonth) {
 
-        // =========================
-        // HRA
-        // =========================
+        String monthLabel = PayrollMonthUtil.format(payrollMonth);
+        Payroll existingPayroll = payrollRepository
+                .findByEmployeeIdAndMonth(employee.getEmpId(), monthLabel)
+                .orElse(null);
 
-        double hra =
-                basicSalary
-                * (employee.getHraPercentage() != null ? employee.getHraPercentage() : 0.0)
-                / 100;
-
-        // =========================
-        // BONUS
-        // =========================
-
-        double bonus =
-                basicSalary
-                * (employee.getBonusPercentage() != null ? employee.getBonusPercentage() : 0.0)
-                / 100;
-        
-        double travelAllowance =
-                travelRepository
-                .getApprovedTravelAllowance(
-                        employee.getEmpId());
-        
-        if(employee.getTravelAllowance() != null){
-
-            travelAllowance =
-                    travelAllowance
-                    + employee.getTravelAllowance();
+        if (existingPayroll != null && FINALIZED.equalsIgnoreCase(existingPayroll.getStatus())) {
+            return existingPayroll;
         }
-        System.out.println(
-        	    "FINAL TRAVEL ALLOWANCE = "
-        	    + travelAllowance);
-        
-        
 
-        // =========================
-        // PF
-        // =========================
+        LocalDate startDate = payrollMonth.atDay(1);
+        LocalDate endDate = payrollMonth.atEndOfMonth();
+        int workingDays = payrollMonth.lengthOfMonth();
 
-        double pf =
-                basicSalary * 0.12;
+        List<Timesheet> monthTimesheets = timesheetRepository
+                .findByEmployeeIdAndDateBetween(employee.getEmpId(), startDate, endDate);
 
-        // =========================
-        // TAX
-        // =========================
+        int approvedTimesheetDays = (int) monthTimesheets.stream()
+                .filter(t -> t.getStatus() != null && t.getStatus().equalsIgnoreCase("APPROVED"))
+                .count();
 
-        double tax =
-                basicSalary * 0.05;
+        int payableDays = approvedTimesheetDays > 0 ? approvedTimesheetDays : workingDays;
 
-        // =========================
-        // TOTAL DEDUCTIONS
-        // =========================
+        double fullMonthBasic = round(employee.getBasicSalary());
+        double payableBasicSalary = round(fullMonthBasic * payableDays / Math.max(workingDays, 1));
+        double hra = round(payableBasicSalary * safePercentage(employee.getHraPercentage()) / 100.0);
+        double bonus = round(payableBasicSalary * safePercentage(employee.getBonusPercentage()) / 100.0);
+        double approvedTravelAllowance = round(nullSafe(travelRepository.getApprovedTravelAllowance(employee.getEmpId())));
+        double fixedTravelAllowance = round(nullSafe(employee.getTravelAllowance()));
+        double totalTravelAllowance = round(fixedTravelAllowance + approvedTravelAllowance);
+        double approvedAdditions = approvedTravelAllowance;
+        double grossSalary = round(payableBasicSalary + hra + bonus + totalTravelAllowance);
+        double pf = round(payableBasicSalary * 0.12);
+        double tax = round(payableBasicSalary * 0.05);
+        double deductions = round(pf + tax);
+        double netSalary = round(grossSalary - deductions);
 
-        double deductions =
-                pf + tax;
+        Payroll payroll = existingPayroll != null ? existingPayroll : new Payroll();
+        payroll.setEmployeeId(employee.getEmpId());
+        payroll.setEmployeeName(employee.getName());
+        payroll.setBasicSalary(payableBasicSalary);
+        payroll.setHra(hra);
+        payroll.setBonus(bonus);
+        payroll.setTravelAllowance(totalTravelAllowance);
+        payroll.setApprovedAdditions(approvedAdditions);
+        payroll.setGrossSalary(grossSalary);
+        payroll.setPf(pf);
+        payroll.setTax(tax);
+        payroll.setDeductions(deductions);
+        payroll.setNetSalary(netSalary);
+        payroll.setPayableDays(payableDays);
+        payroll.setWorkingDays(workingDays);
+        payroll.setMonth(monthLabel);
+        payroll.setStatus(DRAFT);
+        payroll.setReconciliationStatus(netSalary >= 0 ? "RECONCILED" : "ERROR");
+        payroll.setLastCalculatedAt(LocalDateTime.now());
+        payroll.setFinalizedAt(null);
+        payroll.setFinalizedBy(null);
 
-        // =========================
-        // NET SALARY
-        // =========================
+        return payrollRepository.save(payroll);
+    }
 
-        double netSalary =
-                (basicSalary
-                + hra
-                + bonus
-                + travelAllowance)
-                - deductions;
+    @Transactional
+    public Payroll finalizePayroll(Long employeeId, YearMonth payrollMonth, String finalizedBy) {
+        Employee employee = employeeRepository.findById(employeeId)
+                .orElseThrow(() -> new IllegalArgumentException("Employee not found"));
 
-        // =========================
-        // MONTH
-        // =========================
+        Payroll payroll = calculateSalary(employee, payrollMonth);
+        if (!"RECONCILED".equalsIgnoreCase(payroll.getReconciliationStatus())) {
+            throw new IllegalStateException("Payroll reconciliation failed; cannot finalize");
+        }
 
-        LocalDate now =
-                LocalDate.now();
+        if (FINALIZED.equalsIgnoreCase(payroll.getStatus())) {
+            return payroll;
+        }
 
-        String currentMonth =
-                now.getMonth()
-                + " "
-                + now.getYear();
+        payroll.setStatus(FINALIZED);
+        payroll.setFinalizedAt(LocalDateTime.now());
+        payroll.setFinalizedBy(finalizedBy);
+        Payroll savedPayroll = payrollRepository.save(payroll);
 
-        // =========================
-        // CHECK EXISTING PAYROLL
-        // =========================
+        List<TravelRequest> travels = new ArrayList<>(travelRepository
+                .findByEmpIdAndStatusAndPayrollProcessed(employeeId, "ADMIN_APPROVED", false));
+        for (TravelRequest travel : travels) {
+            travel.setPayrollProcessed(true);
+            travel.setPayrollReferenceMonth(savedPayroll.getMonth());
+            travel.setPayrollProcessedAt(LocalDateTime.now());
+        }
+        if (!travels.isEmpty()) {
+            travelRepository.saveAll(travels);
+        }
 
-        Payroll payroll =
-                payrollRepository
-                .findByEmployeeIdAndMonth(
-                        employee.getEmpId(),
-                        currentMonth)
-                .orElse(new Payroll());
+        auditTrailService.record(
+                finalizedBy,
+                "PAYROLL_FINALIZED",
+                "/payroll/finalize/" + employeeId,
+                "SUCCESS",
+                "PAYROLL",
+                savedPayroll.getId(),
+                "month=" + savedPayroll.getMonth() + ", approvedAdditions=" + savedPayroll.getApprovedAdditions() + ", netSalary=" + savedPayroll.getNetSalary()
+        );
 
-        // =========================
-        // SET DATA
-        // =========================
+        return savedPayroll;
+    }
 
-        payroll.setEmployeeId(
-                employee.getEmpId());
+    @Transactional
+    public List<Payroll> finalizePayrollForMonth(YearMonth payrollMonth, String finalizedBy) {
+        List<Payroll> finalizedPayrolls = new ArrayList<>();
+        for (Employee employee : employeeRepository.findByStatus("Active")) {
+            finalizedPayrolls.add(finalizePayroll(employee.getEmpId(), payrollMonth, finalizedBy));
+        }
+        return finalizedPayrolls;
+    }
 
-        payroll.setEmployeeName(
-                employee.getName());
+    private double safePercentage(Double value) {
+        return value == null ? 0.0 : value;
+    }
 
-        payroll.setBasicSalary(
-                basicSalary);
+    private double nullSafe(Double value) {
+        return value == null ? 0.0 : value;
+    }
 
-        payroll.setHra(
-                hra);
-
-        payroll.setBonus(
-                bonus);
-        
-        payroll.setTravelAllowance(
-                travelAllowance);
-
-        payroll.setPf(
-                pf);
-
-        payroll.setTax(
-                tax);
-
-        payroll.setDeductions(
-                deductions);
-
-        payroll.setNetSalary(
-                netSalary);
-
-        payroll.setMonth(
-                currentMonth);
-        
-        
-     // =========================
-     // MARK TRAVELS AS PROCESSED
-     // =========================
-
-     List<TravelRequest> travels =
-             travelRepository
-             .findByEmpIdAndStatusAndPayrollProcessed(
-                     employee.getEmpId(),
-                     "ADMIN_APPROVED",
-                     false);
-
-     for(TravelRequest t : travels){
-
-         t.setPayrollProcessed(true);
-     }
-
-     travelRepository.saveAll(travels);
-
-        // =========================
-        // SAVE
-        // =========================
-
-        return payrollRepository
-                .save(payroll);
+    private double round(double value) {
+        return Math.round(value * 100.0) / 100.0;
     }
 }

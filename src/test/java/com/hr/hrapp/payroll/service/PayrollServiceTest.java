@@ -1,7 +1,9 @@
 package com.hr.hrapp.payroll.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -14,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.hr.hrapp.entity.Employee;
+import com.hr.hrapp.repository.TimesheetRepository;
 import com.hr.hrapp.payroll.entity.Payroll;
 import com.hr.hrapp.payroll.repository.PayrollRepository;
 import com.hr.hrapp.repository.TravelRequestRepository;
@@ -26,6 +29,9 @@ class PayrollServiceTest {
 
     @Mock
     private TravelRequestRepository travelRepository;
+
+    @Mock
+    private TimesheetRepository timesheetRepository;
 
     @InjectMocks
     private PayrollService payrollService;
@@ -50,10 +56,10 @@ class PayrollServiceTest {
                 any()))
                 .thenReturn(Optional.empty());
 
-        when(travelRepository.findByEmpIdAndStatusAndPayrollProcessed(
-                1L,
-                "ADMIN_APPROVED",
-                false))
+        when(timesheetRepository.findByEmployeeIdAndDateBetween(
+                anyLong(),
+                any(),
+                any()))
                 .thenReturn(new ArrayList<>());
 
         when(payrollRepository.save(any(Payroll.class)))
@@ -64,7 +70,11 @@ class PayrollServiceTest {
 
         assertEquals(4500.0, payroll.getHra());
         assertEquals(3000.0, payroll.getBonus());
+        assertEquals(2000.0, payroll.getApprovedAdditions());
         assertEquals(3000.0, payroll.getTravelAllowance());
+        assertEquals(40500.0, payroll.getGrossSalary());
         assertEquals(35400.0, payroll.getNetSalary());
+        assertEquals("DRAFT", payroll.getStatus());
+        assertNotNull(payroll.getLastCalculatedAt());
     }
 }

@@ -1,6 +1,7 @@
 package com.hr.hrapp.service;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,7 +15,10 @@ import org.springframework.stereotype.Service;
 import com.hr.hrapp.entity.Employee;
 import com.hr.hrapp.entity.Salary;
 import com.hr.hrapp.entity.Timesheet;
+import com.hr.hrapp.payroll.entity.Payroll;
+import com.hr.hrapp.payroll.repository.PayrollRepository;
 import com.hr.hrapp.repository.TimesheetRepository;
+import com.hr.hrapp.util.PayrollMonthUtil;
 
 @Service
 public class FinancialService {
@@ -23,6 +27,9 @@ public class FinancialService {
 
 	@Autowired
     private TimesheetRepository timesheetRepository;
+
+	@Autowired
+	private PayrollRepository payrollRepository;
 	
 	public List<Map<String, Object>> processSalary(List<Salary> list) {
 
@@ -50,6 +57,12 @@ public class FinancialService {
     }
 		public double calculateSalary(Employee emp, int month, int year) {
 
+			Payroll finalizedPayroll = getFinalizedPayroll(emp.getEmpId(), month, year);
+			if (finalizedPayroll != null) {
+				logger.info("Using finalized payroll for employeeId={} month={}-{} payrollId={}", emp.getEmpId(), month, year, finalizedPayroll.getId());
+				return finalizedPayroll.getNetSalary();
+			}
+
 			LocalDate start = LocalDate.of(year, month, 1);
 			LocalDate end = start.withDayOfMonth(start.lengthOfMonth());
 
@@ -71,6 +84,18 @@ public class FinancialService {
 			logger.info("Calculated salary for employeeId={} month={}-{} payableDays={} perDay={} total={}", emp.getEmpId(), month, year, payableDays, perDay, total);
 
 			return total;
+		}
+
+		public Payroll getFinalizedPayroll(Long employeeId, int month, int year) {
+			String payrollMonth = PayrollMonthUtil.format(YearMonth.of(year, month));
+			return payrollRepository.findByEmployeeIdAndMonth(employeeId, payrollMonth)
+					.filter(p -> p.getStatus() != null && p.getStatus().equalsIgnoreCase("FINALIZED"))
+					.orElse(null);
+		}
+
+		public Payroll getLatestFinalizedPayroll(Long employeeId) {
+			return payrollRepository.findTopByEmployeeIdAndStatusOrderByIdDesc(employeeId, "FINALIZED")
+					.orElse(null);
 		}
 
 	}

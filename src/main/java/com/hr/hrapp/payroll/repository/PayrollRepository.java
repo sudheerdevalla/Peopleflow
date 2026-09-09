@@ -17,6 +17,14 @@ public interface PayrollRepository
 
     List<Payroll> findByEmployeeIdOrderByIdDesc(
             Long employeeId);
+
+    List<Payroll> findByEmployeeIdAndStatusOrderByIdDesc(
+            Long employeeId,
+            String status);
+
+    Optional<Payroll> findTopByEmployeeIdAndStatusOrderByIdDesc(
+            Long employeeId,
+            String status);
     
     
 
@@ -26,4 +34,8 @@ public interface PayrollRepository
     
     List<Payroll> findByMonth(
             String month);
+
+    List<Payroll> findByMonthAndStatusOrderByEmployeeIdAsc(
+            String month,
+            String status);
 }

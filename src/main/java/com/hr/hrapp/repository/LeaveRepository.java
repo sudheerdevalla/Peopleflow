@@ -25,5 +25,11 @@ public interface LeaveRepository extends JpaRepository<Leave, Long> {
     boolean existsByEmpIdAndDateAndStatus(Long empId, LocalDate date, String status);
     
     long countByStatus(String status);
+    
+    List<Leave> findByEmpIdAndDateBetweenAndStatus(
+            Long empId,
+            LocalDate startDate,
+            LocalDate endDate,
+            String status);
 
 }

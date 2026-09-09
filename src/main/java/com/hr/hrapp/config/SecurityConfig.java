@@ -2,6 +2,7 @@ package com.hr.hrapp.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -20,6 +21,7 @@ import com.hr.hrapp.security.JwtAuthenticationFilter;
 import com.hr.hrapp.service.CustomerUserDetailsService;
 
 @Configuration
+@EnableMethodSecurity
 public class SecurityConfig {
 
     @Autowired
@@ -61,6 +63,10 @@ public class SecurityConfig {
 
                     .requestMatchers(
                             "/login",
+                            "/register",
+                            "/forgot-password",
+                            "/verify-otp",
+                            "/reset-password",
                             "/index",
 
                             "/css/**",

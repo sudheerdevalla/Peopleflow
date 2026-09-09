@@ -5,6 +5,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
+import java.time.LocalDateTime;
+
 @Entity
 public class Payroll {
 
@@ -30,9 +32,27 @@ public class Payroll {
 
     private double deductions;
 
+    private double approvedAdditions;
+
+    private double grossSalary;
+
+    private int payableDays;
+
+    private int workingDays;
+
     private double netSalary;
 
     private String month;
+
+    private String status = "DRAFT";
+
+    private String reconciliationStatus = "PENDING";
+
+    private LocalDateTime lastCalculatedAt;
+
+    private LocalDateTime finalizedAt;
+
+    private String finalizedBy;
 
     // =========================
     // GETTERS & SETTERS
@@ -134,11 +154,83 @@ public class Payroll {
         this.netSalary = netSalary;
     }
 
+    public double getApprovedAdditions() {
+        return approvedAdditions;
+    }
+
+    public void setApprovedAdditions(double approvedAdditions) {
+        this.approvedAdditions = approvedAdditions;
+    }
+
+    public double getGrossSalary() {
+        return grossSalary;
+    }
+
+    public void setGrossSalary(double grossSalary) {
+        this.grossSalary = grossSalary;
+    }
+
+    public int getPayableDays() {
+        return payableDays;
+    }
+
+    public void setPayableDays(int payableDays) {
+        this.payableDays = payableDays;
+    }
+
+    public int getWorkingDays() {
+        return workingDays;
+    }
+
+    public void setWorkingDays(int workingDays) {
+        this.workingDays = workingDays;
+    }
+
     public String getMonth() {
         return month;
     }
 
     public void setMonth(String month) {
         this.month = month;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getReconciliationStatus() {
+        return reconciliationStatus;
+    }
+
+    public void setReconciliationStatus(String reconciliationStatus) {
+        this.reconciliationStatus = reconciliationStatus;
+    }
+
+    public LocalDateTime getLastCalculatedAt() {
+        return lastCalculatedAt;
+    }
+
+    public void setLastCalculatedAt(LocalDateTime lastCalculatedAt) {
+        this.lastCalculatedAt = lastCalculatedAt;
+    }
+
+    public LocalDateTime getFinalizedAt() {
+        return finalizedAt;
+    }
+
+    public void setFinalizedAt(LocalDateTime finalizedAt) {
+        this.finalizedAt = finalizedAt;
+    }
+
+    public String getFinalizedBy() {
+        return finalizedBy;
+    }
+
+    public void setFinalizedBy(String finalizedBy) {
+        this.finalizedBy = finalizedBy;
     }
 }

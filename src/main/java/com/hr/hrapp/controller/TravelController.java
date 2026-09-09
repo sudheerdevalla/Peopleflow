@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -200,8 +201,10 @@ public class TravelController {
 
     // ✅ Manager Approve
     @GetMapping("/manager-approve/{id}")
+    @PreAuthorize("hasAuthority('WRITE_EMPLOYEE')")
     public String managerApprove(
-            @PathVariable Long id) {
+            @PathVariable Long id,
+            Principal principal) {
 
         TravelRequest request =
                 travelRepository.findById(id)
@@ -216,7 +219,8 @@ public class TravelController {
             // Audit
             TravelAudit audit = new TravelAudit();
             audit.setTravelRequestId(request.getId());
-            audit.setPerformedByEmployeeId(request.getEmpId());
+            Employee actingManager = principal == null ? null : employeeRepository.findByEmail(principal.getName());
+            audit.setPerformedByEmployeeId(actingManager == null ? request.getEmpId() : actingManager.getEmpId());
             audit.setAction("MANAGER_APPROVED");
             audit.setComments("Approved by manager");
             travelAuditRepository.save(audit);
@@ -230,8 +234,6 @@ public class TravelController {
             notificationRepository.save(n);
 
             // Send email to employee
-            Employee emp = employeeRepository.findByEmail("");
-            // find employee by id
             Employee employee = employeeRepository.findById(request.getEmpId()).orElse(null);
             if (employee != null) {
                 String body = "<p>Your travel request to " + request.getDestination() + " has been approved by your manager.</p>";
@@ -244,8 +246,10 @@ public class TravelController {
 
     // ✅ Manager Reject
     @GetMapping("/manager-reject/{id}")
+    @PreAuthorize("hasAuthority('WRITE_EMPLOYEE')")
     public String managerReject(
-            @PathVariable Long id) {
+            @PathVariable Long id,
+            Principal principal) {
 
         TravelRequest request =
                 travelRepository.findById(id)
@@ -259,7 +263,8 @@ public class TravelController {
 
             TravelAudit audit = new TravelAudit();
             audit.setTravelRequestId(request.getId());
-            audit.setPerformedByEmployeeId(request.getEmpId());
+            Employee actingManager = principal == null ? null : employeeRepository.findByEmail(principal.getName());
+            audit.setPerformedByEmployeeId(actingManager == null ? request.getEmpId() : actingManager.getEmpId());
             audit.setAction("REJECTED");
             audit.setComments("Rejected by manager");
             travelAuditRepository.save(audit);
@@ -278,6 +283,7 @@ public class TravelController {
 
     // ✅ HR/Admin View
     @GetMapping("/admin")
+    @PreAuthorize("hasAuthority('READ_EMPLOYEE')")
     public String adminTravelRequests(Model model) {
 
         List<TravelRequest> requests = travelRepository.findByStatus("MANAGER_APPROVED");
@@ -291,8 +297,10 @@ public class TravelController {
 
     // ✅ HR Final Approval
     @GetMapping("/approve/{id}")
+    @PreAuthorize("hasAuthority('WRITE_EMPLOYEE')")
     public String approveTravel(
-            @PathVariable Long id) {
+            @PathVariable Long id,
+            Principal principal) {
 
         TravelRequest request =
                 travelRepository.findById(id)
@@ -305,7 +313,8 @@ public class TravelController {
 
             TravelAudit audit = new TravelAudit();
             audit.setTravelRequestId(request.getId());
-            audit.setPerformedByEmployeeId(request.getEmpId());
+            Employee actingAdmin = principal == null ? null : employeeRepository.findByEmail(principal.getName());
+            audit.setPerformedByEmployeeId(actingAdmin == null ? request.getEmpId() : actingAdmin.getEmpId());
             audit.setAction("ADMIN_APPROVED");
             audit.setComments("Approved by admin");
             travelAuditRepository.save(audit);
@@ -325,8 +334,10 @@ public class TravelController {
 
     // ✅ HR Reject
     @GetMapping("/reject/{id}")
+    @PreAuthorize("hasAuthority('WRITE_EMPLOYEE')")
     public String rejectTravel(
-            @PathVariable Long id) {
+            @PathVariable Long id,
+            Principal principal) {
 
         TravelRequest request =
                 travelRepository.findById(id)
@@ -339,7 +350,8 @@ public class TravelController {
 
             TravelAudit audit = new TravelAudit();
             audit.setTravelRequestId(request.getId());
-            audit.setPerformedByEmployeeId(request.getEmpId());
+            Employee actingAdmin = principal == null ? null : employeeRepository.findByEmail(principal.getName());
+            audit.setPerformedByEmployeeId(actingAdmin == null ? request.getEmpId() : actingAdmin.getEmpId());
             audit.setAction("REJECTED");
             audit.setComments("Rejected by admin");
             travelAuditRepository.save(audit);

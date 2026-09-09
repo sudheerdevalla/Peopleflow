@@ -24,6 +24,7 @@ import com.hr.hrapp.entity.User;
 import com.hr.hrapp.repository.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import com.hr.hrapp.entity.EmployeeAttendance;
+import com.hr.hrapp.entity.EmployeeDocument;
 import com.hr.hrapp.entity.Leave;
 import com.hr.hrapp.entity.Notification;
 import com.hr.hrapp.entity.Timesheet;
@@ -34,10 +35,11 @@ import com.hr.hrapp.repository.NotificationRepository;
 import com.hr.hrapp.repository.TimesheetRepository;
 import com.hr.hrapp.service.EmailService;
 import com.hr.hrapp.service.EmployeeSalaryService;
+import com.hr.hrapp.service.EmployeeDocumentImportService;
 import com.hr.hrapp.service.ExcelEmployeeService;
 import com.hr.hrapp.service.LeaveService;
-import com.hr.hrapp.service.AuditLogService;
-import com.hr.hrapp.entity.AuditLog;
+import com.hr.hrapp.service.AuditTrailService;
+import com.hr.hrapp.service.TimesheetEntryService;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -77,6 +79,15 @@ private BCryptPasswordEncoder passwordEncoder;
     
     @Autowired
     private TimesheetRepository timesheetRepository;
+
+    @Autowired
+    private TimesheetEntryService timesheetEntryService;
+
+    @Autowired
+    private EmployeeDocumentImportService employeeDocumentImportService;
+
+    @Autowired
+    private AuditTrailService auditTrailService;
     
     @GetMapping
     @PreAuthorize("hasAuthority('READ_EMPLOYEE')")
@@ -123,6 +134,7 @@ private BCryptPasswordEncoder passwordEncoder;
                 .body(pdf);
     }
     @GetMapping("/edit/{id}")
+    @PreAuthorize("hasAuthority('READ_EMPLOYEE')")
     public String editEmployee(@PathVariable Long id, Model model) {
 
         Employee emp = employeeRepository.findById(id).orElse(null);
@@ -132,13 +144,20 @@ private BCryptPasswordEncoder passwordEncoder;
         model.addAttribute("employees",
                 employeeRepository.findAll());
 
+        List<EmployeeDocument> documentImports =
+                employeeDocumentImportService.getEmployeeImports(id);
+
+        model.addAttribute("documentImports", documentImports);
+
         return "edit-employee";
     }
 
     @PostMapping("/update")
+    @PreAuthorize("hasAuthority('WRITE_EMPLOYEE')")
     public String updateEmployee(
             @ModelAttribute Employee employee,
-            @RequestParam(required = false) Long managerId) {
+            @RequestParam(required = false) Long managerId,
+            Principal principal) {
 
         // =========================
         // EXISTING EMPLOYEE FETCH
@@ -167,6 +186,24 @@ private BCryptPasswordEncoder passwordEncoder;
         
         existingEmployee.setDepartment(
                 employee.getDepartment());
+
+        existingEmployee.setEmployeeCode(
+                employee.getEmployeeCode());
+
+        existingEmployee.setBankName(
+                employee.getBankName());
+
+        existingEmployee.setAccountNumber(
+                employee.getAccountNumber());
+
+        existingEmployee.setIfsc(
+                employee.getIfsc());
+
+        existingEmployee.setPanNumber(
+                employee.getPanNumber());
+
+        existingEmployee.setAadhaarNumber(
+                employee.getAadhaarNumber());
 
         // =========================
         // PAYROLL DETAILS
@@ -217,6 +254,15 @@ private BCryptPasswordEncoder passwordEncoder;
 
         employeeRepository.save(
                 existingEmployee);
+
+        auditTrailService.record(
+                principal == null ? "system" : principal.getName(),
+                "EMPLOYEE_MASTER_UPDATED",
+                "/admin/update",
+                "SUCCESS",
+                "EMPLOYEE",
+                existingEmployee.getEmpId(),
+                "Updated core and payroll-controlled fields for employee=" + existingEmployee.getEmail());
 
         return "redirect:/admin/employees";
     }
@@ -500,37 +546,37 @@ userRepository.save(user);
         return "manager-timesheets";
     }
     @GetMapping("/manager/approve-location/{id}")
+    @PreAuthorize("hasAuthority('WRITE_EMPLOYEE')")
     public String approveLocation(
-            @PathVariable Long id) {
+            @PathVariable Long id,
+            Principal principal,
+            RedirectAttributes redirectAttributes) {
 
-        Timesheet t =
-                timesheetRepository
-                        .findById(id)
-                        .orElse(null);
-
-        if(t != null) {
-
-            t.setStatus("APPROVED");
-
-            timesheetRepository.save(t);
+        try {
+            timesheetEntryService.managerReviewLocationException(
+                    id,
+                    true,
+                    principal == null ? "system" : principal.getName());
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
         }
 
         return "redirect:/admin/manager-timesheets";
     }
     @GetMapping("/manager/reject-location/{id}")
+    @PreAuthorize("hasAuthority('WRITE_EMPLOYEE')")
     public String rejectLocation(
-            @PathVariable Long id) {
+            @PathVariable Long id,
+            Principal principal,
+            RedirectAttributes redirectAttributes) {
 
-        Timesheet t =
-                timesheetRepository
-                        .findById(id)
-                        .orElse(null);
-
-        if(t != null) {
-
-            t.setStatus("REJECTED");
-
-            timesheetRepository.save(t);
+        try {
+            timesheetEntryService.managerReviewLocationException(
+                    id,
+                    false,
+                    principal == null ? "system" : principal.getName());
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
         }
 
         return "redirect:/admin/manager-timesheets";
@@ -817,6 +863,45 @@ userRepository.save(user);
         );
 
         return "redirect:/admin/employees";
+    }
+
+    @PostMapping("/employees/{id}/documents/import")
+    @PreAuthorize("hasAuthority('WRITE_EMPLOYEE')")
+    public String importEmployeeDocument(@PathVariable Long id,
+                                         @RequestParam("documentType") String documentType,
+                                         @RequestParam("file") MultipartFile file,
+                                         Principal principal,
+                                         RedirectAttributes ra) {
+        try {
+            employeeDocumentImportService.importDocument(
+                    id,
+                    documentType,
+                    file,
+                    principal == null ? "system" : principal.getName());
+            ra.addFlashAttribute("success", "Document imported for HR review successfully.");
+        } catch (Exception ex) {
+            ra.addFlashAttribute("error", ex.getMessage());
+        }
+        return "redirect:/admin/edit/" + id;
+    }
+
+    @PostMapping("/employees/documents/{documentId}/confirm")
+    @PreAuthorize("hasAuthority('WRITE_EMPLOYEE')")
+    public String confirmEmployeeDocument(@PathVariable Long documentId,
+                                          @RequestParam(defaultValue = "false") boolean overrideConflicts,
+                                          Principal principal,
+                                          RedirectAttributes ra) {
+        try {
+            EmployeeDocument document = employeeDocumentImportService.confirmImport(
+                    documentId,
+                    overrideConflicts,
+                    principal == null ? "system" : principal.getName());
+            ra.addFlashAttribute("success", "Employee master updated from reviewed document.");
+            return "redirect:/admin/edit/" + document.getEmployeeId();
+        } catch (Exception ex) {
+            ra.addFlashAttribute("error", ex.getMessage());
+            return "redirect:/admin/employees";
+        }
     }
     
 }

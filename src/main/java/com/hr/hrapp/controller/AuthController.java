@@ -80,7 +80,7 @@ public class AuthController {
 	                           @RequestParam String password) {
 
 	    // check if user exists
-	    if(userRepository.findByUsername(username) != null){
+	    if(userRepository.findByUsername(username).isPresent()){
 	        return "redirect:/register?error";
 	    }
 
@@ -88,6 +88,8 @@ public class AuthController {
 	    user.setUsername(username);
 	    user.setPassword(encoder.encode(password));
 	    user.setRole("USER");
+	    user.setForcePasswordChange(false);
+	    user.setMfaEnabled(false);
 
 	    userRepository.save(user);
 	    

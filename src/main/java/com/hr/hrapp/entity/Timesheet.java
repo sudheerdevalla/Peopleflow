@@ -46,6 +46,10 @@ public class Timesheet {
     private Double longitude;
     
     private LocalDateTime createdAt;
+
+    private LocalDateTime reviewedAt;
+
+    private String reviewedBy;
     
     @PrePersist
     public void prePersist() {
@@ -184,6 +188,22 @@ public class Timesheet {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getReviewedAt() {
+        return reviewedAt;
+    }
+
+    public void setReviewedAt(LocalDateTime reviewedAt) {
+        this.reviewedAt = reviewedAt;
+    }
+
+    public String getReviewedBy() {
+        return reviewedBy;
+    }
+
+    public void setReviewedBy(String reviewedBy) {
+        this.reviewedBy = reviewedBy;
     }
 
 	

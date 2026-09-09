@@ -19,6 +19,8 @@ public interface EmployeeDocumentRepository
 
     // Backwards-compatible list version
     List<EmployeeDocument> findByEmployeeId(Long employeeId);
+    List<EmployeeDocument> findByEmployeeIdOrderByIdDesc(Long employeeId);
+    Optional<EmployeeDocument> findByFileHash(String fileHash);
     Optional<EmployeeDocument> findById(Long id);
 
 }

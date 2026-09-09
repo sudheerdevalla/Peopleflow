@@ -1,6 +1,7 @@
 package com.hr.hrapp.entity;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -33,6 +34,10 @@ public class TravelRequest {
     private Double travelAllowance;
     
     private boolean payrollProcessed = false;
+
+    private String payrollReferenceMonth;
+
+    private LocalDateTime payrollProcessedAt;
 
     // Status flow: REQUESTED -> MANAGER_APPROVED -> ADMIN_APPROVED -> COMPLETED
     // Other possible values: REJECTED
@@ -135,5 +140,21 @@ public class TravelRequest {
 
     public void setPayrollProcessed(boolean payrollProcessed) {
         this.payrollProcessed = payrollProcessed;
+    }
+
+    public String getPayrollReferenceMonth() {
+        return payrollReferenceMonth;
+    }
+
+    public void setPayrollReferenceMonth(String payrollReferenceMonth) {
+        this.payrollReferenceMonth = payrollReferenceMonth;
+    }
+
+    public LocalDateTime getPayrollProcessedAt() {
+        return payrollProcessedAt;
+    }
+
+    public void setPayrollProcessedAt(LocalDateTime payrollProcessedAt) {
+        this.payrollProcessedAt = payrollProcessedAt;
     }
 }

@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -46,6 +47,7 @@ import com.hr.hrapp.service.EmployeeService;
 import com.hr.hrapp.service.FinancialService;
 import com.hr.hrapp.service.LeaveService;
 import com.hr.hrapp.service.LocationService;
+import com.hr.hrapp.service.TimesheetEntryService;
 
 @Controller
 @RequestMapping("/user")   // ✅ VERY IMPORTANT
@@ -99,6 +101,9 @@ public class UserController {
     
     @Autowired
     private HolidayRepository holidayRepository;
+
+    @Autowired
+    private TimesheetEntryService timesheetEntryService;
 
     
     
@@ -355,74 +360,31 @@ public class UserController {
             @RequestParam(value = "workDescription", required = false) String workDescription,
             @RequestParam(value = "latitude", required = false) Double latitude,
             @RequestParam(value = "longitude", required = false) Double longitude,
-            Principal principal) {
+            Principal principal,
+            RedirectAttributes redirectAttributes) {
 
-        // ✅ NULL HANDLE (VERY IMPORTANT)
-        if (hours == null) hours = 0;
-        if (training == null) training = 0;
+        try {
+            String username = principal.getName();
+            Employee emp = employeeRepository.findByEmail(username);
+            LocalDate localDate = LocalDate.parse(date);
 
-        // ✅ USER FETCH
-        String username = principal.getName();
-        Employee emp = employeeRepository.findByEmail(username);
-
-        // ✅ DATE PARSE
-        LocalDate localDate = LocalDate.parse(date);
-
-        // ✅ CHECK EXISTING ENTRY
-        Timesheet existing = timesheetRepository
-                .findByEmployeeIdAndDate(emp.getEmpId(), localDate)
-                .orElse(null);
-
-        if (existing != null) {
-            // ✅ UPDATE
-            existing.setHours(hours);
-            existing.setTraining(training);
-            existing.setWorkLocation(location);
-            existing.setClientName(clientName);
-            existing.setProjectName(projectName);
-            existing.setWorkDescription(workDescription);
-            existing.setLatitude(latitude);
-            existing.setLongitude(longitude);
-
-            String detectedCity = locationService.getCity(latitude, longitude);
-
-            existing.setExpectedLocation(emp.getLocation());
-            existing.setActualLocation(detectedCity);
-
-            // Use new validation service (Haversine -> Location table). Falls back to city-match if needed.
-            timesheetValidationService.validateAndNotify(existing, emp);
-
-            timesheetRepository.save(existing);
-
-        } else {
-            // ✅ NEW ENTRY
-            Timesheet newEntry = new Timesheet();
-            newEntry.setEmployeeId(emp.getEmpId());
-            newEntry.setDate(localDate);
-            
-            newEntry.setCreatedAt(
-                    LocalDateTime.now());
-            newEntry.setHours(hours);
-            newEntry.setTraining(training);
-            newEntry.setWorkLocation(location);
-            newEntry.setClientName(clientName);
-            newEntry.setProjectName(projectName);
-            newEntry.setWorkDescription(workDescription);
-            newEntry.setLatitude(latitude);
-            newEntry.setLongitude(longitude);
-
-            String detectedCity = locationService.getCity(latitude, longitude);
-
-            newEntry.setExpectedLocation(emp.getLocation());
-            newEntry.setActualLocation(detectedCity);
-
-            // Validate using Haversine and notify on mismatch
-            timesheetValidationService.validateAndNotify(newEntry, emp);
-
-            timesheetRepository.save(newEntry);
+            timesheetEntryService.saveOrUpdate(
+                    emp,
+                    localDate,
+                    location,
+                    hours,
+                    training,
+                    clientName,
+                    projectName,
+                    workDescription,
+                    latitude,
+                    longitude,
+                    username);
+            redirectAttributes.addFlashAttribute("success", "Timesheet saved successfully");
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
         }
 
-        // ✅ IMPORTANT (RETURN FIX)
         return "redirect:/user/fill-timesheet";
     }
 
@@ -450,14 +412,29 @@ public class UserController {
 
     // ================= UPDATE TIMESHEET =================
     @PostMapping("/update-timesheet")
-    public String updateTimesheet(@ModelAttribute Timesheet ts, Principal principal) {
+    public String updateTimesheet(@ModelAttribute Timesheet ts,
+                                  Principal principal,
+                                  RedirectAttributes redirectAttributes) {
 
-        String username = principal.getName();
-        Employee emp = employeeRepository.findByEmail(username);
-
-        ts.setEmployeeId(emp.getEmpId());
-
-        timesheetRepository.save(ts);
+        try {
+            String username = principal.getName();
+            Employee emp = employeeRepository.findByEmail(username);
+            timesheetEntryService.saveOrUpdate(
+                    emp,
+                    ts.getDate(),
+                    ts.getWorkLocation(),
+                    ts.getHours(),
+                    ts.getTraining(),
+                    ts.getClientName(),
+                    ts.getProjectName(),
+                    ts.getWorkDescription(),
+                    ts.getLatitude(),
+                    ts.getLongitude(),
+                    username);
+            redirectAttributes.addFlashAttribute("success", "Timesheet updated successfully");
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
+        }
 
         return "redirect:/user/timesheet";
     }

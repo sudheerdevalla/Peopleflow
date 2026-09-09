@@ -54,6 +54,7 @@ public class PayrollMailServiceTest {
         p.setEmployeeName("John Doe");
         p.setMonth("June 2026");
         p.setBasicSalary(1000);
+        p.setStatus("FINALIZED");
 
         // ensure mailFrom is set (injected via @Value in production)
         ReflectionTestUtils.setField(payrollMailService, "mailFrom", "test@domain.local");
