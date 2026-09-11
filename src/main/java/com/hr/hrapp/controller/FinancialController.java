@@ -328,7 +328,7 @@ public class FinancialController {
         if (payroll == null) {
             throw new IllegalStateException("No finalized payroll found for requested month");
         }
-        YearMonth payrollMonth = YearMonth.parse(month);
+        YearMonth payrollMonth = parsePayrollMonth(month);
 
         LocalDate leaveStartDate = payrollMonth.atDay(1);
         LocalDate leaveEndDate = payrollMonth.atEndOfMonth();
@@ -394,6 +394,37 @@ public class FinancialController {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM yyyy");
         return ym.format(formatter);
     }
+    private YearMonth parsePayrollMonth(String month) {
+
+        if (month == null || month.isBlank()) {
+            return YearMonth.now();
+        }
+
+        try {
+            // Format: 2026-09
+            return YearMonth.parse(month);
+        } catch (java.time.format.DateTimeParseException ignored) {
+        }
+
+        try {
+            // Format: SEPTEMBER 2026 / September 2026
+            return YearMonth.parse(
+                    month,
+                    new java.time.format.DateTimeFormatterBuilder()
+                            .parseCaseInsensitive()
+                            .appendPattern("MMMM yyyy")
+                            .toFormatter(java.util.Locale.ENGLISH));
+        } catch (java.time.format.DateTimeParseException ignored) {
+        }
+
+        // Format: SEP 2026 / Sep 2026
+        return YearMonth.parse(
+                month,
+                new java.time.format.DateTimeFormatterBuilder()
+                        .parseCaseInsensitive()
+                        .appendPattern("MMM yyyy")
+                        .toFormatter(java.util.Locale.ENGLISH));
+    }
 
     private Payroll resolveRequestedPayroll(Employee employee, String month, List<Payroll> payrollHistory) {
         if (employee == null) {
@@ -401,7 +432,7 @@ public class FinancialController {
         }
 
         if (month != null && !month.isBlank()) {
-            String formattedMonth = PayrollMonthUtil.format(YearMonth.parse(month));
+        	String formattedMonth = PayrollMonthUtil.format(parsePayrollMonth(month));
             return payrollHistory.stream()
                     .filter(payroll -> payroll.getMonth() != null && payroll.getMonth().equalsIgnoreCase(formattedMonth))
                     .findFirst()

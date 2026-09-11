@@ -802,7 +802,7 @@
                                     <th>Payslip</th>
                                 </tr>
                             </thead>
-                                    <td>₹<span th:text="${payroll.approvedAdditions}">0</span></td>
+                                    
                             <tbody>
                                 <tr th:each="payroll : ${payrollHistory}">
                                     <td th:text="${payroll.month}">-</td>
@@ -810,14 +810,15 @@
                                     </td>
                                     <td>₹<span th:text="${payroll.hra}">0</span></td>
                                     <td>₹<span th:text="${payroll.bonus}">0</span></td>
+									<td>₹<span th:text="${payroll.approvedAdditions}">0</span></td>
                                     <td>₹<span th:text="${payroll.pf}">0</span></td>
                                     <td>₹<span th:text="${payroll.tax}">0</span></td>
                                     <td>₹<span th:text="${#numbers.formatDecimal(payroll.netSalary, 0, 'COMMA', 0, 'POINT')}">0</span>
                                     </td>
                                     <td>
-                                        <a th:href="@{'/payroll/download/' + ${payroll.id}}">
-                                            <button class="btn btn-primary">📥 PDF</button>
-                                        </a>
+										<a th:href="@{/user/download(month=${payroll.month})}">
+										    <button class="btn btn-primary">📥 Download Payslip</button>
+										</a>
                                     </td>
                                 </tr>
                             </tbody>

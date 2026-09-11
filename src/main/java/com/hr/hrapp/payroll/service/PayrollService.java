@@ -83,8 +83,20 @@ public class PayrollService {
         double totalTravelAllowance = round(fixedTravelAllowance + approvedTravelAllowance);
         double approvedAdditions = approvedTravelAllowance;
         double grossSalary = round(payableBasicSalary + hra + bonus + totalTravelAllowance);
-        double pf = round(payableBasicSalary * 0.12);
-        double tax = round(payableBasicSalary * 0.05);
+        double pf = round(Math.min(payableBasicSalary, 15000.0) * 0.12);
+
+        double annualGrossSalary = round(grossSalary * 12);
+
+        double standardDeduction = 75000.0;
+
+        double taxableIncome = Math.max(
+                0.0,
+                annualGrossSalary - standardDeduction);
+
+        double annualTax = calculateNewRegimeTax(taxableIncome);
+
+        double tax = round(annualTax / 12.0);
+
         double deductions = round(pf + tax);
         double netSalary = round(grossSalary - deductions);
 
@@ -171,6 +183,34 @@ public class PayrollService {
 
     private double nullSafe(Double value) {
         return value == null ? 0.0 : value;
+    }
+    
+    private double calculateNewRegimeTax(double taxableIncome) {
+
+        if (taxableIncome <= 1200000) {
+            return 0.0;
+        }
+
+        double tax;
+
+        if (taxableIncome <= 1600000) {
+            tax = 60000
+                    + (taxableIncome - 1200000) * 0.15;
+
+        } else if (taxableIncome <= 2000000) {
+            tax = 120000
+                    + (taxableIncome - 1600000) * 0.20;
+
+        } else if (taxableIncome <= 2400000) {
+            tax = 200000
+                    + (taxableIncome - 2000000) * 0.25;
+
+        } else {
+            tax = 300000
+                    + (taxableIncome - 2400000) * 0.30;
+        }
+
+        return round(tax * 1.04);
     }
 
     private double round(double value) {

@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Payroll Management · PeopleFlow</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+                         Helvetica, Arial, sans-serif;
+            background: #f8fafc;
+            color: #0f172a;
+        }
+
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            background: #ffffff;
+            border-right: 1px solid #e2e8f0;
+            padding: 28px 16px;
+        }
+
+        .brand {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .brand h2 {
+            font-size: 24px;
+            font-weight: 800;
+        }
+
+        .brand span {
+            font-size: 11px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .section-title {
+            font-size: 11px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            font-weight: 700;
+            margin: 22px 12px 10px;
+        }
+
+        .sidebar a {
+            display: block;
+            text-decoration: none;
+            color: #64748b;
+            padding: 11px 12px;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+
+        .sidebar a:hover {
+            background: #eff6ff;
+            color: #2563eb;
+        }
+
+        .sidebar a.active {
+            background: #dbeafe;
+            color: #2563eb;
+            font-weight: 600;
+        }
+
+        .main {
+            margin-left: 250px;
+            padding: 40px;
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 30px;
+            font-weight: 800;
+        }
+
+        .header p {
+            margin-top: 6px;
+            color: #64748b;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+        }
+
+        .card-title {
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 18px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 14px;
+            align-items: end;
+            flex-wrap: wrap;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .field label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        input,
+        select {
+            padding: 10px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 14px;
+            min-width: 180px;
+            background: white;
+        }
+
+        button,
+        .btn {
+            border: none;
+            border-radius: 8px;
+            padding: 10px 15px;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-success {
+            background: #16a34a;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #15803d;
+        }
+
+        .btn-payslip {
+            background: #7c3aed;
+            color: white;
+        }
+
+        .btn-payslip:hover {
+            background: #6d28d9;
+        }
+
+        .btn-disabled {
+            background: #e2e8f0;
+            color: #64748b;
+            cursor: not-allowed;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1050px;
+        }
+
+        th {
+            text-align: left;
+            background: #f8fafc;
+            color: #475569;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 13px 12px;
+            border-bottom: 1px solid #e2e8f0;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 14px 12px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        tr:hover td {
+            background: #fafcff;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 5px 9px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .status-draft {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-finalized {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .reconciled {
+            color: #15803d;
+            font-weight: 600;
+        }
+
+        .error {
+            color: #dc2626;
+            font-weight: 600;
+        }
+
+        .actions {
+            display: flex;
+            gap: 7px;
+            align-items: center;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 45px 20px;
+            color: #64748b;
+        }
+
+        .info {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            color: #1e40af;
+            padding: 13px 16px;
+            border-radius: 9px;
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 210px;
+            }
+
+            .main {
+                margin-left: 210px;
+                padding: 22px;
+            }
+
+            .controls {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            input,
+            select {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- =========================
+         SIDEBAR
+         ========================= -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+            <h2>PeopleFlow</h2>
+            <span>Admin Console</span>
+        </div>
+
+        <div class="section-title">Main</div>
+
+        <a href="/admin/dashboard">
+            🏠 Dashboard
+        </a>
+
+        <div class="section-title">Management</div>
+
+        <a href="/admin/employees">
+            👥 Employees
+        </a>
+
+        <a href="/admin/hierarchy">
+            🌳 Hierarchy
+        </a>
+
+        <a href="/admin/attendance">
+            📅 Attendance
+        </a>
+
+        <a href="/admin/holidays">
+            🎉 Holidays
+        </a>
+
+        <a href="/admin/leaves">
+            📝 Leaves
+        </a>
+
+        <div class="section-title">Payroll</div>
+
+        <a href="/payroll" class="active">
+            💰 Payroll
+        </a>
+
+        <div class="section-title">Operations</div>
+
+        <a href="/travel/admin">
+            ✈️ Travel Approvals
+        </a>
+
+        <a href="/admin/updates">
+            📢 Company Updates
+        </a>
+
+        <div class="section-title">Account</div>
+
+        <a href="/logout">
+            🚪 Logout
+        </a>
+
+    </aside>
+
+
+    <!-- =========================
+         MAIN
+         ========================= -->
+
+    <main class="main">
+
+        <div class="header">
+
+            <h1>Payroll Management</h1>
+
+            <p>
+                Calculate, reconcile, finalize and access employee payslips.
+            </p>
+
+        </div>
+
+
+        <!-- =========================
+             MONTH & EMPLOYEE CONTROLS
+             ========================= -->
+
+        <div class="card">
+
+            <div class="card-title">
+                Payroll Controls
+            </div>
+
+            <div class="info">
+                Payroll must be finalized before the payslip becomes available.
+            </div>
+
+            <form action="/payroll"
+                  method="get"
+                  class="controls">
+
+                <div class="field">
+
+                    <label for="month">
+                        Payroll Month
+                    </label>
+
+                    <input
+                        type="month"
+                        id="month"
+                        name="month"
+                        th:value="${selectedMonth}"
+                        required>
+
+                </div>
+
+
+                <div class="field">
+
+                    <label for="employee">
+                        Employee
+                    </label>
+
+                    <select id="employee"
+                            required>
+
+                        <option value="">
+                            Select Employee
+                        </option>
+
+                        <option
+                            th:each="employee : ${employees}"
+                            th:value="${employee.empId}"
+                            th:text="${employee.name + ' (' + employee.empId + ')'}">
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    onclick="generatePayroll()">
+
+                    ⚙️ Generate Payroll
+
+                </button>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary">
+
+                    🔄 Load Payroll
+
+                </button>
+
+            </form>
+
+        </div>
+
+
+        <!-- =========================
+             PAYROLL HISTORY
+             ========================= -->
+
+        <div class="card">
+
+            <div class="card-title">
+                Payroll Records
+            </div>
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Employee ID</th>
+
+                            <th>Employee</th>
+
+                            <th>Month</th>
+
+                            <th>Basic Salary</th>
+
+                            <th>Gross Salary</th>
+
+                            <th>Deductions</th>
+
+                            <th>Net Salary</th>
+
+                            <th>Payable Days</th>
+
+                            <th>Reconciliation</th>
+
+                            <th>Status</th>
+
+                            <th>Actions</th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        <tr th:each="payroll : ${payrolls}">
+
+                            <td th:text="${payroll.employeeId}">
+                                0
+                            </td>
+
+                            <td th:text="${payroll.employeeName}">
+                                Employee
+                            </td>
+
+                            <td th:text="${payroll.month}">
+                                Month
+                            </td>
+
+                            <td>
+                                ₹<span
+                                    th:text="${#numbers.formatDecimal(payroll.basicSalary, 1, 2)}">
+                                </span>
+                            </td>
+
+                            <td>
+                                ₹<span
+                                    th:text="${#numbers.formatDecimal(payroll.grossSalary, 1, 2)}">
+                                </span>
+                            </td>
+
+                            <td>
+                                ₹<span
+                                    th:text="${#numbers.formatDecimal(payroll.deductions, 1, 2)}">
+                                </span>
+                            </td>
+
+                            <td>
+                                ₹<span
+                                    th:text="${#numbers.formatDecimal(payroll.netSalary, 1, 2)}">
+                                </span>
+                            </td>
+
+                            <td>
+                                <span
+                                    th:text="${payroll.payableDays + ' / ' + payroll.workingDays}">
+                                </span>
+                            </td>
+
+                            <td>
+
+                                <span
+                                    th:if="${payroll.reconciliationStatus == 'RECONCILED'}"
+                                    class="reconciled">
+
+                                    ✓ Reconciled
+
+                                </span>
+
+                                <span
+                                    th:unless="${payroll.reconciliationStatus == 'RECONCILED'}"
+                                    class="error"
+                                    th:text="${payroll.reconciliationStatus}">
+
+                                    ERROR
+
+                                </span>
+
+                            </td>
+
+                            <td>
+
+                                <span
+                                    th:if="${payroll.status == 'FINALIZED'}"
+                                    class="status status-finalized">
+
+                                    FINALIZED
+
+                                </span>
+
+                                <span
+                                    th:unless="${payroll.status == 'FINALIZED'}"
+                                    class="status status-draft"
+                                    th:text="${payroll.status}">
+
+                                    DRAFT
+
+                                </span>
+
+                            </td>
+
+                            <td>
+
+                                <div class="actions">
+
+                                    <!-- Finalize -->
+
+                                    <a
+                                        th:if="${payroll.status != 'FINALIZED'
+                                               and payroll.reconciliationStatus == 'RECONCILED'}"
+                                        class="btn btn-success"
+                                        th:href="@{'/payroll/finalize/' + ${payroll.employeeId} + '?month=' + ${selectedMonth}}">
+
+                                        ✓ Finalize
+
+                                    </a>
+
+
+                                    <!-- Payslip -->
+
+                                    <a
+                                        th:if="${payroll.status == 'FINALIZED'}"
+                                        class="btn btn-payslip"
+                                        th:href="@{'/payroll/download/' + ${payroll.id}}"
+                                        target="_blank">
+
+                                        📄 View Payslip
+
+                                    </a>
+
+
+                                    <!-- Waiting -->
+
+                                    <span
+                                        th:if="${payroll.status != 'FINALIZED'
+                                               and payroll.reconciliationStatus != 'RECONCILED'}"
+                                        class="btn btn-disabled">
+
+                                        Cannot Finalize
+
+                                    </span>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+
+                        <!-- No records -->
+
+                        <tr th:if="${#lists.isEmpty(payrolls)}">
+
+                            <td colspan="11">
+
+                                <div class="empty">
+
+                                    <h3>No Payroll Records</h3>
+
+                                    <p>
+                                        Select an employee and generate payroll
+                                        for the selected month.
+                                    </p>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <!-- =========================
+         JAVASCRIPT
+         ========================= -->
+
+    <script>
+
+        function generatePayroll() {
+
+            const employeeId =
+                document.getElementById("employee").value;
+
+            const month =
+                document.getElementById("month").value;
+
+            if (!employeeId) {
+
+                alert("Please select an employee.");
+
+                return;
+            }
+
+            if (!month) {
+
+                alert("Please select a payroll month.");
+
+                return;
+            }
+
+            window.location.href =
+                "/payroll/generate/"
+                + employeeId
+                + "?month="
+                + encodeURIComponent(month);
+        }
+
+    </script>
+
+</body>
+
+</html>

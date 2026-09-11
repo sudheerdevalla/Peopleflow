@@ -8,6 +8,7 @@ import java.time.format.DateTimeParseException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ui.Model;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -25,6 +26,7 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import com.hr.hrapp.entity.Employee;
 import com.hr.hrapp.entity.Leave;
 import com.hr.hrapp.payroll.entity.Payroll;
+
 import com.hr.hrapp.payroll.report.CEOReportService;
 import com.hr.hrapp.payroll.repository.PayrollRepository;
 import com.hr.hrapp.payroll.service.PayrollMailService;
@@ -54,6 +56,34 @@ public class PayrollController {
 
     @Autowired
     private CEOReportService ceoReportService;
+    
+ // =========================
+ // ADMIN PAYROLL PAGE
+ // =========================
+ @GetMapping
+ @PreAuthorize("hasAuthority('READ_EMPLOYEE')")
+ public String payrollPage(
+         @RequestParam(required = false) String month,
+         Model model) {
+
+     YearMonth payrollMonth = resolveMonth(month);
+
+     String monthLabel =
+             com.hr.hrapp.util.PayrollMonthUtil.format(payrollMonth);
+
+     List<Employee> employees =
+             employeeRepository.findByStatus("Active");
+
+     List<Payroll> payrolls =
+             payrollRepository.findByMonth(monthLabel);
+
+     model.addAttribute("employees", employees);
+     model.addAttribute("payrolls", payrolls);
+     model.addAttribute("selectedMonth",
+             payrollMonth.toString());
+
+     return "admin-payroll";
+ }
 
     // =========================
     // GENERATE PAYROLL
@@ -85,7 +115,7 @@ public class PayrollController {
         // REDIRECT
         // =========================
 
-        return "redirect:/admin/employees?payrollGenerated";
+        return "redirect:/payroll?month=" + resolveMonth(month);
     }
 
     @GetMapping("/finalize/{id}")
@@ -103,7 +133,7 @@ public class PayrollController {
                 resolveMonth(month),
                 principal == null ? "system" : principal.getName());
         payrollMailService.sendPayslip(payroll, employee.getEmail());
-        return "redirect:/admin/employees?payrollFinalized";
+        return "redirect:/payroll?month=" + resolveMonth(month);
     }
 
     @GetMapping("/finalize-month")
@@ -138,10 +168,23 @@ public class PayrollController {
                 employeeRepository
                 .findById(payroll.getEmployeeId())
                 .orElseThrow();
+        YearMonth payrollMonth;
 
-        YearMonth payrollMonth = YearMonth.parse(
-                payroll.getMonth(),
-                java.time.format.DateTimeFormatter.ofPattern("MMM yyyy"));
+        try {
+            payrollMonth = YearMonth.parse(
+                    payroll.getMonth(),
+                    new java.time.format.DateTimeFormatterBuilder()
+                            .parseCaseInsensitive()
+                            .appendPattern("MMMM yyyy")
+                            .toFormatter(java.util.Locale.ENGLISH));
+        } catch (java.time.format.DateTimeParseException e) {
+            payrollMonth = YearMonth.parse(
+                    payroll.getMonth(),
+                    new java.time.format.DateTimeFormatterBuilder()
+                            .parseCaseInsensitive()
+                            .appendPattern("MMM yyyy")
+                            .toFormatter(java.util.Locale.ENGLISH));
+        }
 
         LocalDate leaveStartDate = payrollMonth.atDay(1);
         LocalDate leaveEndDate = payrollMonth.atEndOfMonth();

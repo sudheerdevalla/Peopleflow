@@ -3,7 +3,9 @@ package com.hr.hrapp.payroll.service;
 import java.io.ByteArrayInputStream;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.time.format.DateTimeFormatter;
+
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
@@ -73,9 +75,23 @@ public class PayrollMailService {
 
             logger.info("Employee found: id={} name={}", employee.getEmpId(), employee.getName());
 
-            YearMonth payrollMonth = YearMonth.parse(
-                    payroll.getMonth(),
-                    DateTimeFormatter.ofPattern("MMM yyyy"));
+            YearMonth payrollMonth;
+
+            try {
+                payrollMonth = YearMonth.parse(
+                        payroll.getMonth(),
+                        new DateTimeFormatterBuilder()
+                                .parseCaseInsensitive()
+                                .appendPattern("MMMM yyyy")
+                                .toFormatter(java.util.Locale.ENGLISH));
+            } catch (DateTimeParseException e) {
+                payrollMonth = YearMonth.parse(
+                        payroll.getMonth(),
+                        new DateTimeFormatterBuilder()
+                                .parseCaseInsensitive()
+                                .appendPattern("MMM yyyy")
+                                .toFormatter(java.util.Locale.ENGLISH));
+            }
 
             LocalDate leaveStartDate = payrollMonth.atDay(1);
             LocalDate leaveEndDate = payrollMonth.atEndOfMonth();
