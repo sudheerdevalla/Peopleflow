@@ -131,77 +131,186 @@ public class AuthController {
 	@PostMapping("/forgot-password")
 	public String forgotPassword(
 	        @RequestParam String email,
-	        Model model) {
+	        Model model,
+	        HttpSession session) {
 
 	    Employee emp =
-	            employeeRepository
-	                    .findByEmail(email);
+	            employeeRepository.findByEmail(email);
 
-	    if(emp == null) {
+	    if (emp == null) {
+	        model.addAttribute("error", "Email not found");
+	        return "forgot-password";
+	    }
+
+	    User user =
+	            userRepository.findByUsername(email)
+	                    .orElse(null);
+
+	    if (user == null) {
+	        model.addAttribute("error", "User account not found");
+	        return "forgot-password";
+	    }
+
+	    // TOTP must already be configured for secure password recovery
+	    if (!user.isMfaEnabled()
+	            || user.getTotpSecret() == null
+	            || user.getTotpSecret().isBlank()) {
 
 	        model.addAttribute(
 	                "error",
-	                "Email not found");
+	                "Authenticator setup is required for password recovery. Please contact HR/Admin."
+	        );
 
 	        return "forgot-password";
 	    }
 
-	    generatedOtp =
-	            String.valueOf(
-	                    100000 +
-	                    new java.util.Random()
-	                    .nextInt(900000));
+	    // Store only the account identity temporarily.
+	    // Do NOT store password or TOTP code in session.
+	    session.setAttribute("PASSWORD_RESET_EMAIL", email);
 
-	    otpEmail = email;
-	    
-	    otpTime =
-	            java.time.LocalDateTime.now();
+	    return "forgot-password-totp";
+	}
+	@PostMapping("/forgot-password/verify-totp")
+	public String verifyForgotPasswordTotp(
+	        @RequestParam String code,
+	        HttpSession session,
+	        Model model) {
 
 	    try {
-	        MimeMessage message = mailSender.createMimeMessage();
-	        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-	        
-	        helper.setFrom("connect@renwion.in");
-	        helper.setTo(email);
-	        helper.setSubject("PeopleFlow Password Reset OTP");
-	        helper.setText("Your OTP is: " + generatedOtp, true);
-	        
-	        mailSender.send(message);
-		} catch (Exception e) {
-			logger.error("Failed to send OTP to {}", email, e);
-			model.addAttribute("error", "Failed to send OTP email");
-			return "forgot-password";
-		}
 
-	    model.addAttribute(
-	            "email",
-	            email);
+	        String email =
+	                (String) session.getAttribute("PASSWORD_RESET_EMAIL");
 
-	    return "verify-otp";
+	        // Reset flow must have been started first
+	        if (email == null || email.isBlank()) {
+	            return "redirect:/forgot-password?error";
+	        }
+
+	        User user =
+	                userRepository.findByUsername(email)
+	                        .orElse(null);
+
+	        if (user == null
+	                || !user.isMfaEnabled()
+	                || user.getTotpSecret() == null
+	                || user.getTotpSecret().isBlank()) {
+
+	            session.removeAttribute("PASSWORD_RESET_EMAIL");
+
+	            model.addAttribute(
+	                    "error",
+	                    "Authenticator verification is not available."
+	            );
+
+	            return "forgot-password";
+	        }
+
+	        int totpCode;
+
+	        try {
+	            totpCode = Integer.parseInt(code);
+	        } catch (NumberFormatException e) {
+	            model.addAttribute(
+	                    "error",
+	                    "Enter a valid 6-digit Authenticator code."
+	            );
+	            return "forgot-password-totp";
+	        }
+
+	        if (!mfaService.verifyCode(user.getTotpSecret(), totpCode)) {
+
+	            model.addAttribute(
+	                    "error",
+	                    "Invalid Authenticator code."
+	            );
+
+	            return "forgot-password-totp";
+	        }
+
+	        // TOTP successfully verified
+	        session.setAttribute(
+	                "PASSWORD_RESET_TOTP_VERIFIED",
+	                true
+	        );
+
+	        return "reset-password";
+
+	    } catch (Exception e) {
+
+	        logger.error(
+	                "Forgot password TOTP verification failed",
+	                e
+	        );
+
+	        model.addAttribute(
+	                "error",
+	                "Unable to verify Authenticator code."
+	        );
+
+	        return "forgot-password-totp";
+	    }
 	}
 	@PostMapping("/reset-password")
 	public String resetPassword(
-	        @RequestParam String email,
-	        @RequestParam String password) {
+	        @RequestParam String password,
+	        HttpSession session,
+	        Model model) {
 
-		User user = userRepository
-		        .findByUsername(email)
-		        .orElse(null);
+	    // TOTP verification is mandatory
+	    Boolean totpVerified =
+	            (Boolean) session.getAttribute(
+	                    "PASSWORD_RESET_TOTP_VERIFIED");
 
-		if (user != null) {
+	    String email =
+	            (String) session.getAttribute(
+	                    "PASSWORD_RESET_EMAIL");
 
-		    user.setPassword(
-		            encoder.encode(password));
+	    if (!Boolean.TRUE.equals(totpVerified)
+	            || email == null
+	            || email.isBlank()) {
 
-		    userRepository.save(user);
+	        session.removeAttribute("PASSWORD_RESET_EMAIL");
+	        session.removeAttribute("PASSWORD_RESET_TOTP_VERIFIED");
 
-		    generatedOtp = null;
-		    otpEmail = null;
+	        return "redirect:/forgot-password?error";
+	    }
 
-		    return "redirect:/login?resetSuccess";
-		}
+	    // Basic password validation
+	    if (password == null || password.length() < 8) {
 
-		return "redirect:/forgot-password?error";
+	        model.addAttribute(
+	                "error",
+	                "Password must be at least 8 characters."
+	        );
+
+	        return "reset-password";
+	    }
+
+	    User user =
+	            userRepository.findByUsername(email)
+	                    .orElse(null);
+
+	    if (user == null) {
+
+	        session.removeAttribute("PASSWORD_RESET_EMAIL");
+	        session.removeAttribute("PASSWORD_RESET_TOTP_VERIFIED");
+
+	        return "redirect:/forgot-password?error";
+	    }
+
+	    user.setPassword(
+	            encoder.encode(password)
+	    );
+
+	    user.setForcePasswordChange(false);
+
+	    userRepository.save(user);
+
+	    // One-time reset session cleanup
+	    session.removeAttribute("PASSWORD_RESET_EMAIL");
+	    session.removeAttribute("PASSWORD_RESET_TOTP_VERIFIED");
+
+	    return "redirect:/login?resetSuccess";
 	}
 	@PostMapping("/verify-otp")
 	public String verifyOtp(
@@ -263,12 +372,25 @@ public String loginSuccess(Authentication authentication) {
         return "redirect:/user/dashboard";
     }
 }
-@GetMapping("/mfa")
-public String mfaPage(Principal principal, Model model) {
-    model.addAttribute("username", principal.getName());
-    return "mfa";
-}
+	@GetMapping("/mfa")
+	public String mfaPage(Principal principal, Model model) {
 
+	    String username = principal.getName();
+
+	    User user = userRepository.findByUsername(username)
+	            .orElse(null);
+
+	    model.addAttribute("username", username);
+
+	    boolean setupRequired = user == null
+	            || !user.isMfaEnabled()
+	            || user.getTotpSecret() == null
+	            || user.getTotpSecret().isBlank();
+
+	    model.addAttribute("setupRequired", setupRequired);
+
+	    return "mfa";
+	}
     @PostMapping("/mfa/verify")
     public String verifyMfa(@RequestParam String code, Principal principal, HttpSession session) {
         try {
@@ -299,45 +421,175 @@ public String mfaPage(Principal principal, Model model) {
         }
     }
 
-@GetMapping("/change-password")
-public String showChangePasswordPage() {
-    return "change-password";
-}
+    @GetMapping("/change-password")
+    public String showChangePasswordPage(HttpSession session) {
 
-@PostMapping("/change-password")
-public String changePassword(
-        @RequestParam String newPassword,
-        @RequestParam String confirmPassword,
-        Authentication authentication,
-        Model model) {
+        session.setAttribute("CHANGE_PASSWORD_TOTP_REQUIRED", true);
 
-    if (!newPassword.equals(confirmPassword)) {
-        model.addAttribute("error", "Passwords do not match");
-        return "change-password";
+        return "change-password-totp";
+    }
+    @PostMapping("/change-password/verify-totp")
+    public String verifyChangePasswordTotp(
+            @RequestParam String code,
+            Principal principal,
+            HttpSession session,
+            Model model) {
+
+        try {
+
+            // TOTP verification flow must be started first
+            Boolean required =
+                    (Boolean) session.getAttribute(
+                            "CHANGE_PASSWORD_TOTP_REQUIRED");
+
+            if (!Boolean.TRUE.equals(required)) {
+                return "redirect:/change-password";
+            }
+
+            if (principal == null) {
+                return "redirect:/login";
+            }
+
+            User user =
+                    userRepository.findByUsername(principal.getName())
+                            .orElse(null);
+
+            if (user == null
+                    || !user.isMfaEnabled()
+                    || user.getTotpSecret() == null
+                    || user.getTotpSecret().isBlank()) {
+
+                session.removeAttribute(
+                        "CHANGE_PASSWORD_TOTP_REQUIRED");
+
+                model.addAttribute(
+                        "error",
+                        "Authenticator verification is not available.");
+
+                return "change-password-totp";
+            }
+
+            int totpCode;
+
+            try {
+                totpCode = Integer.parseInt(code);
+            } catch (NumberFormatException e) {
+
+                model.addAttribute(
+                        "error",
+                        "Enter a valid 6-digit Authenticator code.");
+
+                return "change-password-totp";
+            }
+
+            if (!mfaService.verifyCode(
+                    user.getTotpSecret(),
+                    totpCode)) {
+
+                model.addAttribute(
+                        "error",
+                        "Invalid Authenticator code.");
+
+                return "change-password-totp";
+            }
+
+            // TOTP successfully verified
+            session.setAttribute(
+                    "CHANGE_PASSWORD_TOTP_VERIFIED",
+                    true);
+
+            session.removeAttribute(
+                    "CHANGE_PASSWORD_TOTP_REQUIRED");
+
+            return "change-password";
+
+        } catch (Exception e) {
+
+            logger.error(
+                    "Change password TOTP verification failed",
+                    e);
+
+            model.addAttribute(
+                    "error",
+                    "Unable to verify Authenticator code.");
+
+            return "change-password-totp";
+        }
     }
 
-    if (newPassword.length() < 8) {
-        model.addAttribute("error", "Password must be at least 8 characters");
-        return "change-password";
+    @PostMapping("/change-password")
+    public String changePassword(
+            @RequestParam String newPassword,
+            @RequestParam String confirmPassword,
+            Authentication authentication,
+            HttpSession session,
+            Model model) {
+
+        // Authenticator verification is mandatory
+        Boolean totpVerified =
+                (Boolean) session.getAttribute(
+                        "CHANGE_PASSWORD_TOTP_VERIFIED");
+
+        if (!Boolean.TRUE.equals(totpVerified)) {
+            return "redirect:/change-password";
+        }
+
+        // User must be authenticated
+        if (authentication == null
+                || !authentication.isAuthenticated()) {
+            session.removeAttribute(
+                    "CHANGE_PASSWORD_TOTP_VERIFIED");
+
+            return "redirect:/login";
+        }
+
+        if (!newPassword.equals(confirmPassword)) {
+            model.addAttribute(
+                    "error",
+                    "Passwords do not match");
+
+            return "change-password";
+        }
+
+        if (newPassword.length() < 8) {
+            model.addAttribute(
+                    "error",
+                    "Password must be at least 8 characters");
+
+            return "change-password";
+        }
+
+        String username = authentication.getName();
+
+        User user =
+                userRepository.findByUsername(username)
+                        .orElse(null);
+
+        if (user == null) {
+            session.removeAttribute(
+                    "CHANGE_PASSWORD_TOTP_VERIFIED");
+
+            model.addAttribute(
+                    "error",
+                    "User not found");
+
+            return "change-password";
+        }
+
+        // Existing password update logic preserved
+        user.setPassword(
+                encoder.encode(newPassword));
+
+        user.setForcePasswordChange(false);
+
+        userRepository.save(user);
+
+        // One-time TOTP verification cleanup
+        session.removeAttribute(
+                "CHANGE_PASSWORD_TOTP_VERIFIED");
+
+        return "redirect:/user/dashboard";
     }
-
-    String username = authentication.getName();
-
-    User user = userRepository.findByUsername(username)
-        .orElse(null);
-
-    if (user == null) {
-        model.addAttribute("error", "User not found");
-        return "change-password";
-    }
-
-    user.setPassword(encoder.encode(newPassword));
-    user.setForcePasswordChange(false);
-
-    userRepository.save(user);
-
-    return "redirect:/user/dashboard";
-}	
 
 	@GetMapping("/admin/dashboard")
 	public String admindashboard(Model model) {

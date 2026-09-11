@@ -65,6 +65,8 @@ public class SecurityConfig {
                             "/login",
                             "/register",
                             "/forgot-password",
+                            "/forgot-password/verify-totp",
+                            "/user/financial/verify",
                             "/verify-otp",
                             "/reset-password",
                             "/index",

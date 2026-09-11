@@ -571,10 +571,11 @@
                     </a>
 
                     <div class="file-upload">
-                        <form action="/admin/employees/upload" method="post" enctype="multipart/form-data">
-                            <input type="file" id="fileInput" name="file" required accept=".xlsx,.xls,.csv">
-                            <label for="fileInput" class="upload-label">📤 Upload Excel</label>
-                        </form>
+						<form action="/admin/employees/upload" method="post" enctype="multipart/form-data">
+						    <input type="file" id="fileInput" name="file" required accept=".xlsx">
+						    <label for="fileInput" class="upload-label">📤 Choose Excel</label>
+						    <button type="submit" class="btn btn-primary">Upload</button>
+						</form>
                     </div>
                 </div>
             </div>

@@ -50,87 +50,109 @@ public class TimesheetReminderScheduler {
 	
 	@Scheduled(cron = "0 0 9 * * *")
 	public void checkMissingTimesheets() {
-		
-		logger.info("Timesheet Scheduler Running...");
 
-	    List<Employee> employees =
-	            employeeRepository.findAll();
+	    logger.info("Timesheet Scheduler Running...");
+
+	    List<Employee> employees = employeeRepository.findAll();
 
 	    for (Employee emp : employees) {
 
-	        // =========================
-	        // DAY 1 REMINDER
-	        // =========================
+	        LocalDate today = LocalDate.now();
 
-						// Helper: skip weekends and holidays
-						LocalDate reminderDate = LocalDate.now().minusDays(1);
+	        /*
+	         * Find the 5th and 7th working days counting backwards
+	         * from today. Weekends and configured holidays are excluded.
+	         */
+	        LocalDate fifthWorkingDay = getPreviousWorkingDay(today, 5);
+	        LocalDate seventhWorkingDay = getPreviousWorkingDay(today, 7);
 
-						if (isWorkday(reminderDate)) {
+	        // =====================================================
+	        // DAY 5 - ONE TIME REMINDER
+	        // =====================================================
 
-							boolean day1Submitted = timesheetRepository.existsByEmployeeIdAndDate(emp.getEmpId(), reminderDate);
+	        if (fifthWorkingDay != null) {
 
-							TimesheetPenalty reminderPenalty = getOrCreatePenalty(emp.getEmpId(), reminderDate);
+	            boolean submitted = timesheetRepository
+	                    .existsByEmployeeIdAndDate(
+	                            emp.getEmpId(),
+	                            fifthWorkingDay);
 
-							if (!day1Submitted && !reminderPenalty.isReminderSent()) {
-								emailService.sendMail(emp.getEmail(), "Timesheet Reminder", "Please submit your timesheet for " + reminderDate);
-								reminderPenalty.setReminderSent(true);
-								penaltyRepository.save(reminderPenalty);
-							}
-						}
+	            TimesheetPenalty penalty =
+	                    getOrCreatePenalty(emp.getEmpId(), fifthWorkingDay);
 
-	        // =========================
-	        // DAY 3 WARNING
-	        // =========================
+	            if (!submitted && !penalty.isReminderSent()) {
 
-						LocalDate warningDate = LocalDate.now().minusDays(3);
+	                String subject = "Timesheet Submission Reminder";
 
-						if (isWorkday(warningDate)) {
+	                String message =
+	                        "Dear " + emp.getFirstName() + ",\n\n"
+	                        + "Our records indicate that your timesheet has not been "
+	                        + "submitted for the required 5 working days.\n\n"
+	                        + "Please submit your pending timesheet as soon as possible.\n\n"
+	                        + "Important: If the timesheet remains unsubmitted until "
+	                        + "the 7th working day, 1 Annual Leave will be deducted "
+	                        + "automatically in accordance with the timesheet policy.\n\n"
+	                        + "Please complete your timesheet to avoid leave deduction.\n\n"
+	                        + "Regards,\n"
+	                        + "HR Team\n"
+	                        + "PeopleFlow";
 
-							boolean day3Submitted = timesheetRepository.existsByEmployeeIdAndDate(emp.getEmpId(), warningDate);
+	                emailService.sendMail(
+	                        emp.getEmail(),
+	                        subject,
+	                        message
+	                );
 
-							TimesheetPenalty warningPenalty = getOrCreatePenalty(emp.getEmpId(), warningDate);
+	                penalty.setReminderSent(true);
+	                penaltyRepository.save(penalty);
+	            }
+	        }
 
-							if (!day3Submitted && !warningPenalty.isWarningSent()) {
-								emailService.sendMail(emp.getEmail(), "Timesheet Warning", "You have not submitted your timesheet for " + warningDate + ". Leave will be deducted if not submitted.");
-								warningPenalty.setWarningSent(true);
-								penaltyRepository.save(warningPenalty);
-							}
-						}
+	        // =====================================================
+	        // DAY 7 - LEAVE DEDUCTION
+	        // =====================================================
 
-	        // =========================
-	        // DAY 5 LEAVE DEDUCTION
-	        // =========================
+	        if (seventhWorkingDay != null) {
 
-						LocalDate deductionDate = LocalDate.now().minusDays(5);
+	            boolean submitted = timesheetRepository
+	                    .existsByEmployeeIdAndDate(
+	                            emp.getEmpId(),
+	                            seventhWorkingDay);
 
-						if (isWorkday(deductionDate)) {
+	            TimesheetPenalty penalty =
+	                    getOrCreatePenalty(emp.getEmpId(), seventhWorkingDay);
 
-							boolean day5Submitted = timesheetRepository.existsByEmployeeIdAndDate(emp.getEmpId(), deductionDate);
+	            if (!submitted && !penalty.isLeaveDeducted()) {
 
-							TimesheetPenalty deductionPenalty = getOrCreatePenalty(emp.getEmpId(), deductionDate);
+	                if (emp.getAnnualLeaves() > 0) {
 
-							if (!day5Submitted && !deductionPenalty.isLeaveDeducted()) {
+	                    emp.setAnnualLeaves(emp.getAnnualLeaves() - 1);
+	                    employeeRepository.save(emp);
 
-								if (emp.getAnnualLeaves() > 0) {
-									emp.setAnnualLeaves(emp.getAnnualLeaves() - 1);
-									employeeRepository.save(emp);
-								}
+	                    Notification n = new Notification();
+	                    n.setEmployeeId(emp.getEmpId());
+	                    n.setMessage(
+	                            "1 Annual Leave deducted due to missing timesheet."
+	                    );
+	                    n.setRead(false);
+	                    n.setCreatedAt(LocalDateTime.now());
 
-								Notification n = new Notification();
-								n.setEmployeeId(emp.getEmpId());
-								n.setMessage("1 Annual Leave deducted due to missing timesheet.");
-								n.setRead(false);
-								n.setCreatedAt(LocalDateTime.now());
-								notificationRepository.save(n);
+	                    notificationRepository.save(n);
 
-								emailService.sendMail(emp.getEmail(), "Leave Deducted", "1 Annual Leave has been deducted because timesheet was not submitted for " + deductionDate);
+	                    emailService.sendMail(
+	                            emp.getEmail(),
+	                            "Leave Deducted",
+	                            "1 Annual Leave has been deducted because your "
+	                            + "timesheet was not submitted for "
+	                            + seventhWorkingDay
+	                    );
+	                }
 
-								deductionPenalty.setLeaveDeducted(true);
-								penaltyRepository.save(deductionPenalty);
-							}
-						}
-		}
-
+	                penalty.setLeaveDeducted(true);
+	                penaltyRepository.save(penalty);
+	            }
+	        }
+	    }
 	}
 
 	// Create or fetch a TimesheetPenalty for a given employee/date
@@ -155,6 +177,22 @@ public class TimesheetReminderScheduler {
 		if (dow == DayOfWeek.SATURDAY || dow == DayOfWeek.SUNDAY) return false;
 		Holiday h = holidayRepository.findByHolidayDate(date);
 		return h == null;
+	}
+	private LocalDate getPreviousWorkingDay(LocalDate fromDate, int workingDaysBack) {
+
+	    LocalDate date = fromDate;
+	    int count = 0;
+
+	    while (count < workingDaysBack) {
+
+	        date = date.minusDays(1);
+
+	        if (isWorkday(date)) {
+	            count++;
+	        }
+	    }
+
+	    return date;
 	}
 
 }

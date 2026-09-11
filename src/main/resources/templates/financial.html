@@ -707,38 +707,8 @@
         <p class="success-message" th:if="${message}" th:text="${message}"></p>
         <p class="error-message" th:if="${error}" th:text="${error}"></p>
 
-        <div th:if="${otpRequired}" class="card otp-card">
-            <div class="card-title">🔐 Verify financial access</div>
-            <p class="section-note">For sensitive salary and payroll information, OTP verification is required before this page can display financial data.</p>
-            <div class="fields-grid">
-                <div class="field">
-                    <div class="field-label">Registered email</div>
-                    <div class="field-value" th:text="${maskedEmail}">your email</div>
-                </div>
-                <div class="field">
-                    <div class="field-label">Protection</div>
-                    <div class="field-value">5-minute OTP · retry-limited · resend-protected</div>
-                </div>
-            </div>
-
-            <div class="otp-actions">
-                <form th:action="@{/user/financial/request-otp}" method="post">
-                    <button type="submit" class="btn btn-primary">Send OTP</button>
-                </form>
-            </div>
-
-            <form th:action="@{/user/financial/verify-otp}" method="post" style="margin-top: 22px;">
-                <div class="form-group">
-                    <label for="otp">One-Time Password</label>
-                    <input type="text" id="otp" name="otp" placeholder="Enter 6-digit OTP" required>
-                </div>
-                <button type="submit" class="btn btn-primary">Verify and Continue</button>
-            </form>
-
-            <p class="otp-note">If you repeatedly request or enter invalid OTPs, PeopleFlow will temporarily block this financial access flow until a fresh OTP is requested.</p>
-        </div>
-
-        <div th:if="${!otpRequired}">
+       
+        
 
         <div class="hero">
             <div class="hero-content">

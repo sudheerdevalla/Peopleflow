@@ -330,6 +330,24 @@
                 <!-- ===== BASIC DETAILS ===== -->
                 <div class="form-section">
                     <div class="section-title">👤 Basic Details</div>
+					
+					<div class="form-row">
+					    <div class="form-group">
+					        <label for="firstName">First Name</label>
+					        <input type="text"
+					               id="firstName"
+					               th:field="*{firstName}"
+					               placeholder="Enter first name">
+					    </div>
+
+					    <div class="form-group">
+					        <label for="lastName">Last Name</label>
+					        <input type="text"
+					               id="lastName"
+					               th:field="*{lastName}"
+					               placeholder="Enter last name">
+					    </div>
+					</div>
 
                     <div class="form-group">
                         <label for="name">Employee Name</label>
@@ -337,9 +355,16 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" th:field="*{email}" placeholder="Enter email" required>
+                        <label for="email">Company Email Address</label>
+                        <input type="email" id="email" th:field="*{email}" placeholder="Enter company email" required>
                     </div>
+					<div class="form-group">
+					    <label for="mobile">Phone</label>
+					    <input type="tel"
+					           id="mobile"
+					           th:field="*{mobile}"
+					           placeholder="Enter phone number">
+					</div>
                     <div class="form-group">
     <label for="employeeCode">Employee ID</label>
     <input type="text"
@@ -347,6 +372,12 @@
            th:field="*{employeeCode}"
            placeholder="Enter employee ID"
            required>
+</div>
+<div class="form-group">
+    <label for="dateOfBirth">Date of Birth</label>
+    <input type="date"
+           id="dateOfBirth"
+           th:field="*{dateOfBirth}">
 </div>
 
                     <div class="form-row">
@@ -386,12 +417,77 @@
            required>
 </div>
 <div class="form-group">
-    <label for="location">Location</label>
+    <label for="location">Work Location</label>
+    <select id="location" th:field="*{location}">
+        <option value="">Select Work Location</option>
+        <option value="Hyderabad">Hyderabad</option>
+        <option value="Visakhapatnam">Visakhapatnam</option>
+    </select>
+</div>
+
+<div class="form-group">
+    <label for="address">Address</label>
     <input type="text"
-           id="location"
-           th:field="*{location}"
-           placeholder="Enter work location"
-           required>
+           id="address"
+           th:field="*{address}"
+           placeholder="Enter address">
+</div>
+<div class="form-group">
+    <label for="city">City</label>
+    <input type="text"
+           id="city"
+           th:field="*{city}"
+           placeholder="Enter city">
+</div>
+<div class="form-group">
+    <label for="state">State</label>
+    <input type="text"
+           id="state"
+           th:field="*{state}"
+           placeholder="Enter state">
+</div>
+<div class="form-group">
+    <label for="pincode">Pincode</label>
+    <input type="text"
+           id="pincode"
+           th:field="*{pincode}"
+           placeholder="Enter pincode"
+           maxlength="6">
+</div>
+<div class="form-group">
+    <label for="emergencyContactName">Emergency Contact Name</label>
+    <input type="text"
+           id="emergencyContactName"
+           th:field="*{emergencyContactName}"
+           placeholder="Enter emergency contact name">
+</div>
+<div class="form-group">
+    <label for="emergencyContactPhone">Emergency Contact Phone</label>
+    <input type="tel"
+           id="emergencyContactPhone"
+           th:field="*{emergencyContactPhone}"
+           placeholder="Enter emergency contact phone">
+</div>
+<div class="form-group">
+    <label for="highestQualification">Highest Qualification</label>
+    <input type="text"
+           id="highestQualification"
+           th:field="*{highestQualification}"
+           placeholder="Enter highest qualification">
+</div>
+<div class="form-group">
+    <label for="previousCompany">Previous Company</label>
+    <input type="text"
+           id="previousCompany"
+           th:field="*{previousCompany}"
+           placeholder="Enter previous company">
+</div>
+<div class="form-group">
+    <label for="onboardingStatus">Onboarding Status</label>
+    <select id="onboardingStatus" th:field="*{onboardingStatus}">
+        <option value="">Select Onboarding Status</option>
+        <option value="Completed">Completed</option>
+    </select>
 </div>
 
                        <div class="form-group">
@@ -404,22 +500,36 @@
            required>
 </div>
                 </div>
-                <div class="form-group">
-    <label for="department">Department</label>
-    <input type="text"
-           id="department"
-           th:field="*{department}"
-           placeholder="Enter department"
-           required>
+				
+				
+				<div class="form-group">
+				    <label for="department">Department</label>
+				    <select id="department" th:field="*{department}" required>
+				        <option value="">Select Department</option>
+				        <option value="Solar & OM">Solar &amp; OM</option>
+				    </select>
+				</div><div class="form-group">
+    <label for="employmentType">Employment Type</label>
+    <select id="employmentType" th:field="*{employmentType}">
+        <option value="">Select Employment Type</option>
+        <option value="Full-Time">Full-Time</option>
+        <option value="Part-Time">Part-Time</option>
+        <option value="Contract">Contract</option>
+        <option value="Intern">Intern</option>
+    </select>
 </div>
 
 <div class="form-group">
     <label for="designation">Designation</label>
-    <input type="text"
-           id="designation"
-           th:field="*{designation}"
-           placeholder="Enter designation"
-           required>
+    <select id="designation" th:field="*{designation}">
+        <option value="">Select Designation</option>
+        <option value="Managing Director">Managing Director</option>
+        <option value="Director">Director</option>
+        <option value="Lead Engineer">Lead Engineer</option>
+        <option value="Engineer">Engineer</option>
+        <option value="Sr Technician">Sr Technician</option>
+        <option value="Technician">Technician</option>
+    </select>
 </div>
 <div class="form-group">
     <label for="role">Role</label>

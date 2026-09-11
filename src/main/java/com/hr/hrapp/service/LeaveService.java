@@ -29,12 +29,26 @@ public class LeaveService {
         LocalDate today = LocalDate.now();
 
         if (emp.getLastAccrualDate() == null) {
-            emp.setLastAccrualDate(emp.getJoiningDate());
+
+            if (emp.getJoiningDate() != null) {
+                emp.setLastAccrualDate(emp.getJoiningDate());
+            } else {
+                // Cannot calculate accrual without a valid starting date.
+                emp.setLastAccrualDate(today);
+                employeeRepository.save(emp);
+                return;
+            }
         }
 
         // Never allow negative balance
         if (emp.getAnnualLeaves() < 0) {
             emp.setAnnualLeaves(0);
+        }
+
+        // Annual leave entitlement must never exceed 24 days
+        if (emp.getAnnualLeaves() > 24) {
+            emp.setAnnualLeaves(24);
+            employeeRepository.save(emp);
         }
 
         long days = ChronoUnit.DAYS.between(
@@ -45,12 +59,15 @@ public class LeaveService {
 
             YearMonth ym = YearMonth.now();
 
-            double perDay =
-                    2.0 / ym.lengthOfMonth();
+            double perDay = 2.0 / ym.lengthOfMonth();
 
-            emp.setAnnualLeaves(
+            double newBalance =
                     emp.getAnnualLeaves()
-                            + (days * perDay));
+                            + (days * perDay);
+
+            // Maximum annual leave balance = 24 days
+            emp.setAnnualLeaves(
+                    Math.min(newBalance, 24.0));
 
             emp.setLastAccrualDate(today);
 

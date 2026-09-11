@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Leave Management</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f5f7fb;
+            color: #172033;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ================= SIDEBAR ================= */
+
+        .sidebar {
+            width: 240px;
+            background: #ffffff;
+            border-right: 1px solid #e5e7eb;
+            padding: 25px 15px;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: 700;
+            padding: 0 15px 30px;
+        }
+
+        .menu a {
+            display: block;
+            padding: 13px 15px;
+            margin-bottom: 5px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #4b5563;
+            font-size: 15px;
+        }
+
+        .menu a:hover {
+            background: #f3f4f6;
+        }
+
+        .menu a.active {
+            background: #eef2ff;
+            color: #4f46e5;
+            font-weight: 600;
+        }
+
+        /* ================= MAIN ================= */
+
+        .main {
+            margin-left: 240px;
+            width: calc(100% - 240px);
+            padding: 35px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 28px;
+        }
+
+        .title h1 {
+            margin: 0;
+            font-size: 30px;
+        }
+
+        .title p {
+            margin: 8px 0 0;
+            color: #6b7280;
+        }
+
+        .employee {
+            background: white;
+            padding: 11px 17px;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+        }
+
+        /* ================= BALANCES ================= */
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 14px;
+            padding: 21px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .card-title {
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 9px;
+        }
+
+        .balance {
+            font-size: 29px;
+            font-weight: 700;
+        }
+
+        .card small {
+            color: #6b7280;
+        }
+
+        /* ================= CALENDAR ================= */
+
+        .calendar-section {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 15px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .calendar-header h2 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .calendar-note {
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+		.months {
+		    display: grid;
+		    grid-template-columns: 1fr 1fr;
+		    gap: 18px;
+		    max-width: 900px;
+		    margin: 0 auto;
+		}
+
+		.month {
+		    background: #ffffff;
+		    border: 1px solid #e2e5ec;
+		    border-radius: 14px;
+		    padding: 14px;
+		    box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+		}
+
+        .month-title {
+            text-align: center;
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .weekdays,
+        .days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+
+        .weekday {
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: #6b7280;
+            padding-bottom: 8px;
+        }
+
+		.day {
+		    min-height: 42px;
+		    border: 1px solid transparent;
+		    border-radius: 8px;
+		    padding: 5px;
+		    position: relative;
+		    font-size: 12px;
+		}
+
+        .day.empty {
+            background: transparent;
+        }
+
+        .day-number {
+            font-weight: 600;
+        }
+
+        .day.weekend {
+            background: #fafafa;
+            color: #9ca3af;
+        }
+
+        .day.today {
+            border: 2px solid #4f46e5;
+        }
+
+        .day.leave-approved {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .day.leave-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .day.leave-rejected {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .day.holiday {
+            background: #ede9fe;
+            color: #5b21b6;
+        }
+
+        .day-label {
+            display: block;
+            font-size: 9px;
+            margin-top: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* ================= LEGEND ================= */
+
+        .legend {
+            display: flex;
+            gap: 18px;
+            flex-wrap: wrap;
+            margin-top: 18px;
+            color: #6b7280;
+            font-size: 12px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-box {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+        }
+
+        .legend-approved {
+            background: #dcfce7;
+        }
+
+        .legend-pending {
+            background: #fef3c7;
+        }
+
+        .legend-rejected {
+            background: #fee2e2;
+        }
+
+        .legend-holiday {
+            background: #ede9fe;
+        }
+
+        /* ================= CONTENT ================= */
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 22px;
+        }
+
+        .section {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 14px;
+            padding: 24px;
+            margin-bottom: 22px;
+        }
+
+        .section h2 {
+            margin: 0 0 10px;
+            font-size: 20px;
+        }
+
+        /* ================= FORM ================= */
+
+        .leave-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 14px;
+            align-items: end;
+            margin-top: 18px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            color: #6b7280;
+            margin-bottom: 6px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 11px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .btn {
+            padding: 11px 20px;
+            border: none;
+            border-radius: 8px;
+            background: #4f46e5;
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn:hover {
+            background: #4338ca;
+        }
+
+        /* ================= LISTS ================= */
+
+        .leave-item,
+        .holiday-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .leave-item:last-child,
+        .holiday-item:last-child {
+            border-bottom: none;
+        }
+
+        .leave-date,
+        .holiday-name {
+            font-weight: 600;
+        }
+
+        .leave-type,
+        .holiday-date {
+            color: #6b7280;
+            font-size: 13px;
+            margin-top: 4px;
+        }
+
+        .status {
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .approved {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .rejected {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .empty {
+            color: #9ca3af;
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        /* ================= RESPONSIVE ================= */
+
+        @media (max-width: 1000px) {
+
+            .months {
+                grid-template-columns: 1fr;
+            }
+
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .cards {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+            }
+
+            .layout {
+                display: block;
+            }
+
+            .main {
+                margin-left: 0;
+                width: 100%;
+                padding: 20px;
+            }
+
+            .leave-form {
+                grid-template-columns: 1fr;
+            }
+
+            .topbar {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+
+
+<body>
+
+<div class="layout">
+
+    <!-- ================= SIDEBAR ================= -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+            PeopleFlow
+        </div>
+
+        <nav class="menu">
+
+            <a href="/user/dashboard">
+                🏠 Dashboard
+            </a>
+
+            <a href="/user/timesheet">
+                🕒 My Timesheet
+            </a>
+
+            <a href="/user/leave-management" class="active">
+                📅 Leave Management
+            </a>
+
+            <a href="/user/myinfo">
+                👤 My Profile
+            </a>
+
+            <a href="/logout">
+                🚪 Logout
+            </a>
+
+        </nav>
+
+    </aside>
+
+
+    <!-- ================= MAIN ================= -->
+
+    <main class="main">
+
+        <div class="topbar">
+
+            <div class="title">
+                <h1>Leave Management</h1>
+
+                <p>
+                    Manage your time off, leave balances and upcoming holidays.
+                </p>
+            </div>
+
+            <div class="employee">
+                👤
+                <span th:text="${employee.name}">
+                    Employee
+                </span>
+            </div>
+
+        </div>
+
+
+        <!-- ================= BALANCES ================= -->
+
+        <div class="cards">
+
+            <div class="card">
+
+                <div class="card-title">
+                    Annual Leave
+                </div>
+
+                <div class="balance"
+                     th:text="${#numbers.formatDecimal(annualLeaves, 1, 1)}">
+                    24.0
+                </div>
+
+                <small>
+                    Days available
+                </small>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="card-title">
+                    Sick Leave
+                </div>
+
+                <div class="balance"
+                     th:text="${sickLeaves}">
+                    6
+                </div>
+
+                <small>
+                    Days available
+                </small>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="card-title">
+                    Total Leave Records
+                </div>
+
+                <div class="balance"
+                     th:text="${#lists.size(leaves)}">
+                    0
+                </div>
+
+                <small>
+                    Submitted requests
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================= CALENDAR ================= -->
+
+        <div class="calendar-section">
+
+            <div class="calendar-header">
+
+                <div>
+                    <h2>Time Off Calendar</h2>
+
+                    <div class="calendar-note">
+                        Current month and next month
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="months">
+
+                <div class="month" id="monthOne"></div>
+
+                <div class="month" id="monthTwo"></div>
+
+            </div>
+
+
+            <div class="legend">
+
+                <div class="legend-item">
+                    <span class="legend-box legend-approved"></span>
+                    Approved Leave
+                </div>
+
+                <div class="legend-item">
+                    <span class="legend-box legend-pending"></span>
+                    Pending Leave
+                </div>
+
+                <div class="legend-item">
+                    <span class="legend-box legend-rejected"></span>
+                    Rejected Leave
+                </div>
+
+                <div class="legend-item">
+                    <span class="legend-box legend-holiday"></span>
+                    Holiday
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================= CONTENT ================= -->
+
+        <div class="content-grid">
+
+            <div>
+
+                <!-- CREATE ABSENCE -->
+
+                <div class="section">
+
+                    <h2>Create Absence</h2>
+
+                    <p style="color:#6b7280;font-size:14px;margin:0;">
+                        Submit a leave request for approval.
+                    </p>
+
+
+                    <form
+                        th:action="@{/user/apply-leave}"
+                        method="post"
+                        class="leave-form">
+
+                        <div>
+
+                            <label>
+                                Leave Date
+                            </label>
+
+                            <input
+                                type="date"
+                                name="date"
+                                required>
+
+                        </div>
+
+
+                        <div>
+
+                            <label>
+                                Leave Type
+                            </label>
+
+                            <select
+                                name="type"
+                                required>
+
+                                <option value="ANNUAL">
+                                    Annual Leave
+                                </option>
+
+                                <option value="SICK">
+                                    Sick Leave
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <button
+                            type="submit"
+                            class="btn">
+
+                            Apply Leave
+
+                        </button>
+
+                    </form>
+
+                </div>
+
+
+                <!-- LEAVE HISTORY -->
+
+                <div class="section">
+
+                    <h2>Leave History</h2>
+
+
+                    <div id="leaveHistory">
+
+                        <div
+                            th:if="${#lists.isEmpty(leaves)}"
+                            class="empty">
+
+                            No leave requests found.
+
+                        </div>
+
+
+                        <div
+                            th:each="leave : ${leaves}"
+                            class="leave-item">
+
+                            <div>
+
+                                <div
+                                    class="leave-date"
+                                    th:text="${leave.date}">
+                                    Date
+                                </div>
+
+                                <div
+                                    class="leave-type"
+                                    th:text="${leave.type}">
+                                    Leave
+                                </div>
+
+                            </div>
+
+
+                            <div>
+
+                                <span
+                                    th:if="${leave.status == 'APPROVED'}"
+                                    class="status approved">
+                                    Approved
+                                </span>
+
+                                <span
+                                    th:if="${leave.status == 'PENDING'}"
+                                    class="status pending">
+                                    Pending
+                                </span>
+
+                                <span
+                                    th:if="${leave.status == 'REJECTED'}"
+                                    class="status rejected">
+                                    Rejected
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ================= RIGHT ================= -->
+
+            <div>
+
+                <!-- UPCOMING -->
+
+                <div class="section">
+
+                    <h2>Upcoming Time Off</h2>
+
+                    <div id="upcomingLeaves">
+
+                        <div class="empty">
+                            No upcoming leave.
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- HOLIDAYS -->
+
+                <div class="section">
+
+                    <h2>Holidays</h2>
+
+                    <div
+                        th:if="${#lists.isEmpty(holidays)}"
+                        class="empty">
+
+                        No holidays available.
+
+                    </div>
+
+
+                    <div
+                        th:each="holiday : ${holidays}"
+                        class="holiday-item">
+
+                        <div>
+
+                            <div
+                                class="holiday-name"
+                                th:text="${holiday.holidayName}">
+                                Holiday
+                            </div>
+
+                            <div
+                                class="holiday-date"
+                                th:text="${holiday.holidayDate}">
+                                Date
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+
+<!-- ================================================= -->
+<!-- DATA FROM SERVER -->
+<!-- ================================================= -->
+
+<div id="serverLeaves" style="display:none;">
+
+    <div
+        th:each="leave : ${leaves}"
+        class="server-leave"
+        th:data-date="${leave.date}"
+        th:data-type="${leave.type}"
+        th:data-status="${leave.status}">
+    </div>
+
+</div>
+
+
+<div id="serverHolidays" style="display:none;">
+
+    <div
+        th:each="holiday : ${holidays}"
+        class="server-holiday"
+        th:data-date="${holiday.holidayDate}"
+        th:data-name="${holiday.holidayName}">
+    </div>
+
+</div>
+
+
+<script>
+
+const leaves = Array.from(
+    document.querySelectorAll(".server-leave")
+).map(el => ({
+    date: el.getAttribute("data-date"),
+    type: el.getAttribute("data-type"),
+    status: el.getAttribute("data-status")
+}));
+
+const holidays = Array.from(
+    document.querySelectorAll(".server-holiday")
+).map(el => ({
+    date: el.getAttribute("data-date"),
+    holidayName: el.getAttribute("data-name")
+}));
+
+function dateKey(date) {
+    return date.getFullYear() + "-" +
+        String(date.getMonth() + 1).padStart(2, "0") + "-" +
+        String(date.getDate()).padStart(2, "0");
+}
+
+function monthName(date) {
+    return date.toLocaleDateString("en-US", {
+        month: "long",
+        year: "numeric"
+    });
+}
+
+function renderMonth(containerId, monthDate) {
+
+    const container = document.getElementById(containerId);
+
+    if (!container) {
+        console.error("Calendar container not found:", containerId);
+        return;
+    }
+
+    container.innerHTML = "";
+
+    const title = document.createElement("div");
+    title.className = "month-title";
+    title.textContent = monthName(monthDate);
+    container.appendChild(title);
+
+    const weekdays = document.createElement("div");
+    weekdays.className = "weekdays";
+
+    ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+        .forEach(name => {
+
+            const weekday = document.createElement("div");
+            weekday.className = "weekday";
+            weekday.textContent = name;
+
+            weekdays.appendChild(weekday);
+        });
+
+    container.appendChild(weekdays);
+
+    const days = document.createElement("div");
+    days.className = "days";
+
+    const year = monthDate.getFullYear();
+    const month = monthDate.getMonth();
+
+    const firstDay = new Date(year, month, 1);
+
+    let startDay = firstDay.getDay();
+
+    // Convert Sunday=0 to Monday=0
+    startDay = startDay === 0 ? 6 : startDay - 1;
+
+    const daysInMonth =
+        new Date(year, month + 1, 0).getDate();
+
+    // Empty cells
+    for (let i = 0; i < startDay; i++) {
+
+        const empty = document.createElement("div");
+        empty.className = "day empty";
+
+        days.appendChild(empty);
+    }
+
+    // Actual dates
+    for (let dayNumber = 1;
+         dayNumber <= daysInMonth;
+         dayNumber++) {
+
+        const currentDate =
+            new Date(year, month, dayNumber);
+
+        const key = dateKey(currentDate);
+
+        const cell = document.createElement("div");
+        cell.className = "day";
+
+        const number = document.createElement("div");
+        number.className = "day-number";
+        number.textContent = dayNumber;
+
+        cell.appendChild(number);
+
+        // Weekend
+        const dayOfWeek = currentDate.getDay();
+
+        if (dayOfWeek === 0 || dayOfWeek === 6) {
+            cell.classList.add("weekend");
+        }
+
+        // Today
+        if (key === dateKey(new Date())) {
+            cell.classList.add("today");
+        }
+
+        // Leave
+        const leave = leaves.find(l => l.date === key);
+
+        if (leave) {
+
+            if (leave.status === "APPROVED") {
+                cell.classList.add("leave-approved");
+            }
+
+            if (leave.status === "PENDING") {
+                cell.classList.add("leave-pending");
+            }
+
+            if (leave.status === "REJECTED") {
+                cell.classList.add("leave-rejected");
+            }
+
+            const label = document.createElement("span");
+            label.className = "day-label";
+            label.textContent = leave.type;
+
+            cell.appendChild(label);
+        }
+
+        // Holiday
+        const holiday = holidays.find(h => h.date === key);
+
+        if (holiday) {
+
+            cell.classList.add("holiday");
+
+            const label = document.createElement("span");
+            label.className = "day-label";
+            label.textContent = holiday.holidayName;
+
+            cell.appendChild(label);
+        }
+
+        days.appendChild(cell);
+    }
+
+    container.appendChild(days);
+}
+
+
+// ===============================
+// CURRENT + NEXT MONTH
+// ===============================
+
+const now = new Date();
+
+const currentMonth =
+    new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        1
+    );
+
+const nextMonth =
+    new Date(
+        now.getFullYear(),
+        now.getMonth() + 1,
+        1
+    );
+
+renderMonth("monthOne", currentMonth);
+renderMonth("monthTwo", nextMonth);
+
+
+// ===============================
+// UPCOMING LEAVES
+// ===============================
+
+const upcomingContainer =
+    document.getElementById("upcomingLeaves");
+
+if (upcomingContainer) {
+
+    const todayKey = dateKey(new Date());
+
+    const upcoming =
+        leaves
+            .filter(leave =>
+                leave.date >= todayKey &&
+                (
+                    leave.status === "APPROVED" ||
+                    leave.status === "PENDING"
+                )
+            )
+            .sort((a, b) =>
+                a.date.localeCompare(b.date)
+            );
+
+    upcomingContainer.innerHTML = "";
+
+    if (upcoming.length === 0) {
+
+        upcomingContainer.innerHTML =
+            '<div class="empty">No upcoming leave.</div>';
+
+    } else {
+
+        upcoming.forEach(leave => {
+
+            const item =
+                document.createElement("div");
+
+            item.className = "leave-item";
+
+            item.innerHTML =
+                "<div>" +
+                    '<div class="leave-date">' +
+                        leave.date +
+                    "</div>" +
+                    '<div class="leave-type">' +
+                        leave.type +
+                    "</div>" +
+                "</div>" +
+
+                "<div>" +
+                    '<span class="status ' +
+                        (
+                            leave.status === "APPROVED"
+                                ? "approved"
+                                : "pending"
+                        ) +
+                    '">' +
+                        (
+                            leave.status === "APPROVED"
+                                ? "Approved"
+                                : "Pending"
+                        ) +
+                    "</span>" +
+                "</div>";
+
+            upcomingContainer.appendChild(item);
+        });
+    }
+}
+
+</script>
+
+</body>
+</html>

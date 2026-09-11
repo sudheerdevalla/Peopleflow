@@ -43,6 +43,7 @@ input,select{width:100%;padding:10px;border:1px solid #dbe4f0;border-radius:12px
 <nav class="menu">
 <a href="/user/dashboard">🏠 Dashboard</a>
 <a class="active" href="#">🕒 My Timesheet</a>
+<a href="/user/leave-management">📅 Leave Management</a>
 <a href="/user/myinfo">👤 My Profile</a>
 <a href="/logout">🚪 Logout</a>
 </nav>
@@ -64,17 +65,7 @@ input,select{width:100%;padding:10px;border:1px solid #dbe4f0;border-radius:12px
 <div class="card"><small>Annual Leaves</small><h2 th:text="${annualLeaves}">12</h2></div>
 </div>
 
-<div class="section">
-<h2 style="margin-bottom:20px">Apply Leave</h2>
-<form th:action="@{/user/apply-leave}" method="post" style="display:grid;grid-template-columns:1fr 1fr auto;gap:15px">
-<input type="date" name="date" required>
-<select name="type">
-<option value="SICK">Sick Leave</option>
-<option value="ANNUAL">Annual Leave</option>
-</select>
-<button class="btn" style="border:none;cursor:pointer">Apply</button>
-</form>
-</div>
+
 
 <div class="section">
 <h2>Current Week</h2>

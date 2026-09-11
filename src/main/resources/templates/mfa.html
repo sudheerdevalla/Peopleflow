@@ -68,13 +68,19 @@
 
     <h1>MFA Verification</h1>
 
-    <p>Scan this QR code with Google Authenticator.</p>
+	<div th:if="${setupRequired}">
+	    <p>Scan this QR code with Google Authenticator.</p>
 
-<div style="margin: 20px 0;">
-    <img id="mfaQrCode"
-         alt="MFA QR Code"
-         style="width:220px;height:220px;border:1px solid #ddd;border-radius:10px;">
-</div>
+	    <div style="margin: 20px 0;">
+	        <img id="mfaQrCode"
+	             alt="MFA QR Code"
+	             style="width:220px;height:220px;border:1px solid #ddd;border-radius:10px;">
+	    </div>
+	</div>
+
+	<div th:unless="${setupRequired}">
+	    <p>Enter the 6-digit code from Google Authenticator.</p>
+	</div>
 
 <p>Then enter the 6-digit code below.</p>
 
@@ -106,6 +112,12 @@
 <script th:inline="javascript">
 document.addEventListener("DOMContentLoaded", async function () {
 
+    const setupRequired = /*[[${setupRequired}]]*/ false;
+
+    if (!setupRequired) {
+        return;
+    }
+
     const qrImage = document.getElementById("mfaQrCode");
 
     try {
@@ -124,7 +136,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         const data = await response.json();
 
-        if (data.qrCode) {
+        if (data.qrCode && qrImage) {
             qrImage.src = "data:image/png;base64," + data.qrCode;
         }
 

@@ -347,6 +347,39 @@ public class UserController {
 
         return "timesheet";
     }
+    
+    @GetMapping("/leave-management")
+    public String leaveManagement(Model model, Principal principal) {
+
+        if (principal == null) {
+            return "redirect:/login";
+        }
+
+        String username = principal.getName();
+
+        Employee emp = employeeRepository.findByEmail(username);
+
+        if (emp == null) {
+            throw new RuntimeException("Employee not found: " + username);
+        }
+        
+        leaveService.accrueLeaves(emp);
+
+        List<Leave> leaves =
+                leaveRepository.findByEmpId(emp.getEmpId());
+
+        List<Holiday> holidays =
+                holidayRepository.findAll();
+
+        model.addAttribute("employee", emp);
+        model.addAttribute("leaves", leaves);
+        model.addAttribute("holidays", holidays);
+        model.addAttribute("sickLeaves", emp.getSickLeaves());
+        model.addAttribute("annualLeaves", emp.getAnnualLeaves());
+        model.addAttribute("today", LocalDate.now());
+
+        return "leave-management";
+    }
 
     // ================= SAVE TIMESHEET =================
     @PostMapping("/timesheet")

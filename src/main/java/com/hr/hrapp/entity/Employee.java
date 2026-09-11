@@ -96,6 +96,19 @@ public class Employee {
     private String employeeCode;
     private String fatherName;
     private String gender;
+    private String firstName;
+    private String lastName;
+    private String personalEmail;
+    private String employmentType;
+    private String address;
+    private String city;
+    private String state;
+    private String pincode;
+    private String emergencyContactName;
+    private String emergencyContactPhone;
+    private String highestQualification;
+    private String previousCompany;
+    private String onboardingStatus;
     private String aadhaarNumber;
     private String esiNumber;
 
@@ -427,6 +440,110 @@ public void setTotalCtc(double totalCtc) {
 
     public void setGender(String gender) {
         this.gender = gender;
+    }
+    
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getPersonalEmail() {
+        return personalEmail;
+    }
+
+    public void setPersonalEmail(String personalEmail) {
+        this.personalEmail = personalEmail;
+    }
+
+    public String getEmploymentType() {
+        return employmentType;
+    }
+
+    public void setEmploymentType(String employmentType) {
+        this.employmentType = employmentType;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    public String getPincode() {
+        return pincode;
+    }
+
+    public void setPincode(String pincode) {
+        this.pincode = pincode;
+    }
+
+    public String getEmergencyContactName() {
+        return emergencyContactName;
+    }
+
+    public void setEmergencyContactName(String emergencyContactName) {
+        this.emergencyContactName = emergencyContactName;
+    }
+
+    public String getEmergencyContactPhone() {
+        return emergencyContactPhone;
+    }
+
+    public void setEmergencyContactPhone(String emergencyContactPhone) {
+        this.emergencyContactPhone = emergencyContactPhone;
+    }
+
+    public String getHighestQualification() {
+        return highestQualification;
+    }
+
+    public void setHighestQualification(String highestQualification) {
+        this.highestQualification = highestQualification;
+    }
+
+    public String getPreviousCompany() {
+        return previousCompany;
+    }
+
+    public void setPreviousCompany(String previousCompany) {
+        this.previousCompany = previousCompany;
+    }
+
+    public String getOnboardingStatus() {
+        return onboardingStatus;
+    }
+
+    public void setOnboardingStatus(String onboardingStatus) {
+        this.onboardingStatus = onboardingStatus;
     }
 
     public String getAadhaarNumber() {

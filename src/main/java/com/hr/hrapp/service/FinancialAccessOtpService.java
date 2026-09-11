@@ -37,13 +37,44 @@ public class FinancialAccessOtpService {
                 .orElse(null);
 
         if (existing != null) {
-            if (existing.getResendAllowedAt() != null && existing.getResendAllowedAt().isAfter(LocalDateTime.now())) {
-                long secondsLeft = Duration.between(LocalDateTime.now(), existing.getResendAllowedAt()).getSeconds();
-                throw new IllegalStateException("Please wait " + Math.max(1, secondsLeft) + " seconds before requesting another OTP");
+
+            LocalDateTime now = LocalDateTime.now();
+
+            // Expired challenge should never block a new OTP request
+            if (existing.getExpiresAt() != null
+                    && !existing.getExpiresAt().isAfter(now)) {
+
+                existing.setActive(false);
+                otpRepository.save(existing);
+
+                existing = null;
             }
+        }
+
+        if (existing != null) {
+
+            if (existing.getResendAllowedAt() != null
+                    && existing.getResendAllowedAt().isAfter(LocalDateTime.now())) {
+
+                long secondsLeft = Duration.between(
+                        LocalDateTime.now(),
+                        existing.getResendAllowedAt()
+                ).getSeconds();
+
+                throw new IllegalStateException(
+                        "Please wait "
+                                + Math.max(1, secondsLeft)
+                                + " seconds before requesting another OTP"
+                );
+            }
+
             if (existing.getResendCount() >= MAX_RESEND_COUNT) {
-                throw new IllegalStateException("OTP resend limit reached. Please wait for the current OTP to expire and try again");
+
+                throw new IllegalStateException(
+                        "OTP resend limit reached. Please wait for the current OTP to expire and try again"
+                );
             }
+
             existing.setActive(false);
             otpRepository.save(existing);
         }

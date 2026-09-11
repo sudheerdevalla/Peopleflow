@@ -189,6 +189,60 @@ private BCryptPasswordEncoder passwordEncoder;
 
         existingEmployee.setEmployeeCode(
                 employee.getEmployeeCode());
+        
+        existingEmployee.setFirstName(
+                employee.getFirstName());
+
+        existingEmployee.setLastName(
+                employee.getLastName());
+
+        existingEmployee.setDateOfBirth(
+                employee.getDateOfBirth());
+
+        existingEmployee.setPersonalEmail(
+                employee.getPersonalEmail());
+
+        existingEmployee.setMobile(
+                employee.getMobile());
+
+        existingEmployee.setDesignation(
+                employee.getDesignation());
+
+        existingEmployee.setEmploymentType(
+                employee.getEmploymentType());
+
+        existingEmployee.setLocation(
+                employee.getLocation());
+
+        existingEmployee.setAddress(
+                employee.getAddress());
+
+        existingEmployee.setCity(
+                employee.getCity());
+
+        existingEmployee.setState(
+                employee.getState());
+
+        existingEmployee.setPincode(
+                employee.getPincode());
+
+        existingEmployee.setEmergencyContactName(
+                employee.getEmergencyContactName());
+
+        existingEmployee.setEmergencyContactPhone(
+                employee.getEmergencyContactPhone());
+
+        existingEmployee.setHighestQualification(
+                employee.getHighestQualification());
+
+        existingEmployee.setPreviousCompany(
+                employee.getPreviousCompany());
+
+        existingEmployee.setOnboardingStatus(
+                employee.getOnboardingStatus());
+
+        existingEmployee.setExperience(
+                employee.getExperience());
 
         existingEmployee.setBankName(
                 employee.getBankName());
@@ -318,6 +372,42 @@ private BCryptPasswordEncoder passwordEncoder;
         @ModelAttribute Employee employee,
         @RequestParam String temporaryPassword,
         RedirectAttributes ra)  {
+    	
+    	if (employee.getEmployeeCode() != null
+    	        && !employee.getEmployeeCode().isBlank()
+    	        && employeeRepository
+    	                .findByEmployeeCode(employee.getEmployeeCode().trim())
+    	                .isPresent()) {
+
+    	    ra.addFlashAttribute(
+    	            "error",
+    	            "Employee ID already exists: " + employee.getEmployeeCode());
+
+    	    return "redirect:/admin/employees";
+    	}
+    	if (employee.getEmail() != null
+    	        && !employee.getEmail().isBlank()
+    	        && employeeRepository.findByEmail(employee.getEmail().trim()) != null) {
+
+    	    ra.addFlashAttribute(
+    	            "error",
+    	            "Company Email already exists: " + employee.getEmail());
+
+    	    return "redirect:/admin/employees";
+    	}
+    	
+    	String firstName = employee.getFirstName();
+    	String lastName = employee.getLastName();
+
+    	if (firstName != null && !firstName.isBlank()) {
+    	    String fullName = firstName.trim();
+
+    	    if (lastName != null && !lastName.isBlank()) {
+    	        fullName += " " + lastName.trim();
+    	    }
+
+    	    employee.setName(fullName);
+    	}
          if (employee.getManager() != null && employee.getManager().getEmpId() != null) {
         Employee manager = employeeRepository
                 .findById(employee.getManager().getEmpId())
@@ -851,9 +941,28 @@ userRepository.save(user);
         return "redirect:/admin/manager/leaves";
     }
     @PostMapping("/employees/upload")
+    @PreAuthorize("hasAuthority('WRITE_EMPLOYEE')")
     public String uploadEmployees(
             @RequestParam("file") MultipartFile file,
             RedirectAttributes ra) {
+    	if (file.isEmpty()
+    	        || file.getOriginalFilename() == null
+    	        || !file.getOriginalFilename().toLowerCase().endsWith(".xlsx")) {
+
+    	    ra.addFlashAttribute(
+    	            "error",
+    	            "Only .xlsx Excel files are allowed.");
+
+    	    return "redirect:/admin/employees";
+    	}
+    	
+    	if (file.getSize() > 5 * 1024 * 1024) {
+    	    ra.addFlashAttribute(
+    	            "error",
+    	            "Excel file size must not exceed 5 MB.");
+
+    	    return "redirect:/admin/employees";
+    	}
 
         excelEmployeeService.importEmployees(file);
 

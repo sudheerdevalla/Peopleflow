@@ -1,19 +1,23 @@
 package com.hr.hrapp.controller;
 
 import com.hr.hrapp.entity.Employee;
+import com.hr.hrapp.entity.User;
+
 import com.hr.hrapp.entity.Salary;
 import com.hr.hrapp.payroll.entity.Payroll;
 import com.hr.hrapp.payroll.repository.PayrollRepository;
 import com.hr.hrapp.payroll.service.PayrollMailService;
 import com.hr.hrapp.payroll.util.PayslipGenerator;
 import com.hr.hrapp.repository.EmployeeRepository;
+import com.hr.hrapp.repository.UserRepository;
 import com.hr.hrapp.repository.LeaveRepository;
 import com.hr.hrapp.repository.SalaryRepository;
 import com.hr.hrapp.service.AuditTrailService;
 import com.hr.hrapp.service.EmailService;
 import com.hr.hrapp.service.EmployeeService;
-import com.hr.hrapp.service.FinancialAccessOtpService;
+
 import com.hr.hrapp.service.FinancialService;
+import com.hr.hrapp.service.MfaService;
 import com.hr.hrapp.service.PdfGenerator;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +25,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -43,6 +48,9 @@ public class FinancialController {
 
     @Autowired
     private EmployeeRepository employeeRepository;
+    
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private SalaryRepository salaryRepository;
@@ -54,6 +62,9 @@ public class FinancialController {
     private FinancialService financialService;
     
     @Autowired
+    private MfaService mfaService;
+    
+    @Autowired
     private EmployeeService employeeService;
     
     @Autowired
@@ -62,8 +73,7 @@ public class FinancialController {
     @Autowired
     private LeaveRepository leaveRepository;
 
-    @Autowired
-    private FinancialAccessOtpService financialAccessOtpService;
+   
 
     @Autowired
     private PayrollMailService payrollMailService;
@@ -104,11 +114,8 @@ public class FinancialController {
         model.addAttribute("otpRequired", false);
 
         if (!isFinancialAccessVerified(session)) {
-            model.addAttribute("otpRequired", true);
-            model.addAttribute("maskedEmail", financialAccessOtpService.maskEmail(emp.getEmail()));
-            return "financial";
+            return "redirect:/user/financial/verify";
         }
-
         // =========================
         // EMPLOYEE DETAILS
         // =========================
@@ -153,6 +160,84 @@ public class FinancialController {
 
         return "financial";
     }
+    @GetMapping("/financial/verify")
+    public String financialVerifyPage() {
+        return "financial-totp";
+    }
+    @PostMapping("/financial/verify-totp")
+    public String verifyFinancialTotp(
+            @RequestParam String code,
+            Principal principal,
+            HttpSession session,
+            Model model) {
+
+        if (principal == null) {
+            return "redirect:/login";
+        }
+
+        try {
+            Employee emp =
+                    employeeRepository.findByEmail(principal.getName());
+
+            if (emp == null) {
+                model.addAttribute("error", "Employee not found.");
+                return "financial-totp";
+            }
+
+            // Get the existing User account
+            User user =
+                    userRepository.findByUsername(principal.getName())
+                            .orElse(null);
+
+            if (user == null
+                    || !user.isMfaEnabled()
+                    || user.getTotpSecret() == null
+                    || user.getTotpSecret().isBlank()) {
+
+                model.addAttribute(
+                        "error",
+                        "Authenticator verification is not available.");
+
+                return "financial-totp";
+            }
+
+            int totpCode;
+
+            try {
+                totpCode = Integer.parseInt(code);
+            } catch (NumberFormatException e) {
+                model.addAttribute(
+                        "error",
+                        "Enter a valid 6-digit Authenticator code.");
+
+                return "financial-totp";
+            }
+
+            if (!mfaService.verifyCode(
+                    user.getTotpSecret(), totpCode)) {
+
+                model.addAttribute(
+                        "error",
+                        "Invalid Authenticator code.");
+
+                return "financial-totp";
+            }
+
+            session.setAttribute(
+                    FINANCIAL_ACCESS_VERIFIED_AT,
+                    LocalDateTime.now());
+
+            return "redirect:/user/financial";
+
+        } catch (Exception e) {
+
+            model.addAttribute(
+                    "error",
+                    "Unable to verify Authenticator code.");
+
+            return "financial-totp";
+        }
+    }
     @PostMapping("/financial/save")
     public String saveFinancialDetails(
             @ModelAttribute Employee updatedEmployee,
@@ -171,7 +256,7 @@ public class FinancialController {
         return "redirect:/user/financial";
     }
 
-    @PostMapping("/financial/request-otp")
+  /*  @PostMapping("/financial/request-otp")
     public String requestFinancialOtp(Principal principal,
                                       RedirectAttributes redirectAttributes) {
         try {
@@ -182,9 +267,9 @@ public class FinancialController {
             redirectAttributes.addFlashAttribute("error", ex.getMessage());
         }
         return "redirect:/user/financial";
-    }
+    }*/
 
-    @PostMapping("/financial/verify-otp")
+   /* @PostMapping("/financial/verify-otp")
     public String verifyFinancialOtp(@RequestParam String otp,
                                      Principal principal,
                                      HttpSession session,
@@ -197,7 +282,7 @@ public class FinancialController {
             redirectAttributes.addFlashAttribute("error", ex.getMessage());
         }
         return "redirect:/user/financial";
-    }
+    }*/
 
     // ================== VIEW ==================
     @GetMapping("/view")
