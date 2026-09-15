@@ -81,6 +81,13 @@ public class PayrollController {
      model.addAttribute("payrolls", payrolls);
      model.addAttribute("selectedMonth",
              payrollMonth.toString());
+     
+     LocalDate today = LocalDate.now();
+     LocalDate monthEnd = payrollMonth.atEndOfMonth();
+
+     boolean payrollMonthEnded = !today.isBefore(monthEnd);
+
+     model.addAttribute("payrollMonthEnded", payrollMonthEnded);
 
      return "admin-payroll";
  }
@@ -89,52 +96,76 @@ public class PayrollController {
     // GENERATE PAYROLL
     // =========================
 
-    @GetMapping("/generate/{id}")
-    @PreAuthorize("hasAuthority('WRITE_EMPLOYEE')")
-    public String generatePayroll(
-            @PathVariable Long id,
-            @RequestParam(required = false) String month) {
+ @GetMapping("/generate/{id}")
+ @PreAuthorize("hasAuthority('WRITE_EMPLOYEE')")
+ public String generatePayroll(
+         @PathVariable Long id,
+         @RequestParam(required = false) String month) {
 
-        Employee employee =
-                employeeRepository
-                .findById(id)
-                .orElse(null);
+     Employee employee =
+             employeeRepository
+             .findById(id)
+             .orElse(null);
 
-        if(employee == null) {
+     if (employee == null) {
+         return "redirect:/payroll?error=EmployeeNotFound";
+     }
 
-            return "Employee Not Found";
-        }
+     YearMonth selectedMonth = resolveMonth(month);
 
-        // =========================
-        // GENERATE PAYROLL
-        // =========================
+     LocalDate today = LocalDate.now();
+     LocalDate monthEnd = selectedMonth.atEndOfMonth();
 
-        payrollService.calculateSalary(employee, resolveMonth(month));
+     // Payroll generation is allowed only at/after month end
+     if (today.isBefore(monthEnd)) {
+         return "redirect:/payroll?month=" + selectedMonth
+                 + "&error=Payroll generation is available only after month end";
+     }
 
-        // =========================
-        // REDIRECT
-        // =========================
+     payrollService.calculateSalary(employee, selectedMonth);
 
-        return "redirect:/payroll?month=" + resolveMonth(month);
-    }
+     return "redirect:/payroll?month=" + selectedMonth;
+ }
+ @GetMapping("/finalize/{id}")
+ @PreAuthorize("hasAuthority('WRITE_EMPLOYEE')")
+ public String finalizePayroll(
+         @PathVariable Long id,
+         @RequestParam(required = false) String month,
+         Principal principal) {
 
-    @GetMapping("/finalize/{id}")
-    @PreAuthorize("hasAuthority('WRITE_EMPLOYEE')")
-    public String finalizePayroll(@PathVariable Long id,
-                                  @RequestParam(required = false) String month,
-                                  Principal principal) {
-        Employee employee = employeeRepository.findById(id).orElse(null);
-        if (employee == null) {
-            return "redirect:/admin/employees?error=EmployeeNotFound";
-        }
+     Employee employee =
+             employeeRepository.findById(id).orElse(null);
 
-        Payroll payroll = payrollService.finalizePayroll(
-                id,
-                resolveMonth(month),
-                principal == null ? "system" : principal.getName());
-        payrollMailService.sendPayslip(payroll, employee.getEmail());
-        return "redirect:/payroll?month=" + resolveMonth(month);
-    }
+     if (employee == null) {
+         return "redirect:/payroll?error=EmployeeNotFound";
+     }
+
+     YearMonth selectedMonth = resolveMonth(month);
+
+     try {
+
+         Payroll payroll = payrollService.finalizePayroll(
+                 id,
+                 selectedMonth,
+                 principal == null ? "system" : principal.getName()
+         );
+
+         payrollMailService.sendPayslip(
+                 payroll,
+                 employee.getEmail()
+         );
+
+         return "redirect:/payroll?month=" + selectedMonth;
+
+     } catch (IllegalStateException ex) {
+
+         return "redirect:/payroll?month=" + selectedMonth
+                 + "&error=" + java.net.URLEncoder.encode(
+                         ex.getMessage(),
+                         java.nio.charset.StandardCharsets.UTF_8
+                 );
+     }
+ }
 
     @GetMapping("/finalize-month")
     @PreAuthorize("hasAuthority('WRITE_EMPLOYEE')")

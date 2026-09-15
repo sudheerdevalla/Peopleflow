@@ -268,12 +268,29 @@ public class PayrollService {
 
     @Transactional
     public Payroll finalizePayroll(Long employeeId, YearMonth payrollMonth, String finalizedBy) {
+
+        // Payroll can be finalized only after the payroll month has ended
+        LocalDate today = LocalDate.now();
+        LocalDate monthEndDate = payrollMonth.atEndOfMonth();
+
+        if (today.isBefore(monthEndDate)) {
+            throw new IllegalStateException(
+                    "Payroll cannot be finalized before month end. Payroll month: "
+                            + payrollMonth
+                            + ", Month end date: "
+                            + monthEndDate
+            );
+        }
+
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new IllegalArgumentException("Employee not found"));
 
         Payroll payroll = calculateSalary(employee, payrollMonth);
+
         if (!"RECONCILED".equalsIgnoreCase(payroll.getReconciliationStatus())) {
-            throw new IllegalStateException("Payroll reconciliation failed; cannot finalize");
+            throw new IllegalStateException(
+                    "Payroll reconciliation failed; cannot finalize"
+            );
         }
 
         if (FINALIZED.equalsIgnoreCase(payroll.getStatus())) {
@@ -283,15 +300,23 @@ public class PayrollService {
         payroll.setStatus(FINALIZED);
         payroll.setFinalizedAt(LocalDateTime.now());
         payroll.setFinalizedBy(finalizedBy);
+
         Payroll savedPayroll = payrollRepository.save(payroll);
 
-        List<TravelRequest> travels = new ArrayList<>(travelRepository
-                .findByEmpIdAndStatusAndPayrollProcessed(employeeId, "ADMIN_APPROVED", false));
+        List<TravelRequest> travels = new ArrayList<>(
+                travelRepository.findByEmpIdAndStatusAndPayrollProcessed(
+                        employeeId,
+                        "ADMIN_APPROVED",
+                        false
+                )
+        );
+
         for (TravelRequest travel : travels) {
             travel.setPayrollProcessed(true);
             travel.setPayrollReferenceMonth(savedPayroll.getMonth());
             travel.setPayrollProcessedAt(LocalDateTime.now());
         }
+
         if (!travels.isEmpty()) {
             travelRepository.saveAll(travels);
         }
@@ -303,7 +328,9 @@ public class PayrollService {
                 "SUCCESS",
                 "PAYROLL",
                 savedPayroll.getId(),
-                "month=" + savedPayroll.getMonth() + ", approvedAdditions=" + savedPayroll.getApprovedAdditions() + ", netSalary=" + savedPayroll.getNetSalary()
+                "month=" + savedPayroll.getMonth()
+                        + ", approvedAdditions=" + savedPayroll.getApprovedAdditions()
+                        + ", netSalary=" + savedPayroll.getNetSalary()
         );
 
         return savedPayroll;

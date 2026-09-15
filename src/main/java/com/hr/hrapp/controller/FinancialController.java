@@ -255,6 +255,51 @@ public class FinancialController {
         redirectAttributes.addFlashAttribute("error", "Financial and payroll-sensitive fields are maintained by HR/Admin. Please contact HR for changes.");
         return "redirect:/user/financial";
     }
+    @PostMapping("/financial/save-bank-details")
+    public String saveBankDetails(
+            @RequestParam String bankName,
+            @RequestParam String accountNumber,
+            @RequestParam String confirmAccountNumber,
+            @RequestParam String ifsc,
+            @RequestParam String branch,
+            @RequestParam String paymentMode,
+            Principal principal,
+            RedirectAttributes redirectAttributes) {
+
+        if (principal == null) {
+            return "redirect:/login";
+        }
+
+        Employee employee =
+                employeeRepository.findByEmail(principal.getName());
+
+        if (employee == null) {
+            redirectAttributes.addFlashAttribute(
+                    "error", "Employee not found.");
+            return "redirect:/user/financial";
+        }
+
+        if (!accountNumber.equals(confirmAccountNumber)) {
+            redirectAttributes.addFlashAttribute(
+                    "error",
+                    "Account numbers do not match.");
+            return "redirect:/user/financial";
+        }
+
+        employee.setBankName(bankName);
+        employee.setAccountNumber(accountNumber);
+        employee.setIfsc(ifsc.toUpperCase());
+        employee.setBranch(branch);
+        employee.setPaymentMode(paymentMode);
+
+        employeeRepository.save(employee);
+
+        redirectAttributes.addFlashAttribute(
+                "message",
+                "Bank details saved successfully.");
+
+        return "redirect:/user/financial";
+    }
 
   /*  @PostMapping("/financial/request-otp")
     public String requestFinancialOtp(Principal principal,

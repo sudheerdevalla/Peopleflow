@@ -77,8 +77,87 @@ input,select{width:100%;padding:10px;border:1px solid #dbe4f0;border-radius:12px
 <b th:text="${date.dayOfWeek}">MONDAY</b><br><br>
 <div th:if="${leaveDates.contains(date)}"><span class="leave">On Leave</span></div>
 <div th:unless="${leaveDates.contains(date)}">
-<input placeholder="Location" th:value="${weekLocation[date.dayOfWeek.toString()]}"><br><br>
-<input placeholder="Hours" th:value="${weekData[date.dayOfWeek.toString()]}">
+
+    <!-- LOCATION -->
+    <div style="margin-top:15px;">
+        <small style="
+            display:block;
+            color:#94a3b8;
+            font-weight:700;
+            margin-bottom:6px;">
+            WORK LOCATION
+        </small>
+
+        <div style="
+            background:#f8fafc;
+            border:1px solid #e2e8f0;
+            border-radius:12px;
+            padding:11px 13px;
+            font-weight:600;
+            color:#334155;"
+            th:text="${weekLocation[date.dayOfWeek.toString()] != null 
+                      ? weekLocation[date.dayOfWeek.toString()] 
+                      : 'Not submitted'}">
+            Not submitted
+        </div>
+    </div>
+
+
+    <!-- HOURS -->
+    <div style="margin-top:15px;">
+        <small style="
+            display:block;
+            color:#94a3b8;
+            font-weight:700;
+            margin-bottom:6px;">
+            WORKING HOURS
+        </small>
+
+        <div style="
+            background:#f8fafc;
+            border:1px solid #e2e8f0;
+            border-radius:12px;
+            padding:11px 13px;
+            font-weight:700;
+            color:#0f172a;"
+            th:text="${weekData[date.dayOfWeek.toString()] != null 
+                      ? weekData[date.dayOfWeek.toString()] + ' hours'
+                      : 'Not submitted'}">
+            Not submitted
+        </div>
+    </div>
+
+
+    
+	<!-- STATUS -->
+
+	<div style="margin-top:15px;">
+
+	    <small style="
+	        display:block;
+	        color:#94a3b8;
+	        font-weight:700;
+	        margin-bottom:6px;">
+	        STATUS
+	    </small>
+
+	    <div style="
+	        background:#f8fafc;
+	        border:1px solid #e2e8f0;
+	        border-radius:12px;
+	        padding:11px 13px;
+	        font-weight:700;"
+	        
+	        th:text="${weekStatus[date.dayOfWeek.toString()] != null
+	                  ? weekStatus[date.dayOfWeek.toString()]
+	                  : 'NOT SUBMITTED'}">
+
+	        NOT SUBMITTED
+
+	    </div>
+
+	</div>
+
 </div>
 </div>
 </div>

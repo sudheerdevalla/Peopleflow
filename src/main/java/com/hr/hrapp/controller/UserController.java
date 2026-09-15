@@ -278,19 +278,36 @@ public class UserController {
         List<Timesheet> list =
                 timesheetRepository.findByEmployeeIdAndDateBetween(
                         emp.getEmpId(), startOfWeek, endOfWeek);
-
         Map<String, Integer> weekData = new HashMap<>();
         Map<String, String> weekLocation = new HashMap<>();
+        Map<String, String> weekStatus = new HashMap<>();
 
         for (Timesheet t : list) {
-            String day = t.getDate().getDayOfWeek().toString();
-            weekData.put(day, t.getHours());
-            weekLocation.put(day, t.getWorkLocation());
+
+            String day = t.getDate()
+                    .getDayOfWeek()
+                    .toString();
+
+            weekData.put(
+                    day,
+                    t.getHours() == null ? 0 : t.getHours()
+            );
+
+            weekLocation.put(
+                    day,
+                    t.getWorkLocation()
+            );
+
+            weekStatus.put(
+                    day,
+                    t.getStatus()
+            );
         }
 
         model.addAttribute("weekDates", weekDates);
         model.addAttribute("weekData", weekData);
         model.addAttribute("weekLocation", weekLocation);
+        model.addAttribute("weekStatus", weekStatus);
 
         // ==================================================
         // 🔥 ADD THIS PART (LEAVES + BALANCE)

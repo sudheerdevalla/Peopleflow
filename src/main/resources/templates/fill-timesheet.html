@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
 <title>Fill Timesheet</title>
@@ -254,9 +254,39 @@ textarea{
 </head>
 
 <body>
+	
+	<!-- SUCCESS MESSAGE -->
+<!--	<div th:if="${success}"
+	     style="
+	        margin:20px auto;
+	        max-width:900px;
+	        padding:16px 20px;
+	        background:#ECFDF5;
+	        color:#15803D;
+	        border:1px solid #86EFAC;
+	        border-radius:14px;
+	        font-weight:700;
+	        text-align:center;">
+	    ✓ <span th:text="${success}"></span>
+	</div>
+
+	<!-- ERROR MESSAGE -->
+	<!-- <div th:if="${error}"
+	     style="
+	        margin:20px auto;
+	        max-width:900px;
+	        padding:16px 20px;
+	        background:#FEF2F2;
+	        color:#B91C1C;
+	        border:1px solid #FCA5A5;
+	        border-radius:14px;
+	        font-weight:700;
+	        text-align:center;">
+	    ⚠ <span th:text="${error}"></span>
+	</div>
 
 <!-- 🔥 Banner -->
-<div class="header-banner">
+<!-- <div class="header-banner">
     <div>
         <h2>Welcome Back</h2>
         <p>Fill your weekly timesheet</p>
@@ -299,7 +329,7 @@ textarea{
 <div class="card" th:each="date : ${weekDates}">
 	
 	<!-- HOLIDAY -->
-	<div th:if="${holidayMap.containsKey(date)}"
+	<!-- <div th:if="${holidayMap.containsKey(date)}"
 	     class="card"
 	     style="
 	     background:#ecfdf5;
@@ -339,7 +369,7 @@ textarea{
 <input type="hidden" name="date" th:value="${date}" />
 
 <!-- LOCATION -->
-<input type="text"
+<!-- <input type="text"
        name="workLocation"
        class="location-input"
        th:value="${timesheetMap.containsKey(date) && timesheetMap.get(date).workLocation != null && !timesheetMap.get(date).workLocation.isEmpty()
@@ -348,37 +378,37 @@ textarea{
        readonly />
 	   
 	   <!-- CLIENT NAME -->
-	   <input type="text"
+<!---   <input type="text"
 	          name="clientName"
 	          placeholder="Client Name">
 
 	   <!-- PROJECT NAME -->
-	   <input type="text"
+<!--- <input type="text"
 	          name="projectName"
 	          placeholder="Project Name">
 
 	   <!-- WORK DESCRIPTION -->
-	   <textarea
+<!---	   <textarea
 	           name="workDescription"
 	           placeholder="Work Description"></textarea>
 
 	   <!-- GPS HIDDEN FIELDS -->
-	   <input type="hidden"
+	<!--   <input type="hidden"
 	          name="latitude"
 	          class="latitude">
 
-	   <input type="hidden"
+<!--	   <input type="hidden"
 	          name="longitude"
 	          class="longitude">
 
-	   <button type="button"
+<!--	   <button type="button"
 	           class="btn-secondary"
 	           onclick="captureLocation(this)">
 	       📍 Capture Location
-	   </button>
+	   </button> 
 
 <!-- HOURS -->
-<input type="number"
+<!-- <input type="number"
        name="hours"
        class="hours-input"
        th:value="${timesheetMap.containsKey(date) ? timesheetMap.get(date).hours : 0}"
@@ -387,14 +417,14 @@ textarea{
       
 
 <!-- TRAINING -->
-<input type="number"
+<!-- <input type="number"
        name="training"
        class="training-input"
        th:value="${timesheetMap.containsKey(date) ? timesheetMap.get(date).training : 0}"
        placeholder="Enter training hours"
        th:readonly="${date.isAfter(today)}">
 	   
-	   <div th:if="${timesheetMap.containsKey(date)}">
+	  <div th:if="${timesheetMap.get(date).id != null}">
 
 	       <p style="font-weight:bold;">
 
@@ -416,16 +446,11 @@ textarea{
 <div class="btn-group">
 	<button type="submit"
 	        class="btn-primary"
-	        th:text="${timesheetMap.containsKey(date) ? 'Update' : 'Submit'}">
+	        th:if="${timesheetMap.get(date).id == null}">
+	    Submit
 	</button>
 
-    <!-- EDIT BUTTON (focus only) -->
-	<button type="button"
-	        class="btn-secondary"
-	        onclick="focusHours(this)"
-	        th:disabled="${date.isAfter(today)}">
-	    Edit
-	</button>
+   
 </div>
 
 </form>
@@ -448,7 +473,7 @@ textarea{
 
 <!-- WEEKLY BUTTON -->
 
-<div style="text-align:center;margin-top:25px;">
+<!-- <div style="text-align:center;margin-top:25px;">
 
     <button
         style="
@@ -464,43 +489,15 @@ textarea{
 
     </button>
 
-</div>
+</div> ---!>
 
-<!-- 🔥 JS -->
-<script>
-	function focusHours(btn) {
-
-	    if(btn.disabled){
-	        return;
-	    }
-
-	    let card = btn.closest('.card');
-
-	    let hoursInput =
-	        card.querySelector('.hours-input');
-
-	    let trainingInput =
-	        card.querySelector('.training-input');
-
-	    hoursInput.removeAttribute('readonly');
-	    trainingInput.removeAttribute('readonly');
-
-	    hoursInput.focus();
-	}
-
-function captureLocation(btn) {
-
-    let form = btn.closest('form');
-
-    navigator.geolocation.getCurrentPosition(
-        function(position) {
-
-            form.querySelector('.latitude').value =
-                position.coords.latitude;
-
-            form.querySelector('.longitude').value =
-                position.coords.longitude;			<!DOCTYPE html>
-			<html xmlns:th="http://www.thymeleaf.org">
+<!-- 🔥 JS --> 
+<!-- <script>-->
+	
+	<!DOCTYPE html>
+	<html xmlns:th="http://www.thymeleaf.org">
+				
+			
 			<head>
 
 			<title>Fill Timesheet</title>
@@ -1445,7 +1442,9 @@ function captureLocation(btn) {
 
 			<input type="text"
 			       name="clientName"
-			       placeholder="Client Name">
+			       placeholder="Client Name"
+				   th:value="${timesheetMap.get(date).clientName}"
+				   th:readonly="${timesheetMap.get(date).id != null}">
 
 			<!-- PROJECT -->
 
@@ -1457,7 +1456,9 @@ function captureLocation(btn) {
 
 			<input type="text"
 			       name="projectName"
-			       placeholder="Project Name">
+			       placeholder="Project Name"
+				   th:value="${timesheetMap.get(date).projectName}"
+				   th:readonly="${timesheetMap.get(date).id != null}">
 
 			<!-- DESCRIPTION -->
 
@@ -1469,7 +1470,9 @@ function captureLocation(btn) {
 
 			<textarea
 			        name="workDescription"
-			        placeholder="Describe today's work...">
+			        placeholder="Describe today's work..."
+					th:readonly="${timesheetMap.get(date).id != null}"
+					th:text="${timesheetMap.get(date).workDescription}">
 			</textarea>
 
 			<input type="hidden"
@@ -1480,14 +1483,24 @@ function captureLocation(btn) {
 			       name="longitude"
 			       class="longitude">
 
-			<button
-			        type="button"
-			        class="btn-secondary"
-			        onclick="captureLocation(this)">
+				   <button
+				           type="button"
+				           class="btn-secondary location-btn"
+				           th:if="${timesheetMap.get(date).id == null}"
+				           onclick="captureLocation(this)">
+				       📍 Capture Location
+				   </button>
 
-			📍 Capture Location
-
-			</button>
+				   <div class="location-status"
+				        style="
+				           margin-top:10px;
+				           padding:10px 14px;
+				           font-size:13px;
+				           font-weight:700;
+				           text-align:center;
+				           border-radius:10px;
+				           color:#64748B;">
+				   </div>
 
 			<label class="label">
 
@@ -1498,9 +1511,9 @@ function captureLocation(btn) {
 			<input type="number"
 			       name="hours"
 			       class="hours-input"
-			       th:value="${timesheetMap.containsKey(date) ? timesheetMap.get(date).hours : 0}"
+			      th:value="${timesheetMap.get(date).hours != null ? timesheetMap.get(date).hours : 0}"
 			       placeholder="Enter hours"
-			       th:readonly="${date.isAfter(today)}">
+			      th:readonly="${date.isAfter(today) || timesheetMap.get(date).id != null}">
 
 			<label class="label">
 
@@ -1511,14 +1524,14 @@ function captureLocation(btn) {
 			<input type="number"
 			       name="training"
 			       class="training-input"
-			       th:value="${timesheetMap.containsKey(date) ? timesheetMap.get(date).training : 0}"
+			      th:value="${timesheetMap.get(date).training != null ? timesheetMap.get(date).training : 0}"
 			       placeholder="Enter training hours"
-			       th:readonly="${date.isAfter(today)}">
+			      th:readonly="${date.isAfter(today) || timesheetMap.get(date).id != null}">
 			<!-- ========================= -->
 			<!-- STATUS -->
 			<!-- ========================= -->
 
-			<div th:if="${timesheetMap.containsKey(date)}"
+			<div th:if="${timesheetMap.get(date).id != null}"
 			     style="margin-top:18px;">
 
 			    <div style="
@@ -1560,20 +1573,11 @@ function captureLocation(btn) {
 			<div class="btn-group"
 			     style="margin-top:18px;">
 
-			    <button type="submit"
-			            class="btn-primary"
-			            th:text="${timesheetMap.containsKey(date) ? 'Update' : 'Submit'}">
-
-			    </button>
-
-			    <button type="button"
-			            class="btn-secondary"
-			            onclick="focusHours(this)"
-			            th:disabled="${date.isAfter(today)}">
-
-			        Edit
-
-			    </button>
+				 <button type="submit"
+				         class="btn-primary"
+				         th:if="${timesheetMap.get(date).id == null}">
+				     Submit
+				 </button>
 
 			</div>
 
@@ -1697,6 +1701,11 @@ function captureLocation(btn) {
 
 			    let form = btn.closest('form');
 
+			    let status = form.querySelector('.location-status');
+
+			    btn.disabled = true;
+			    btn.innerText = "📍 Capturing...";
+
 			    navigator.geolocation.getCurrentPosition(
 
 			        function(position) {
@@ -1707,16 +1716,39 @@ function captureLocation(btn) {
 			            form.querySelector('.longitude').value =
 			                position.coords.longitude;
 
-			            alert("Location Captured Successfully");
+			            btn.innerText = "✓ Location Captured";
+			            btn.disabled = false;
+
+			            btn.style.background = "#ECFDF5";
+			            btn.style.color = "#15803D";
+			            btn.style.borderColor = "#86EFAC";
+
+			            if (status) {
+			                status.innerText = "✓ GPS location captured successfully";
+			                status.style.color = "#15803D";
+			            }
 
 			        },
 
 			        function(error) {
 
-			            alert("Location Permission Denied");
+			            btn.disabled = false;
+			            btn.innerText = "📍 Capture Location";
 
+			            if (status) {
+			                status.innerText =
+			                    "⚠ Location permission denied or unavailable";
+			                status.style.color = "#DC2626";
+			            }
+
+			            alert("Unable to capture your location. Please allow location permission and try again.");
+			        },
+
+			        {
+			            enableHighAccuracy: true,
+			            timeout: 10000,
+			            maximumAge: 0
 			        }
-
 			    );
 			}
 

@@ -432,15 +432,13 @@
                 </div>
 
 
-                <button
-                    type="button"
-                    class="btn btn-primary"
-                    onclick="generatePayroll()">
-
-                    ⚙️ Generate Payroll
-
-                </button>
-
+				<button
+				    type="button"
+				    class="btn btn-primary"
+				    th:if="${payrollMonthEnded}"
+				    onclick="generatePayroll()">
+				    ⚙️ Generate Payroll
+				</button>
                 <button
                     type="submit"
                     class="btn btn-primary">
@@ -600,15 +598,14 @@
 
                                     <!-- Finalize -->
 
-                                    <a
-                                        th:if="${payroll.status != 'FINALIZED'
-                                               and payroll.reconciliationStatus == 'RECONCILED'}"
-                                        class="btn btn-success"
-                                        th:href="@{'/payroll/finalize/' + ${payroll.employeeId} + '?month=' + ${selectedMonth}}">
-
-                                        ✓ Finalize
-
-                                    </a>
+									<a
+									    th:if="${payrollMonthEnded
+									           and payroll.status != 'FINALIZED'
+									           and payroll.reconciliationStatus == 'RECONCILED'}"
+									    class="btn btn-success"
+									    th:href="@{'/payroll/finalize/' + ${payroll.employeeId} + '?month=' + ${selectedMonth}}">
+									    ✓ Finalize
+									</a>
 
 
                                     <!-- Payslip -->
@@ -626,14 +623,20 @@
 
                                     <!-- Waiting -->
 
-                                    <span
-                                        th:if="${payroll.status != 'FINALIZED'
-                                               and payroll.reconciliationStatus != 'RECONCILED'}"
-                                        class="btn btn-disabled">
+									<span
+									    th:if="${!payrollMonthEnded
+									           and payroll.status != 'FINALIZED'}"
+									    class="btn btn-disabled">
+									    Available After Month End
+									</span>
 
-                                        Cannot Finalize
-
-                                    </span>
+									<span
+									    th:if="${payrollMonthEnded
+									           and payroll.status != 'FINALIZED'
+									           and payroll.reconciliationStatus != 'RECONCILED'}"
+									    class="btn btn-disabled">
+									    Cannot Finalize
+									</span>
 
                                 </div>
 

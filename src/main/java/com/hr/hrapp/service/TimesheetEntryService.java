@@ -47,10 +47,41 @@ public class TimesheetEntryService {
                                   Double latitude,
                                   Double longitude,
                                   String actorUsername) {
+    	
+    	System.out.println("========== TIMESHEET SAVE START ==========");
+    	System.out.println("Employee ID = " + employee.getEmpId());
+    	System.out.println("Date = " + date);
+    	System.out.println("Location = " + location);
+    	System.out.println("Hours = " + hours);
+    	System.out.println("Training = " + training);
+    	System.out.println("Latitude = " + latitude);
+    	System.out.println("Longitude = " + longitude);
+    	
         validateEditableMonth(employee.getEmpId(), date);
         validateHours(hours, training);
 
-        Optional<Timesheet> existingOpt = timesheetRepository.findByEmployeeIdAndDate(employee.getEmpId(), date);
+        Optional<Timesheet> existingOpt =
+                timesheetRepository.findByEmployeeIdAndDate(
+                        employee.getEmpId(), date);
+        
+        System.out.println("Existing timesheet present = " + existingOpt.isPresent());
+
+        if (existingOpt.isPresent()) {
+
+            Timesheet existing = existingOpt.get();
+
+            String status = existing.getStatus();
+
+            if ("SUBMITTED".equalsIgnoreCase(status)
+                    || "APPROVED".equalsIgnoreCase(status)
+                    || "FINALIZED".equalsIgnoreCase(status)) {
+
+                throw new IllegalStateException(
+                        "This timesheet has already been submitted and cannot be edited."
+                );
+            }
+        }
+
         Timesheet target = existingOpt.orElseGet(Timesheet::new);
 
         target.setEmployeeId(employee.getEmpId());
@@ -70,9 +101,30 @@ public class TimesheetEntryService {
         }
         target.setReviewedAt(null);
         target.setReviewedBy(null);
+        
+     // Default status for a submitted timesheet
+        target.setStatus("SUBMITTED");
+
+
+        System.out.println("Before validation. Status = " + target.getStatus());
 
         timesheetValidationService.validateAndNotify(target, employee);
+
+        System.out.println("After validation. Status = " + target.getStatus());
+
+        target.setStatus(
+                target.getStatus() == null
+                        ? "SUBMITTED"
+                        : target.getStatus()
+        );
+
+        System.out.println("Before DB save. Status = " + target.getStatus());
+
         Timesheet saved = timesheetRepository.save(target);
+
+        System.out.println("AFTER DB SAVE. ID = " + saved.getId());
+        System.out.println("AFTER DB SAVE. Status = " + saved.getStatus());
+        System.out.println("========== TIMESHEET SAVE END ==========");
 
         auditTrailService.record(
                 actorUsername,
@@ -118,13 +170,24 @@ public class TimesheetEntryService {
     }
 
     public void validateEditableMonth(Long employeeId, LocalDate date) {
+
         String month = PayrollMonthUtil.format(date);
+
+        System.out.println("DEBUG Payroll Month = " + month);
+
         Payroll finalizedPayroll = payrollRepository
                 .findByEmployeeIdAndMonth(employeeId, month)
                 .filter(p -> FINALIZED.equalsIgnoreCase(p.getStatus()))
                 .orElse(null);
+
+        System.out.println("DEBUG Finalized Payroll = " + finalizedPayroll);
+
         if (finalizedPayroll != null) {
-            throw new IllegalStateException("Timesheet is locked because payroll for " + month + " is already finalized");
+
+            throw new IllegalStateException(
+                    "Timesheet is locked because payroll for "
+                    + month + " is already finalized"
+            );
         }
     }
 

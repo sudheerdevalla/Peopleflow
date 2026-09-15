@@ -657,16 +657,36 @@
                                     PENDING
                                 </span>
                             </td>
-                            <td>
-                                <div class="action-buttons">
-                                    <form th:action="@{/admin/approve-leave/{id}(id=${leave.id})}" method="get" style="display: inline;">
-                                        <button class="action-btn approve-btn">✓ Approve</button>
-                                    </form>
-                                    <form th:action="@{/admin/reject-leave/{id}(id=${leave.id})}" method="get" style="display: inline;">
-                                        <button class="action-btn reject-btn">✕ Reject</button>
-                                    </form>
-                                </div>
-                            </td>
+							<td>
+							    <div class="action-buttons"
+							         th:if="${leave.status == 'PENDING'}">
+
+							        <form th:action="@{/admin/approve-leave/{id}(id=${leave.id})}"
+							              method="get" style="display: inline;">
+							            <button class="action-btn approve-btn">
+							                ✓ Approve
+							            </button>
+							        </form>
+
+							        <form th:action="@{/admin/reject-leave/{id}(id=${leave.id})}"
+							              method="get" style="display: inline;">
+							            <button class="action-btn reject-btn">
+							                ✕ Reject
+							            </button>
+							        </form>
+
+							    </div>
+
+							    <span th:if="${leave.status == 'APPROVED'}"
+							          style="color:#065F46;font-weight:700;">
+							        ✓ Completed
+							    </span>
+
+							    <span th:if="${leave.status == 'REJECTED'}"
+							          style="color:#991B1B;font-weight:700;">
+							        ✕ Completed
+							    </span>
+							</td>
                         </tr>
                     </tbody>
                 </table>
