@@ -692,64 +692,345 @@
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="department">Department</label>
-                        <select id="department" th:field="*{department}" required>
-                            <option value="">Select Department</option>
-                            <option value="IT">Information Technology</option>
-                            <option value="HR">Human Resources</option>
-                            <option value="Finance">Finance</option>
-                            <option value="Admin">Administration</option>
-                            <option value="Operations">Operations</option>
-                        </select>
-                    </div>
+					<div class="form-group">
+					    <label for="department">Department</label>
+					    <select id="department" th:field="*{department}" required>
+					        <option value="">Select Department</option>
+					        <option value="Solar & OM">Solar & OM</option>
+					    </select>
+					</div>
                 </div>
+				<!-- ===== EMPLOYMENT & PERSONAL DETAILS ===== -->
+
+				<div class="form-section">
+
+				    <div class="section-header">
+				        <div>
+				            <div class="section-title">🏢 Employment & Personal Details</div>
+				            <div class="section-description">
+				                Maintain employee employment, contact and personal information.
+				            </div>
+				        </div>
+				        <div class="section-chip">Employee Master</div>
+				    </div>
+
+				    <div class="form-row">
+
+				        <div class="form-group">
+				            <label for="designation">Designation</label>
+				            <input type="text"
+				                   id="designation"
+				                   th:field="*{designation}"
+				                   placeholder="Designation">
+				        </div>
+
+				        <div class="form-group">
+				            <label for="mobile">Mobile Number</label>
+				            <input type="tel"
+				                   id="mobile"
+				                   th:field="*{mobile}"
+				                   placeholder="Mobile Number">
+				        </div>
+
+				    </div>
+
+				    <div class="form-row">
+
+				        <div class="form-group">
+				            <label for="gender">Gender</label>
+				            <select id="gender" th:field="*{gender}">
+				                <option value="">Select Gender</option>
+				                <option value="MALE">Male</option>
+				                <option value="FEMALE">Female</option>
+				                <option value="OTHER">Other</option>
+				            </select>
+				        </div>
+
+				        <div class="form-group">
+				            <label for="dateOfBirth">Date of Birth</label>
+				            <input type="date"
+				                   id="dateOfBirth"
+				                   th:field="*{dateOfBirth}">
+				        </div>
+
+				    </div>
+
+				    <div class="form-row">
+
+				        <div class="form-group">
+				            <label for="fatherName">Father Name</label>
+				            <input type="text"
+				                   id="fatherName"
+				                   th:field="*{fatherName}"
+				                   placeholder="Father Name">
+				        </div>
+
+				        <div class="form-group">
+				            <label for="location">Work Location</label>
+				            <input type="text"
+				                   id="location"
+				                   th:field="*{location}"
+				                   placeholder="Work Location">
+				        </div>
+
+				    </div>
+
+				    <div class="form-row">
+
+				        <div class="form-group">
+				            <label for="experience">Experience</label>
+				            <input type="text"
+				                   id="experience"
+				                   th:field="*{experience}"
+				                   placeholder="e.g. 3 Years">
+				        </div>
+
+				        <div class="form-group">
+				            <label for="previousExperience">Previous Experience</label>
+				            <input type="text"
+				                   id="previousExperience"
+				                   th:field="*{previousExperience}"
+				                   placeholder="Previous Experience">
+				        </div>
+
+				    </div>
+
+				    <div class="form-row">
+
+				        <div class="form-group">
+				            <label for="shift">Shift</label>
+				            <input type="text"
+				                   id="shift"
+				                   th:field="*{shift}"
+				                   placeholder="e.g. General / Night">
+				        </div>
+
+				        <div class="form-group">
+				            <label for="probationPeriod">Probation Period (Months)</label>
+				            <input type="number"
+				                   id="probationPeriod"
+				                   th:field="*{probationPeriod}"
+				                   min="0"
+				                   step="1"
+				                   placeholder="e.g. 6">
+				        </div>
+
+				    </div>
+
+				    <div class="form-row">
+
+				        <div class="form-group">
+				            <label for="confirmationDate">Confirmation Date</label>
+				            <input type="date"
+				                   id="confirmationDate"
+				                   th:field="*{confirmationDate}">
+				        </div>
+
+				        <div class="form-group">
+				            <label for="maritalStatus">Marital Status</label>
+				            <select id="maritalStatus" th:field="*{maritalStatus}">
+				                <option value="">Select Status</option>
+				                <option value="SINGLE">Single</option>
+				                <option value="MARRIED">Married</option>
+				                <option value="DIVORCED">Divorced</option>
+				                <option value="WIDOWED">Widowed</option>
+				            </select>
+				        </div>
+
+				    </div>
+
+				    <div class="form-group">
+
+				        <label for="spouseName">Spouse Name</label>
+
+				        <input type="text"
+				               id="spouseName"
+				               th:field="*{spouseName}"
+				               placeholder="Spouse Name">
+
+				    </div>
+
+				</div>
 
                 <div class="section-divider"></div>
 
-                <!-- ===== PAYROLL DETAILS ===== -->
-                <div class="form-section">
-                    <div class="section-header">
-                        <div>
-                            <div class="section-title">💰 Payroll Details</div>
-                            <div class="section-description">Update compensation-related values and statutory identifiers used across payroll workflows.</div>
-                        </div>
-                        <div class="section-chip">Payroll</div>
-                    </div>
+				<!-- ===== PAYROLL DETAILS ===== -->
 
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="basicSalary">Basic Salary</label>
-                            <input type="number" id="basicSalary" th:field="*{basicSalary}" step="0.01" placeholder="0.00">
-                        </div>
-                        <div class="form-group">
-                            <label for="travelAllowance">Travel Allowance</label>
-                            <input type="number" id="travelAllowance" th:field="*{travelAllowance}" step="0.01" placeholder="0.00">
-                        </div>
-                    </div>
+				<div class="form-section">
 
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="hraPercentage">HRA Percentage (%)</label>
-                            <input type="number" id="hraPercentage" th:field="*{hraPercentage}" step="0.01" placeholder="0.00">
-                        </div>
-                        <div class="form-group">
-                            <label for="bonusPercentage">Bonus Percentage (%)</label>
-                            <input type="number" id="bonusPercentage" th:field="*{bonusPercentage}" step="0.01" placeholder="0.00">
-                        </div>
-                    </div>
+				    <div class="section-header">
+				        <div>
+				            <div class="section-title">💰 Payroll Details</div>
+				            <div class="section-description">
+				                Maintain compensation and statutory payroll information used for salary processing.
+				            </div>
+				        </div>
+				        <div class="section-chip">Payroll</div>
+				    </div>
 
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="pfNumber">PF Number</label>
-                            <input type="text" id="pfNumber" th:field="*{pfNumber}" placeholder="PF123456">
-                        </div>
-                        <div class="form-group">
-                            <label for="uanNumber">UAN Number</label>
-                            <input type="text" id="uanNumber" th:field="*{uanNumber}" placeholder="UAN123456">
-                        </div>
-                    </div>
-                </div>
+				    <!-- Compensation -->
+				    <div class="form-row">
+
+				        <div class="form-group">
+				            <label for="totalCtc">Total CTC</label>
+				            <input type="number"
+				                   id="totalCtc"
+				                   th:field="*{totalCtc}"
+				                   step="0.01"
+				                   min="0"
+				                   placeholder="Annual CTC">
+				        </div>
+
+				        <div class="form-group">
+				            <label for="basicSalary">Basic Salary</label>
+				            <input type="number"
+				                   id="basicSalary"
+				                   th:field="*{basicSalary}"
+				                   step="0.01"
+				                   min="0"
+				                   placeholder="Basic Salary">
+				        </div>
+						
+						<div class="form-group">
+						    <label for="monthlyGrossSalary">Monthly Gross Salary</label>
+						    <input type="number"
+						           id="monthlyGrossSalary"
+						           th:field="*{monthlyGrossSalary}"
+						           step="0.01"
+						           min="0"
+						           placeholder="HR-approved monthly gross">
+						</div>
+
+				    </div>
+					
+
+				    <!-- HRA / Bonus -->
+				    <div class="form-row">
+
+				        <div class="form-group">
+				            <label for="hraPercentage">HRA Percentage (%)</label>
+				            <input type="number"
+				                   id="hraPercentage"
+				                   th:field="*{hraPercentage}"
+								   value="40"
+				                   step="0.01"
+				                   min="0"
+				                   max="100"
+				                   placeholder="40">
+				        </div>
+
+				        <div class="form-group">
+				            <label for="bonusPercentage">Bonus Percentage (%)</label>
+				            <input type="number"
+				                   id="bonusPercentage"
+				                   th:field="*{bonusPercentage}"
+				                   step="0.01"
+				                   min="0"
+				                   max="100"
+				                   placeholder="0">
+				        </div>
+
+				    </div>
+
+				    <!-- Allowances -->
+				    <div class="form-row">
+
+				        <div class="form-group">
+				            <label for="travelAllowance">Travel Allowance</label>
+				            <input type="number"
+				                   id="travelAllowance"
+				                   th:field="*{travelAllowance}"
+				                   step="0.01"
+				                   min="0"
+				                   placeholder="0.00">
+				        </div>
+
+				        <div class="form-group">
+				            <label for="paymentMode">Payment Mode</label>
+				            <select id="paymentMode"
+				                    th:field="*{paymentMode}">
+				                <option value="">Select Payment Mode</option>
+				                <option value="BANK_TRANSFER">Bank Transfer</option>
+				                <option value="NEFT">NEFT</option>
+				                <option value="IMPS">IMPS</option>
+				                <option value="OTHER">Other</option>
+				            </select>
+				        </div>
+
+				    </div>
+
+				    <!-- PF / UAN -->
+				    <div class="form-row">
+
+				        <div class="form-group">
+				            <label for="pfNumber">PF Number</label>
+				            <input type="text"
+				                   id="pfNumber"
+				                   th:field="*{pfNumber}"
+				                   placeholder="PF Number">
+				        </div>
+
+				        <div class="form-group">
+				            <label for="uanNumber">UAN Number</label>
+				            <input type="text"
+				                   id="uanNumber"
+				                   th:field="*{uanNumber}"
+				                   placeholder="UAN Number">
+				        </div>
+
+				    </div>
+
+					<!-- ESI / EPS -->
+					<div class="form-row">
+
+					    <div class="form-group">
+
+					        <label for="esiNumber">ESI Number</label>
+
+					        <input type="text"
+					               id="esiNumber"
+					               th:field="*{esiNumber}"
+					               placeholder="ESI Number">
+
+					    </div>
+
+					    <div class="form-group">
+
+					        <label for="esiApplicable">ESI Applicable</label>
+
+					        <select id="esiApplicable"
+					                th:field="*{esiApplicable}">
+
+					            <option value="false">No</option>
+					            <option value="true">Yes</option>
+
+					        </select>
+
+					    </div>
+
+					</div>
+
+					<div class="form-row">
+
+					    <div class="form-group">
+
+					        <label for="epsApplicable">EPS Applicable</label>
+
+					        <select id="epsApplicable"
+					                th:field="*{epsApplicable}">
+
+					            <option value="false">No</option>
+					            <option value="true">Yes</option>
+
+					        </select>
+
+					    </div>
+
+					    <div class="form-group">
+					        <!-- Reserved for future statutory payroll configuration -->
+					    </div>
+
+					</div>
 
                 <div class="section-divider"></div>
 

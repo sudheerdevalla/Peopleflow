@@ -1,6 +1,1021 @@
 package com.hr.hrapp.payroll.util;
 
 import java.io.ByteArrayInputStream;
+
+import java.io.ByteArrayOutputStream;
+
+import com.hr.hrapp.entity.Employee;
+
+import com.hr.hrapp.payroll.entity.Payroll;
+
+//import com.hr.hrapp.repository.EmployeeRepository;
+
+import com.itextpdf.text.BaseColor;
+
+import org.slf4j.Logger;
+
+import org.slf4j.LoggerFactory;
+
+import com.itextpdf.text.Document;
+
+import com.itextpdf.text.Element;
+
+import com.itextpdf.text.Font;
+
+import com.itextpdf.text.FontFactory;
+
+import com.itextpdf.text.Paragraph;
+
+import com.itextpdf.text.Phrase;
+
+import com.itextpdf.text.pdf.PdfPCell;
+
+import com.itextpdf.text.pdf.PdfPTable;
+
+import com.itextpdf.text.pdf.PdfWriter;
+
+import com.itextpdf.text.Image;
+
+
+
+public class PayslipGenerator {
+
+    private static final Logger logger = LoggerFactory.getLogger(PayslipGenerator.class);
+
+    public static ByteArrayInputStream generatePayslip(
+
+            Payroll payroll,
+
+            Employee employee,
+
+            long sickLeaveCount,
+
+            long annualLeaveCount) {
+
+        Document document = new Document();
+
+        ByteArrayOutputStream out =
+
+                new ByteArrayOutputStream();
+
+        try {
+
+        	// =========================
+
+        	// PASSWORD LOGIC
+
+        	// =========================
+
+        	String employeeName =
+
+        	        employee.getName();
+
+        	String firstTwoLetters =
+
+        	        employeeName.length() >= 2
+
+        	                ? employeeName.substring(0, 2)
+
+        	                : employeeName;
+
+        	String password;
+
+            	if (employee.getDateOfBirth() != null) {
+
+        	    String year =
+
+        	            String.valueOf(
+
+        	                    employee.getDateOfBirth()
+
+        	                            .getYear());
+
+        	    String lastTwoDigits =
+
+        	            year.substring(2);
+
+        	    password =
+
+        	            firstTwoLetters
+
+        	            + lastTwoDigits;
+
+            	} else {
+
+            	    logger.warn("DOB is NULL for employee: {}", employee.getName());
+
+            	    password = firstTwoLetters + "00";
+
+            	}
+
+            // =========================
+
+            // PDF WRITER
+
+            // =========================
+
+            PdfWriter writer =
+
+                    PdfWriter.getInstance(
+
+                            document,
+
+                            out);
+
+            writer.setEncryption(
+
+                    password.getBytes(),
+
+                    password.getBytes(),
+
+                    PdfWriter.ALLOW_PRINTING,
+
+                    PdfWriter.STANDARD_ENCRYPTION_128);
+
+            document.open();
+
+            try {
+
+                java.io.InputStream logoStream =
+
+                        PayslipGenerator.class
+
+                                .getResourceAsStream("/static/images/logo.png");
+
+                if (logoStream != null) {
+
+                    Image logo = Image.getInstance(
+
+                            logoStream.readAllBytes());
+
+                    logo.scaleToFit(90, 90);
+
+                    logo.setAlignment(Element.ALIGN_CENTER);
+
+                    document.add(logo);
+
+                } else {
+
+                    logger.warn("Renwion logo not found at /static/images/logo.png");
+
+                }
+
+            } catch (Exception e) {
+
+                logger.warn("Failed to add Renwion logo to payslip", e);
+
+            }
+
+            // =========================
+
+            // COMPANY TITLE
+
+            // =========================
+
+            Font titleFont =
+
+                    FontFactory.getFont(
+
+                            FontFactory.HELVETICA_BOLD,
+
+                            16,
+
+                            BaseColor.BLUE);
+
+            Paragraph title =
+
+                    new Paragraph(
+
+                            "RENWION CLEAN ENVIRO SOLUTIONS PRIVATE LIMITED",
+
+                            titleFont);
+
+            title.setAlignment(
+
+                    Element.ALIGN_CENTER);
+
+            document.add(title);
+
+            // =========================
+
+            // SUBTITLE
+
+            // =========================
+
+            Font subTitleFont =
+
+                    FontFactory.getFont(
+
+                            FontFactory.HELVETICA,
+
+                            12,
+
+                            BaseColor.DARK_GRAY);
+
+            Paragraph address =
+
+                    new Paragraph(
+
+                    "Hyderabad, Telangana, India");
+
+            address.setAlignment(
+
+                    Element.ALIGN_CENTER);
+
+            document.add(address);
+
+            Paragraph subTitle =
+
+                    new Paragraph(
+
+                            "EMPLOYEE PAYSLIP",
+
+                            subTitleFont);
+
+            subTitle.setAlignment(
+
+                    Element.ALIGN_CENTER);
+
+            document.add(subTitle);
+
+            document.add(new Paragraph(" "));
+
+         // =========================
+
+         // EMPLOYEE DETAILS
+
+         // =========================
+
+         Font sectionFont = FontFactory.getFont(
+
+                 FontFactory.HELVETICA_BOLD,
+
+                 11,
+
+                 BaseColor.WHITE);
+
+         PdfPTable employeeTable = new PdfPTable(4);
+
+         employeeTable.setWidthPercentage(100);
+
+         employeeTable.setSpacingBefore(12f);
+
+         employeeTable.setSpacingAfter(12f);
+
+         employeeTable.setWidths(new float[]{1.2f, 2.0f, 1.2f, 2.0f});
+
+         // Section heading
+
+         PdfPCell employeeHeader = new PdfPCell(
+
+                 new Phrase("EMPLOYEE INFORMATION", sectionFont));
+
+         employeeHeader.setColspan(4);
+
+         employeeHeader.setBackgroundColor(new BaseColor(0, 102, 153));
+
+         employeeHeader.setPadding(7f);
+
+         employeeHeader.setHorizontalAlignment(Element.ALIGN_LEFT);
+
+         employeeTable.addCell(employeeHeader);
+
+         // Employee Name
+
+         employeeTable.addCell("Employee Name");
+
+         employeeTable.addCell(
+
+                 employee.getName() == null ? "-" : employee.getName());
+
+         // Employee Code
+
+         employeeTable.addCell("Employee Code");
+
+         employeeTable.addCell(
+
+                 employee.getEmployeeCode() == null
+
+                         ? "-"
+
+                         : employee.getEmployeeCode());
+
+         // Employee ID
+
+         employeeTable.addCell("Employee ID");
+
+         employeeTable.addCell(
+
+                 employee.getEmpId() == null
+
+                         ? "-"
+
+                         : String.valueOf(employee.getEmpId()));
+
+         // Department
+
+         employeeTable.addCell("Department");
+
+         employeeTable.addCell(
+
+                 employee.getDepartment() == null
+
+                         ? "-"
+
+                         : employee.getDepartment());
+
+         // Designation
+
+         employeeTable.addCell("Designation");
+
+         employeeTable.addCell(
+
+                 employee.getDesignation() == null
+
+                         ? "-"
+
+                         : employee.getDesignation());
+
+         // Joining Date
+
+         employeeTable.addCell("Joining Date");
+
+         employeeTable.addCell(
+
+                 employee.getJoiningDate() == null
+
+                         ? "-"
+
+                         : employee.getJoiningDate().toString());
+
+         // PAN
+
+         employeeTable.addCell("PAN");
+
+         employeeTable.addCell(
+
+                 employee.getPanNumber() == null
+
+                         ? "-"
+
+                         : employee.getPanNumber());
+
+         // UAN
+
+         employeeTable.addCell("UAN");
+
+         employeeTable.addCell(
+
+                 employee.getUanNumber() == null
+
+                         ? "-"
+
+                         : employee.getUanNumber());
+
+         // Bank
+
+         employeeTable.addCell("Bank Name");
+
+         employeeTable.addCell(
+
+                 employee.getBankName() == null
+
+                         ? "-"
+
+                         : employee.getBankName());
+
+         // IFSC
+
+         employeeTable.addCell("IFSC");
+
+         employeeTable.addCell(
+
+                 employee.getIfsc() == null
+
+                         ? "-"
+
+                         : employee.getIfsc());
+
+         // Account Number
+
+         employeeTable.addCell("Account Number");
+
+         String accountNumber = employee.getAccountNumber();
+
+         String maskedAccount = "-";
+
+         if (accountNumber != null && !accountNumber.isBlank()) {
+
+             if (accountNumber.length() > 4) {
+
+                 maskedAccount =
+
+                         "XXXX" +
+
+                         accountNumber.substring(accountNumber.length() - 4);
+
+             } else {
+
+                 maskedAccount = accountNumber;
+
+             }
+
+         }
+
+         employeeTable.addCell(maskedAccount);
+
+         // Pay Period
+
+         employeeTable.addCell("Pay Period");
+
+         employeeTable.addCell(
+
+                 payroll.getMonth() == null
+
+                         ? "-"
+
+                         : payroll.getMonth());
+
+         // Payment Status
+
+         employeeTable.addCell("Payroll Status");
+
+         employeeTable.addCell(
+
+                 payroll.getStatus() == null
+
+                         ? "FINALIZED"
+
+                         : payroll.getStatus());
+
+         document.add(employeeTable);
+
+      // =========================
+       // SALARY DETAILS
+       // =========================
+
+       Font tableHeaderFont = FontFactory.getFont(
+               FontFactory.HELVETICA_BOLD, 10, BaseColor.WHITE);
+
+       Font boldFont = FontFactory.getFont(
+               FontFactory.HELVETICA_BOLD, 10, BaseColor.BLACK);
+
+       Font normalFont = FontFactory.getFont(
+               FontFactory.HELVETICA, 10, BaseColor.BLACK);
+
+       Font netFont = FontFactory.getFont(
+               FontFactory.HELVETICA_BOLD, 15, new BaseColor(0, 102, 153));
+
+       // MNC-style salary presentation: Earnings and Deductions side-by-side.
+       PdfPTable salarySection = new PdfPTable(2);
+       salarySection.setWidthPercentage(100);
+       salarySection.setWidths(new float[]{1f, 1f});
+       salarySection.setSpacingBefore(8f);
+       salarySection.setSpacingAfter(10f);
+
+       // ---------- EARNINGS ----------
+       PdfPTable earningsTable = new PdfPTable(2);
+       earningsTable.setWidthPercentage(100);
+       earningsTable.setWidths(new float[]{2.8f, 1.4f});
+
+       PdfPCell earningsTitle = new PdfPCell(
+               new Phrase("EARNINGS", tableHeaderFont));
+       earningsTitle.setColspan(2);
+       earningsTitle.setBackgroundColor(new BaseColor(0, 102, 153));
+       earningsTitle.setPadding(7f);
+       earningsTable.addCell(earningsTitle);
+
+       addAmountRow(earningsTable, "Basic Salary", payroll.getBasicSalary(), normalFont);
+       addAmountRow(earningsTable, "HRA", payroll.getHra(), normalFont);
+       addAmountRow(earningsTable, "Conveyance Allowance", payroll.getConveyance(), normalFont);
+       addAmountRow(earningsTable, "Telephone Allowance", payroll.getTelephone(), normalFont);
+       addAmountRow(earningsTable, "Internet Allowance", payroll.getInternet(), normalFont);
+
+       double travelAllowance = payroll.getTravelAllowance() == null
+               ? 0.0 : payroll.getTravelAllowance();
+
+       addAmountRow(earningsTable, "Travel Allowance", travelAllowance, normalFont);
+       addAmountRow(earningsTable, "Special Allowance", payroll.getSpecialAllowance(), normalFont);
+       addAmountRow(earningsTable, "GROSS EARNINGS", payroll.getGrossEarning(), boldFont);
+
+       // ---------- DEDUCTIONS ----------
+       PdfPTable deductionsTable = new PdfPTable(2);
+       deductionsTable.setWidthPercentage(100);
+       deductionsTable.setWidths(new float[]{2.8f, 1.4f});
+
+       PdfPCell deductionsTitle = new PdfPCell(
+               new Phrase("DEDUCTIONS", tableHeaderFont));
+       deductionsTitle.setColspan(2);
+       deductionsTitle.setBackgroundColor(new BaseColor(90, 90, 90));
+       deductionsTitle.setPadding(7f);
+       deductionsTable.addCell(deductionsTitle);
+
+       addAmountRow(deductionsTable, "Employee PF", payroll.getPf(), normalFont);
+       addAmountRow(deductionsTable, "Employee ESI", payroll.getEmployeeEsi(), normalFont);
+       addAmountRow(deductionsTable, "Professional Tax", payroll.getProfessionalTax(), normalFont);
+       addAmountRow(deductionsTable, "TDS", payroll.getTds(), normalFont);
+       addAmountRow(deductionsTable, "Group Health Insurance",
+               payroll.getGroupHealthInsurance(), normalFont);
+       addAmountRow(deductionsTable, "Advance Salary Recovery",
+               payroll.getAdvanceSalaryRecovery(), normalFont);
+       addAmountRow(deductionsTable, "TOTAL DEDUCTIONS",
+               payroll.getTotalDeductions(), boldFont);
+
+       salarySection.addCell(wrapTableCell(earningsTable));
+       salarySection.addCell(wrapTableCell(deductionsTable));
+       document.add(salarySection);
+
+       // ---------- NET SALARY ----------
+       PdfPTable netSection = new PdfPTable(2);
+       netSection.setWidthPercentage(100);
+       netSection.setWidths(new float[]{2.5f, 1f});
+       netSection.setSpacingAfter(10f);
+
+       PdfPCell netLabel = new PdfPCell(
+               new Phrase("NET SALARY PAYABLE", netFont));
+       netLabel.setPadding(10f);
+       netLabel.setBackgroundColor(new BaseColor(235, 247, 252));
+
+       PdfPCell netValue = new PdfPCell(
+               new Phrase(formatAmount(payroll.getNetSalary()), netFont));
+       netValue.setPadding(10f);
+       netValue.setHorizontalAlignment(Element.ALIGN_RIGHT);
+       netValue.setBackgroundColor(new BaseColor(235, 247, 252));
+
+       netSection.addCell(netLabel);
+       netSection.addCell(netValue);
+
+       PdfPCell payableLabel = new PdfPCell(
+               new Phrase("PAYABLE DAYS", boldFont));
+       payableLabel.setPadding(7f);
+
+       PdfPCell payableValue = new PdfPCell(
+               new Phrase(
+                       payroll.getPayableDays() + " / " + payroll.getWorkingDays(),
+                       boldFont));
+       payableValue.setPadding(7f);
+       payableValue.setHorizontalAlignment(Element.ALIGN_RIGHT);
+
+       netSection.addCell(payableLabel);
+       netSection.addCell(payableValue);
+       document.add(netSection);
+
+       // ---------- EMPLOYER CONTRIBUTIONS ----------
+       PdfPTable employerTable = new PdfPTable(2);
+       employerTable.setWidthPercentage(100);
+       employerTable.setWidths(new float[]{3f, 1.5f});
+       employerTable.setSpacingAfter(10f);
+
+       PdfPCell employerHeader = new PdfPCell(
+               new Phrase("EMPLOYER CONTRIBUTIONS", tableHeaderFont));
+       employerHeader.setColspan(2);
+       employerHeader.setBackgroundColor(new BaseColor(0, 102, 153));
+       employerHeader.setPadding(7f);
+       employerTable.addCell(employerHeader);
+
+       addAmountRow(employerTable, "Employer PF (Total)",
+               payroll.getEmployerPf(), normalFont);
+       addAmountRow(employerTable, "Employer EPS",
+               payroll.getEmployerEps(), normalFont);
+       addAmountRow(employerTable, "Employer ESI",
+               payroll.getEmployerEsi(), normalFont);
+       addAmountRow(employerTable, "PF Administration Charges",
+               payroll.getEmployerPfAdmin(), normalFont);
+       addAmountRow(employerTable, "EDLI Charges",
+               payroll.getEdli(), normalFont);
+       addAmountRow(employerTable, "Total Employer Contribution",
+               payroll.getTotalEmployerContribution(), boldFont);
+
+       document.add(employerTable);
+
+       // ---------- CTC ----------
+       PdfPTable ctcTable = new PdfPTable(2);
+       ctcTable.setWidthPercentage(100);
+       ctcTable.setWidths(new float[]{3f, 1.5f});
+       ctcTable.setSpacingAfter(10f);
+
+       PdfPCell ctcLabel = new PdfPCell(
+               new Phrase("TOTAL CTC", boldFont));
+       ctcLabel.setPadding(8f);
+       ctcLabel.setBackgroundColor(new BaseColor(245, 248, 250));
+
+       PdfPCell ctcValue = new PdfPCell(
+               new Phrase(formatAmount(payroll.getCtc()), boldFont));
+       ctcValue.setPadding(8f);
+       ctcValue.setHorizontalAlignment(Element.ALIGN_RIGHT);
+       ctcValue.setBackgroundColor(new BaseColor(245, 248, 250));
+
+       ctcTable.addCell(ctcLabel);
+       ctcTable.addCell(ctcValue);
+       document.add(ctcTable);
+
+       // =========================
+
+   // PAYROLL SUMMARY
+
+   // =========================
+
+   Font summaryFont = FontFactory.getFont(
+
+           FontFactory.HELVETICA,
+
+           10,
+
+           BaseColor.BLACK);
+
+   Font summaryBoldFont = FontFactory.getFont(
+
+           FontFactory.HELVETICA_BOLD,
+
+           10,
+
+           BaseColor.BLACK);
+
+   PdfPTable summaryTable = new PdfPTable(2);
+
+   summaryTable.setWidthPercentage(100);
+
+   summaryTable.setSpacingBefore(5f);
+
+   summaryTable.setSpacingAfter(10f);
+
+   summaryTable.setWidths(new float[]{3f, 7f});
+
+   PdfPCell summaryTitle = new PdfPCell(
+
+           new Phrase("PAYROLL SUMMARY", summaryBoldFont));
+
+   summaryTitle.setColspan(2);
+
+   summaryTitle.setPadding(6f);
+
+   summaryTable.addCell(summaryTitle);
+
+   summaryTable.addCell(
+
+           new PdfPCell(new Phrase("Payroll Status", summaryBoldFont)));
+
+   summaryTable.addCell(
+
+           new PdfPCell(new Phrase(
+
+                   payroll.getStatus() == null
+
+                           ? ""
+
+                           : payroll.getStatus().toString(),
+
+                   summaryFont)));
+
+   summaryTable.addCell(
+
+           new PdfPCell(new Phrase("Payable Days", summaryBoldFont)));
+
+   summaryTable.addCell(
+
+           new PdfPCell(new Phrase(
+
+                   String.valueOf(payroll.getPayableDays()),
+
+                   summaryFont)));
+
+   summaryTable.addCell(
+
+           new PdfPCell(new Phrase("Working Days", summaryBoldFont)));
+
+   summaryTable.addCell(
+
+           new PdfPCell(new Phrase(
+
+                   String.valueOf(payroll.getWorkingDays()),
+
+                   summaryFont)));
+
+   document.add(summaryTable);
+
+// =========================
+
+// LEAVE SUMMARY
+
+// =========================
+
+Font leaveHeaderFont = FontFactory.getFont(
+
+        FontFactory.HELVETICA_BOLD,
+
+        10,
+
+        BaseColor.WHITE);
+
+Font leaveBoldFont = FontFactory.getFont(
+
+        FontFactory.HELVETICA_BOLD,
+
+        10,
+
+        BaseColor.BLACK);
+
+PdfPTable leaveTable = new PdfPTable(3);
+
+leaveTable.setWidthPercentage(100);
+
+leaveTable.setSpacingBefore(5f);
+
+leaveTable.setSpacingAfter(10f);
+
+leaveTable.setWidths(new float[]{4f, 2f, 4f});
+
+// HEADER
+
+PdfPCell leaveHeader = new PdfPCell(
+
+        new Phrase("LEAVE SUMMARY", leaveHeaderFont));
+
+leaveHeader.setColspan(3);
+
+leaveHeader.setBackgroundColor(new BaseColor(0, 102, 153));
+
+leaveHeader.setPadding(6f);
+
+leaveTable.addCell(leaveHeader);
+
+leaveTable.addCell(
+
+        new PdfPCell(new Phrase("Leave Type", leaveBoldFont)));
+
+leaveTable.addCell(
+
+        new PdfPCell(new Phrase("Days", leaveBoldFont)));
+
+leaveTable.addCell(
+
+        new PdfPCell(new Phrase("Status", leaveBoldFont)));
+
+// SICK LEAVE
+
+leaveTable.addCell("Sick Leave");
+
+leaveTable.addCell(String.valueOf(sickLeaveCount));
+
+leaveTable.addCell("APPROVED");
+
+// ANNUAL LEAVE
+
+leaveTable.addCell("Annual Leave");
+
+leaveTable.addCell(String.valueOf(annualLeaveCount));
+
+leaveTable.addCell("APPROVED");
+
+document.add(leaveTable);
+
+
+
+//=========================
+
+//AMOUNT IN WORDS
+
+//=========================
+
+Font amountWordsFont = FontFactory.getFont(
+
+     FontFactory.HELVETICA_BOLD,
+
+     10,
+
+     BaseColor.BLACK);
+
+long netAmount = Math.round(payroll.getNetSalary());
+
+PdfPTable amountWordsTable = new PdfPTable(1);
+
+amountWordsTable.setWidthPercentage(100);
+
+amountWordsTable.setSpacingBefore(5f);
+
+amountWordsTable.setSpacingAfter(12f);
+
+PdfPCell amountWordsCell = new PdfPCell(
+
+     new Phrase(
+
+             "Amount in Words: "
+
+             + NumberToWordsConverter.convert(netAmount)
+
+             + " Only",
+
+             amountWordsFont));
+
+amountWordsCell.setPadding(8f);
+
+amountWordsTable.addCell(amountWordsCell);
+
+document.add(amountWordsTable);
+
+            document.add(new Paragraph(" "));
+
+            document.add(new Paragraph(" "));
+
+            document.add(new Paragraph(" "));
+
+            Paragraph sign =
+
+                    new Paragraph(
+
+                    "Authorized Signature");
+
+            sign.setAlignment(
+
+                    Element.ALIGN_RIGHT);
+
+            document.add(sign);
+
+            // =========================
+
+            // FOOTER
+
+            // =========================
+
+            document.add(new Paragraph(" "));
+
+            Paragraph footer =
+
+                    new Paragraph(
+
+                            "\"This is a computer generated payslip and does not require physical signature.\"");
+
+            footer.setAlignment(
+
+                    Element.ALIGN_CENTER);
+
+            document.add(footer);
+
+            document.close();
+
+        } catch (Exception e) {
+
+            logger.error("Failed to generate payslip PDF: {}", e.getMessage(), e);
+
+        }
+
+        return new ByteArrayInputStream(
+
+                out.toByteArray());
+
+    }
+    
+    private static void addAmountRow(
+            PdfPTable table,
+            String label,
+            double amount,
+            Font font) {
+
+        PdfPCell labelCell = new PdfPCell(
+                new Phrase(label, font));
+        labelCell.setPadding(5f);
+
+        PdfPCell amountCell = new PdfPCell(
+                new Phrase(formatAmount(amount), font));
+        amountCell.setPadding(5f);
+        amountCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+
+        table.addCell(labelCell);
+        table.addCell(amountCell);
+    }
+
+    private static PdfPCell wrapTableCell(PdfPTable table) {
+        PdfPCell cell = new PdfPCell();
+        cell.addElement(table);
+        cell.setBorder(PdfPCell.NO_BORDER);
+        cell.setPadding(3f);
+        return cell;
+    }
+
+    private static String formatAmount(double amount) {
+        return String.format(
+                java.util.Locale.US,
+                "₹ %,.2f",
+                amount);
+    }
+
+
+
+    // =========================
+
+    // NUMBER TO WORDS CONVERTER
+
+    // =========================
+
+    private static class NumberToWordsConverter {
+
+        private static final String[] UNITS = {
+
+                "", "One", "Two", "Three", "Four", "Five",
+
+                "Six", "Seven", "Eight", "Nine", "Ten",
+
+                "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen",
+
+                "Sixteen", "Seventeen", "Eighteen", "Nineteen"
+
+        };
+
+        private static final String[] TENS = {
+
+                "", "", "Twenty", "Thirty", "Forty",
+
+                "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"
+
+        };
+
+        public static String convert(long number) {
+
+            if (number == 0) {
+
+                return "Zero Rupees";
+
+            }
+
+            if (number < 0) {
+
+                return "Minus " + convert(-number);
+
+            }
+
+            StringBuilder result = new StringBuilder();
+
+            if (number >= 10000000) {
+
+                result.append(convert(number / 10000000))
+
+                      .append(" Crore ");
+
+                number %= 10000000;
+
+            }
+
+            if (number >= 100000) {
+
+                result.append(convert(number / 100000))
+
+                      .append(" Lakh ");
+
+                number %= 100000;
+
+            }
+
+            if (number >= 1000) {
+
+                result.append(convert(number / 1000))
+
+                      .append(" Thousand ");
+
+                number %= 1000;
+
+            }
+
+            if (number >= 100) {
+
+                result.append(convert(number / 100))
+
+                      .append(" Hundred ");
+
+                number %= 100;
+
+            }
+
+            if (number >= 20) {
+
+            	result.append(TENS[(int) (number / 10)])
+
+                      .append(" ");
+
+                number %= 10;
+
+            }
+
+            if (number > 0) {
+
+            	result.append(UNITS[(int) number])
+
+                      .append(" ");
+
+            }
+
+            return result.toString().trim() + " Rupees";
+
+        }
+
+    }
+
+}
+
+
+
+/*package com.hr.hrapp.payroll.util;
+
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
 import com.hr.hrapp.entity.Employee;
@@ -348,15 +1363,20 @@ public class PayslipGenerator {
       salaryTable.addCell(
               "₹ " + payroll.getHra());
 
-      salaryTable.addCell("Bonus");
+      salaryTable.addCell("Conveyance Allowance");
       salaryTable.addCell("");
       salaryTable.addCell(
-              "₹ " + payroll.getBonus());
+              "₹ " + payroll.getConveyance());
 
-      salaryTable.addCell("Approved Travel");
+      salaryTable.addCell("Telephone Allowance");
       salaryTable.addCell("");
       salaryTable.addCell(
-              "₹ " + payroll.getApprovedAdditions());
+              "₹ " + payroll.getTelephone());
+
+      salaryTable.addCell("Internet Allowance");
+      salaryTable.addCell("");
+      salaryTable.addCell(
+              "₹ " + payroll.getInternet());
 
       double travelAllowance =
               payroll.getTravelAllowance() == null
@@ -368,6 +1388,10 @@ public class PayslipGenerator {
       salaryTable.addCell(
               "₹ " + travelAllowance);
 
+      salaryTable.addCell("Special Allowance");
+      salaryTable.addCell("");
+      salaryTable.addCell(
+              "₹ " + payroll.getSpecialAllowance());
       // =========================
       // TOTAL EARNINGS
       // =========================
@@ -424,10 +1448,10 @@ public class PayslipGenerator {
       salaryTable.addCell(
               "₹ " + payroll.getPf());
 
-      salaryTable.addCell("Tax Deduction");
+      salaryTable.addCell("TDS");
       salaryTable.addCell("");
       salaryTable.addCell(
-              "₹ " + payroll.getTax());
+              "₹ " + payroll.getTds());
 
       salaryTable.addCell("Total Deductions");
       salaryTable.addCell("");
@@ -707,4 +1731,5 @@ document.add(amountWordsTable);
         }
     }
 
-}
+}*/
+

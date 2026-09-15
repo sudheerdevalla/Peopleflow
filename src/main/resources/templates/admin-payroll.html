@@ -448,6 +448,13 @@
                     🔄 Load Payroll
 
                 </button>
+				
+				<button
+				    type="button"
+				    class="btn btn-success"
+				    onclick="downloadConsolidatedMemo()">
+				    📊 Consolidated Memo
+				</button>
 
             </form>
 
@@ -701,6 +708,43 @@
                 + "?month="
                 + encodeURIComponent(month);
         }
+		
+		function downloadConsolidatedMemo() {
+
+		    const month =
+		        document.getElementById("month").value;
+
+		    if (!month) {
+		        alert("Please select a payroll month.");
+		        return;
+		    }
+
+		    const selectedMonth =
+		        new Date(month + "-01");
+
+		    const today =
+		        new Date();
+
+		    const lastDay =
+		        new Date(
+		            selectedMonth.getFullYear(),
+		            selectedMonth.getMonth() + 1,
+		            0
+		        );
+
+		    if (today < lastDay) {
+
+		        alert(
+		            "Consolidated memo will be ready for download at month end."
+		        );
+
+		        return;
+		    }
+
+		    window.location.href =
+		        "/payroll/consolidated/download?month="
+		        + encodeURIComponent(month);
+		}
 
     </script>
 

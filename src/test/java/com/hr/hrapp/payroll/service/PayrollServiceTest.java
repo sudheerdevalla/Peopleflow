@@ -69,12 +69,11 @@ class PayrollServiceTest {
                 payrollService.calculateSalary(employee);
 
         assertEquals(4500.0, payroll.getHra());
-        assertEquals(3000.0, payroll.getBonus());
         assertEquals(2000.0, payroll.getApprovedAdditions());
         assertEquals(3000.0, payroll.getTravelAllowance());
         assertEquals(40500.0, payroll.getGrossSalary());
         assertEquals(1800.0, payroll.getPf());
-        assertEquals(0.0, payroll.getTax());
+        assertEquals(0.0, payroll.getTds());
         assertEquals(38700.0, payroll.getNetSalary());
         assertEquals("DRAFT", payroll.getStatus());
         assertNotNull(payroll.getLastCalculatedAt());

@@ -98,7 +98,7 @@ private BCryptPasswordEncoder passwordEncoder;
     @GetMapping("/salary/{id}")
     public double getSalary(@PathVariable Long id) {
         Employee emp = service.getEmployeeById(id);
-        return service.calculateSalary(emp, 0).getNetSalary();
+        return service.generatePayslip(id).getNetSalary();
     }
     @GetMapping("/{id}/payslip")
     @PreAuthorize("hasAuthority('READ_EMPLOYEE')")
@@ -265,6 +265,9 @@ private BCryptPasswordEncoder passwordEncoder;
 
         existingEmployee.setBasicSalary(
                 employee.getBasicSalary());
+        
+        existingEmployee.setMonthlyGrossSalary(
+                employee.getMonthlyGrossSalary());
 
         existingEmployee.setPfNumber(
                 employee.getPfNumber());
@@ -280,6 +283,18 @@ private BCryptPasswordEncoder passwordEncoder;
         
         existingEmployee.setTravelAllowance(
                 employee.getTravelAllowance());
+        
+        existingEmployee.setTotalCtc(
+                employee.getTotalCtc());
+
+        existingEmployee.setEsiNumber(
+                employee.getEsiNumber());
+
+        existingEmployee.setEsiApplicable(
+                employee.isEsiApplicable());
+        
+        existingEmployee.setEpsApplicable(
+                employee.isEpsApplicable());
 
         // =========================
         // ROLE
@@ -417,6 +432,15 @@ private BCryptPasswordEncoder passwordEncoder;
     } else {
         employee.setManager(null);
     }
+         if (employee.getMonthlyGrossSalary() == null
+        	        || employee.getMonthlyGrossSalary().doubleValue() <= 0) {
+
+        	    ra.addFlashAttribute(
+        	            "error",
+        	            "Monthly Gross Salary must be configured before saving the employee.");
+
+        	    return "redirect:/admin/employees";
+        	}
         employeeRepository.save(employee);
               User user = new User();
 

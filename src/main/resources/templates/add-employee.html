@@ -399,29 +399,53 @@
                 <div class="section-divider"></div>
 
                 <!-- ===== PAYROLL DETAILS ===== -->
-                <div class="form-section">
-                    <div class="section-title">💰 Payroll Details</div>
+				<div class="form-group">
+				    <label for="totalCtc">Total CTC (Annual)</label>
+				    <input type="number"
+				           id="totalCtc"
+				           th:field="*{totalCtc}"
+				           placeholder="Enter annual CTC"
+				           min="0"
+				           step="0.01"
+				           required
+				          
+					   <div class="form-group">
 
-                    <div class="form-group">
-                        <label for="basicSalary">Basic Salary</label>
-                        <input type="number" id="basicSalary" th:field="*{basicSalary}" placeholder="Enter salary" required>
-                    </div>
-<div class="form-group">
-    <label for="totalCtc">Total CTC</label>
-    <input type="number"
-           id="totalCtc"
-           th:field="*{totalCtc}"
-           placeholder="Enter total CTC"
-           min="0"
-           step="0.01"
-           required>
-</div>
+					       <label for="basicSalary">Basic Salary (Annual)</label>
+
+					       <input type="number"
+					              id="basicSalary"
+					              th:field="*{basicSalary}"
+					              placeholder="Calculated automatically"
+					              readonly>
+
+					   </div>
+				<div class="form-group">
+				    <label for="monthlyGrossSalary">Monthly Gross Salary</label>
+				    <input type="number"
+				           id="monthlyGrossSalary"
+				           th:field="*{monthlyGrossSalary}"
+				           placeholder="Enter monthly gross salary"
+				           min="0"
+				           step="0.01"
+				           required>
+				</div>
+				
+				<div class="form-group">
+				    <label for="epsApplicable">EPS Applicable</label>
+				    <select id="epsApplicable" th:field="*{epsApplicable}">
+				        <option th:value="false">No</option>
+				        <option th:value="true">Yes</option>
+				    </select>
+				</div>
+				
 <div class="form-group">
     <label for="location">Work Location</label>
     <select id="location" th:field="*{location}">
         <option value="">Select Work Location</option>
         <option value="Hyderabad">Hyderabad</option>
         <option value="Visakhapatnam">Visakhapatnam</option>
+		<option value="Visakhapatnam">Tirupathi</option>
     </select>
 </div>
 
@@ -580,6 +604,8 @@
     </div>
 
     <script>
+		
+		
         function toggleSidebar() {
             document.getElementById("sidebar").classList.toggle("show");
         }

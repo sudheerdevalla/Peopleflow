@@ -163,24 +163,124 @@ public class EmployeePayslipPdfService {
 			table.setWidthPercentage(100);
 
 			addRow(table,
-			       "Basic Salary",
-			       "₹ " + String.format("%.2f",
-			       payslip.getBasicSalary()));
+				       "Basic Salary",
+				       "₹ " + String.format("%.2f",
+				       payslip.getBasicSalary()));
 
-			addRow(table,
-			       "HRA (20%)",
-			       "₹ " + String.format("%.2f",
-			       payslip.getHra()));
+				addRow(table,
+				       "HRA",
+				       "₹ " + String.format("%.2f",
+				       payslip.getHra()));
 
-			addRow(table,
-			       "PF (12%)",
-			       "₹ " + String.format("%.2f",
-			       payslip.getPf()));
+				addRow(table,
+				       "Conveyance Allowance",
+				       "₹ " + String.format("%.2f",
+				       payslip.getConveyance()));
 
-			addRow(table,
-			       "Leave Deduction",
-			       "₹ " + String.format("%.2f",
-			       payslip.getLeaveDeduction()));
+				addRow(table,
+				       "Telephone Allowance",
+				       "₹ " + String.format("%.2f",
+				       payslip.getTelephone()));
+
+				addRow(table,
+				       "Internet Allowance",
+				       "₹ " + String.format("%.2f",
+				       payslip.getInternet()));
+
+				addRow(table,
+				       "Travel Allowance",
+				       "₹ " + String.format("%.2f",
+				       payslip.getTravelAllowance()));
+
+				addRow(table,
+				       "Special Allowance",
+				       "₹ " + String.format("%.2f",
+				       payslip.getSpecialAllowance()));
+
+				addRow(table,
+				       "Gross Earnings",
+				       "₹ " + String.format("%.2f",
+				       payslip.getGrossEarning()));
+				
+				
+				
+				document.add(new Paragraph(" "));
+				document.add(new Paragraph("DEDUCTIONS", headerFont));
+				document.add(new Paragraph(" "));
+
+				addRow(table,
+				       "Employee PF",
+				       "₹ " + String.format("%.2f",
+				       payslip.getPf()));
+
+				addRow(table,
+				       "Employee ESI",
+				       "₹ " + String.format("%.2f",
+				       payslip.getEmployeeEsi()));
+
+				addRow(table,
+				       "Professional Tax",
+				       "₹ " + String.format("%.2f",
+				       payslip.getProfessionalTax()));
+
+				addRow(table,
+				       "TDS",
+				       "₹ " + String.format("%.2f",
+				       payslip.getTds()));
+
+				addRow(table,
+				       "Group Health Insurance",
+				       "₹ " + String.format("%.2f",
+				       payslip.getGroupHealthInsurance()));
+
+				addRow(table,
+				       "Advance Salary Recovery",
+				       "₹ " + String.format("%.2f",
+				       payslip.getAdvanceSalaryRecovery()));
+
+				addRow(table,
+				       "Total Deductions",
+				       "₹ " + String.format("%.2f",
+				       payslip.getTotalDeductions()));
+				
+				document.add(new Paragraph(" "));
+				document.add(new Paragraph("EMPLOYER CONTRIBUTIONS", headerFont));
+				document.add(new Paragraph(" "));
+
+				addRow(table,
+				       "Employer PF",
+				       "₹ " + String.format("%.2f",
+				       payslip.getEmployerPf()));
+
+				addRow(table,
+				       "Employer EPS",
+				       "₹ " + String.format("%.2f",
+				       payslip.getEmployerEps()));
+
+				addRow(table,
+				       "Employer ESI",
+				       "₹ " + String.format("%.2f",
+				       payslip.getEmployerEsi()));
+
+				addRow(table,
+				       "PF Admin Charges",
+				       "₹ " + String.format("%.2f",
+				       payslip.getEmployerPfAdmin()));
+
+				addRow(table,
+				       "EDLI",
+				       "₹ " + String.format("%.2f",
+				       payslip.getEdli()));
+
+				addRow(table,
+				       "Total Employer Contribution",
+				       "₹ " + String.format("%.2f",
+				       payslip.getTotalEmployerContribution()));
+
+				addRow(table,
+				       "CTC",
+				       "₹ " + String.format("%.2f",
+				       payslip.getCtc()));
 
 			// Net Salary Highlight
 			PdfPCell labelCell =

@@ -163,6 +163,7 @@ public class PayrollController {
         if (payroll.getStatus() == null || !payroll.getStatus().equalsIgnoreCase("FINALIZED")) {
             throw new ResponseStatusException(BAD_REQUEST, "Payslips are available only for finalized payroll records");
         }
+        
 
         Employee employee =
                 employeeRepository
@@ -184,6 +185,13 @@ public class PayrollController {
                             .parseCaseInsensitive()
                             .appendPattern("MMM yyyy")
                             .toFormatter(java.util.Locale.ENGLISH));
+        }
+        YearMonth currentMonth = YearMonth.now();
+
+        if (payrollMonth.isAfter(currentMonth)) {
+            throw new ResponseStatusException(
+                    BAD_REQUEST,
+                    "Payslip download is not allowed for future months");
         }
 
         LocalDate leaveStartDate = payrollMonth.atDay(1);
@@ -232,7 +240,20 @@ public class PayrollController {
     @GetMapping("/consolidated/download")
     @PreAuthorize("hasAuthority('WRITE_EMPLOYEE')")
     public ResponseEntity<InputStreamResource> downloadConsolidatedSalarySheet(@RequestParam String month) {
-        ByteArrayInputStream report = ceoReportService.generateConsolidatedSalarySheet(resolveMonth(month));
+    	YearMonth selectedMonth = resolveMonth(month);
+
+    	LocalDate today = LocalDate.now();
+
+    	LocalDate monthEnd = selectedMonth.atEndOfMonth();
+
+    	if (today.isBefore(monthEnd)) {
+    	    throw new ResponseStatusException(
+    	            BAD_REQUEST,
+    	            "Consolidated memo will be ready for download at month end");
+    	}
+
+    	ByteArrayInputStream report =
+    	        ceoReportService.generateConsolidatedSalarySheet(selectedMonth);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=consolidated-salary-sheet.xlsx");
         return ResponseEntity.ok()

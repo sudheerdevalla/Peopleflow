@@ -69,49 +69,190 @@ public class PayrollService {
                 .findByEmployeeIdAndDateBetween(employee.getEmpId(), startDate, endDate);
 
         int approvedTimesheetDays = (int) monthTimesheets.stream()
-                .filter(t -> t.getStatus() != null && t.getStatus().equalsIgnoreCase("APPROVED"))
+                .filter(t -> t.getStatus() != null
+                        && t.getStatus().equalsIgnoreCase("APPROVED"))
                 .count();
 
         int payableDays = approvedTimesheetDays > 0 ? approvedTimesheetDays : workingDays;
 
-        double fullMonthBasic = round(employee.getBasicSalary());
-        double payableBasicSalary = round(fullMonthBasic * payableDays / Math.max(workingDays, 1));
-        double hra = round(payableBasicSalary * safePercentage(employee.getHraPercentage()) / 100.0);
-        double bonus = round(payableBasicSalary * safePercentage(employee.getBonusPercentage()) / 100.0);
-        double approvedTravelAllowance = round(nullSafe(travelRepository.getApprovedTravelAllowance(employee.getEmpId())));
-        double fixedTravelAllowance = round(nullSafe(employee.getTravelAllowance()));
-        double totalTravelAllowance = round(fixedTravelAllowance + approvedTravelAllowance);
-        double approvedAdditions = approvedTravelAllowance;
-        double grossSalary = round(payableBasicSalary + hra + bonus + totalTravelAllowance);
-        double pf = round(Math.min(payableBasicSalary, 15000.0) * 0.12);
+        double monthlyGross = employee.getMonthlyGrossSalary() != null
+                ? employee.getMonthlyGrossSalary().doubleValue()
+                : 0.0;
 
-        double annualGrossSalary = round(grossSalary * 12);
+        if (monthlyGross <= 0) {
+            throw new IllegalArgumentException(
+                    "Monthly Gross Salary is not configured for employee: "
+                    + employee.getEmployeeCode());
+        }
+        
+        double fullBasic = round(monthlyGross * 0.50);
+        
+        double fullHra = round(fullBasic * 0.40);
+        double fullConveyance = round(fullBasic * 0.12);
+        double fullTelephone = round(fullBasic * 0.08);
+        double fullInternet = round(fullBasic * 0.09);
+        double fullTravel = round(fullBasic * 0.10);
+        
+        double attendanceFactor =
+                (double) payableDays / Math.max(workingDays, 1);
 
-        double standardDeduction = 75000.0;
+        double basic =
+                round(fullBasic * attendanceFactor);
 
-        double taxableIncome = Math.max(
-                0.0,
-                annualGrossSalary - standardDeduction);
+        double hra =
+                round(fullHra * attendanceFactor);
 
-        double annualTax = calculateNewRegimeTax(taxableIncome);
+        double conveyance =
+                Math.min(1600.00, round(fullConveyance * attendanceFactor));
 
-        double tax = round(annualTax / 12.0);
+        double telephone =
+                Math.min(1000.00, round(fullTelephone * attendanceFactor));
 
-        double deductions = round(pf + tax);
-        double netSalary = round(grossSalary - deductions);
+        double internet =
+                Math.min(1200.00, round(fullInternet * attendanceFactor));
+
+        double travel =
+                Math.min(1250.00, round(fullTravel * attendanceFactor));
+        
+        double proratedGross =
+                round(monthlyGross * attendanceFactor);
+
+        double specialAllowance =
+                proratedGross
+                - basic
+                - hra
+                - conveyance
+                - telephone
+                - internet
+                - travel;
+        double grossEarning =
+                round(basic
+                        + hra
+                        + conveyance
+                        + telephone
+                        + internet
+                        + travel
+                        + specialAllowance);
+        double pfWages =
+                Math.min(basic, 15000.00);
+
+        double pf =
+                round(pfWages * 0.12);
+        
+        double esiWages =
+                employee.isEsiApplicable() ? basic : 0.0;
+
+        double employeeEsi =
+                round(esiWages * 0.0075);
+        
+        double professionalTax = 0.0;
+
+        if (grossEarning > 20000) {
+            professionalTax = 200.0;
+        } else if (grossEarning > 15000) {
+            professionalTax = 150.0;
+        }
+        
+        double tds = 0.0;
+        double groupHealthInsurance = 0.0;
+        double advanceSalaryRecovery = 0.0;
+        
+        double totalDeductions =
+                round(pf
+                        + employeeEsi
+                        + professionalTax
+                        + tds
+                        + groupHealthInsurance
+                        + advanceSalaryRecovery);
+
+        double netSalary =
+                round(grossEarning - totalDeductions);
+        
+        double employerPf =
+                round(pfWages * 0.12);
+
+        double employerEps =
+                employee.isEpsApplicable()
+                        ? round(pfWages * 0.0833)
+                        : 0.0;
+
+        double employerPfTotal =
+                employerPf - employerEps;
+
+        double employerEsi =
+                round(esiWages * 0.0325);
+        
+        double pfAdmin =
+                round(pfWages * 0.005);
+
+        double edli =
+                round(pfWages * 0.005);
+        
+        double totalEmployerContribution =
+                employerPfTotal
+                + employerEsi
+                + pfAdmin
+                + edli;
+
+        double ctc =
+                grossEarning
+                + employerPfTotal
+                + employerEsi;
+
+        
 
         Payroll payroll = existingPayroll != null ? existingPayroll : new Payroll();
         payroll.setEmployeeId(employee.getEmpId());
         payroll.setEmployeeName(employee.getName());
-        payroll.setBasicSalary(payableBasicSalary);
+        payroll.setBasicSalary(basic);
+
         payroll.setHra(hra);
-        payroll.setBonus(bonus);
-        payroll.setTravelAllowance(totalTravelAllowance);
-        payroll.setApprovedAdditions(approvedAdditions);
-        payroll.setGrossSalary(grossSalary);
+
+        payroll.setConveyance(conveyance);
+
+        payroll.setTelephone(telephone);
+
+        payroll.setInternet(internet);
+
+        payroll.setTravelAllowance(travel);
+
+        payroll.setSpecialAllowance(specialAllowance);
+        payroll.setApprovedAdditions(0.0);
+
+        payroll.setGrossSalary(grossEarning);
+
+        payroll.setGrossEarning(grossEarning);
+
         payroll.setPf(pf);
-        payroll.setTax(tax);
-        payroll.setDeductions(deductions);
+
+        payroll.setEmployeeEsi(employeeEsi);
+
+        payroll.setProfessionalTax(professionalTax);
+
+        payroll.setTds(tds);
+
+        payroll.setGroupHealthInsurance(groupHealthInsurance);
+
+        payroll.setAdvanceSalaryRecovery(advanceSalaryRecovery);
+
+        payroll.setDeductions(totalDeductions);
+
+        payroll.setTotalDeductions(totalDeductions);
+
+        payroll.setEmployerPf(employerPfTotal);
+
+        payroll.setEmployerEps(employerEps);
+
+        payroll.setEmployerEsi(employerEsi);
+
+        payroll.setEmployerPfAdmin(pfAdmin);
+
+        payroll.setEdli(edli);
+
+        payroll.setTotalEmployerContribution(totalEmployerContribution);
+
+        payroll.setCtc(ctc);
+
         payroll.setNetSalary(netSalary);
         payroll.setPayableDays(payableDays);
         payroll.setWorkingDays(workingDays);

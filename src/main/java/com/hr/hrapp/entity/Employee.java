@@ -1,6 +1,7 @@
 package com.hr.hrapp.entity;
 
 import java.time.LocalDate;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -84,6 +85,9 @@ public class Employee {
 
     private double basicSalary;
     private double totalCtc;
+    
+    private BigDecimal annualCtc;
+    private BigDecimal monthlyGrossSalary;
 
     private String pfNumber;
 
@@ -111,6 +115,9 @@ public class Employee {
     private String onboardingStatus;
     private String aadhaarNumber;
     private String esiNumber;
+    private boolean esiApplicable;
+
+private boolean epsApplicable;
 
     private String permanentAddress;
     private String correspondenceAddress;
@@ -365,6 +372,22 @@ public void setTotalCtc(double totalCtc) {
     this.totalCtc = totalCtc;
 }
 
+public BigDecimal getAnnualCtc() {
+    return annualCtc;
+}
+
+public void setAnnualCtc(BigDecimal annualCtc) {
+    this.annualCtc = annualCtc;
+}
+
+public BigDecimal getMonthlyGrossSalary() {
+    return monthlyGrossSalary;
+}
+
+public void setMonthlyGrossSalary(BigDecimal monthlyGrossSalary) {
+    this.monthlyGrossSalary = monthlyGrossSalary;
+}
+
     public String getPfNumber() {
         return pfNumber;
     }
@@ -561,6 +584,22 @@ public void setTotalCtc(double totalCtc) {
     public void setEsiNumber(String esiNumber) {
         this.esiNumber = esiNumber;
     }
+    public boolean isEsiApplicable() {
+        return esiApplicable;
+    }
+
+    public void setEsiApplicable(boolean esiApplicable) {
+        this.esiApplicable = esiApplicable;
+    }
+    
+    public boolean isEpsApplicable() {
+        return epsApplicable;
+    }
+
+    public void setEpsApplicable(boolean epsApplicable) {
+        this.epsApplicable = epsApplicable;
+    }
+    
 
     public String getPermanentAddress() {
         return permanentAddress;
