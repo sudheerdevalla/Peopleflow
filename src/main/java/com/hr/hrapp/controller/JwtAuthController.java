@@ -45,32 +45,62 @@ public class JwtAuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> loginData) {
+
         String username = loginData.get("username");
         String password = loginData.get("password");
+
+        if (username == null || password == null) {
+            return ResponseEntity.badRequest()
+                    .body("Username and password are required");
+        }
+
         try {
-            Authentication authentication = authenticationManager.authenticate(
+
+            authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             username,
                             password
                     )
             );
+
             User user = userRepository
                     .findByUsername(username)
                     .orElseThrow(() ->
                             new UsernameNotFoundException("User not found"));
 
+            Map<String, Object> response = new HashMap<>();
+
+            // MFA enabled -> mobile app must verify MFA first
+            if (user.isMfaEnabled()
+                    && user.getTotpSecret() != null
+                    && !user.getTotpSecret().isBlank()) {
+
+                response.put("mfaRequired", true);
+                response.put("username", username);
+
+                return ResponseEntity.ok(response);
+            }
+
+            // MFA not enabled -> generate JWT directly
             UserDetails userDetails =
-                    userDetailsService.loadUserByUsername(user.getUsername());
+                    userDetailsService.loadUserByUsername(
+                            user.getUsername());
 
             String token =
                     jwtUtil.generateToken(
                             user.getUsername(),
                             userDetails.getAuthorities());
-            Map<String, String> response = new HashMap<>();
+
+            response.put("mfaRequired", false);
             response.put("token", token);
+
             return ResponseEntity.ok(response);
+
         } catch (AuthenticationException e) {
-            return ResponseEntity.status(401).body("Invalid credentials");
+
+            return ResponseEntity
+                    .status(401)
+                    .body("Invalid credentials");
         }
     }
 
