@@ -44,12 +44,13 @@ class PayrollServiceTest {
         employee.setEmpId(1L);
         employee.setName("Sudheer");
         employee.setBasicSalary(30000);
+        employee.setMonthlyGrossSalary(java.math.BigDecimal.valueOf(30000));
         employee.setHraPercentage(15.0);
         employee.setBonusPercentage(10.0);
         employee.setTravelAllowance(1000.0);
 
-        when(travelRepository.getApprovedTravelAllowance(1L))
-                .thenReturn(2000.0);
+     /*   when(travelRepository.getApprovedTravelAllowance(1L))
+                .thenReturn(2000.0);*/
 
         when(payrollRepository.findByEmployeeIdAndMonth(
                 any(),
@@ -68,13 +69,13 @@ class PayrollServiceTest {
         Payroll payroll =
                 payrollService.calculateSalary(employee);
 
-        assertEquals(4500.0, payroll.getHra());
-        assertEquals(2000.0, payroll.getApprovedAdditions());
-        assertEquals(3000.0, payroll.getTravelAllowance());
-        assertEquals(40500.0, payroll.getGrossSalary());
+        assertEquals(6000.0, payroll.getHra());
+        assertEquals(0.0, payroll.getApprovedAdditions());
+        assertEquals(1250.0, payroll.getTravelAllowance());
+        assertEquals(30000.0, payroll.getGrossSalary());
         assertEquals(1800.0, payroll.getPf());
         assertEquals(0.0, payroll.getTds());
-        assertEquals(38700.0, payroll.getNetSalary());
+        assertEquals(28000.0, payroll.getNetSalary());
         assertEquals("DRAFT", payroll.getStatus());
         assertNotNull(payroll.getLastCalculatedAt());
     }

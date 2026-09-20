@@ -87,12 +87,14 @@ public class FinancialController {
     // ================== MAIN PAGE ==================
     @GetMapping("/financial")
     public String financial(@RequestParam(required = false)
-                            String month,
-
-                            Model model,
-
-                            Principal principal,
-                            HttpSession session) {
+                         String month,
+                         Model model,
+                         Principal principal,
+                         HttpSession session,
+                         HttpServletResponse response) {
+    	response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
+    	response.setHeader("Pragma", "no-cache");
+    	response.setHeader("Expires", "0");
 
         // =========================
         // LOGIN CHECK
@@ -332,10 +334,15 @@ public class FinancialController {
     // ================== VIEW ==================
     @GetMapping("/view")
     public String viewSalary(@RequestParam String month,
-                             Model model,
-                             Principal principal,
-                             HttpSession session,
-                             RedirectAttributes redirectAttributes) {
+            Model model,
+            Principal principal,
+            HttpSession session,
+            RedirectAttributes redirectAttributes,
+            HttpServletResponse response) {
+    	
+    	response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
+    	response.setHeader("Pragma", "no-cache");
+    	response.setHeader("Expires", "0");
 
         if (!isFinancialAccessVerified(session)) {
             redirectAttributes.addFlashAttribute("error", "Please verify OTP before accessing financial records.");

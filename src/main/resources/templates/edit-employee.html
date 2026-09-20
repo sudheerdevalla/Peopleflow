@@ -680,7 +680,11 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label for="joiningDate">Joining Date</label>
-                            <input type="date" id="joiningDate" th:field="*{joiningDate}" required>
+							<input type="date"
+							       id="joiningDate"
+							       name="joiningDate"
+							       th:value="${employee.joiningDate}"
+							       required>
                         </div>
                         <div class="form-group">
                             <label for="status">Status</label>
@@ -748,9 +752,10 @@
 
 				        <div class="form-group">
 				            <label for="dateOfBirth">Date of Birth</label>
-				            <input type="date"
-				                   id="dateOfBirth"
-				                   th:field="*{dateOfBirth}">
+							<input type="date"
+							       id="dateOfBirth"
+							       name="dateOfBirth"
+							       th:value="${employee.dateOfBirth}">
 				        </div>
 
 				    </div>

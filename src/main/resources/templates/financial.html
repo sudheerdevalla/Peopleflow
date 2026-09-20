@@ -684,6 +684,21 @@
                 padding: 12px 10px;
             }
         }
+		
+		.table-wrapper {
+		    width: 100%;
+		    overflow-x: auto;
+		}
+
+		.table-wrapper table {
+		    min-width: 1100px;
+		}
+
+		.table-wrapper th:last-child,
+		.table-wrapper td:last-child {
+		    min-width: 170px;
+		    text-align: center;
+		}
     </style>
 </head>
 
@@ -699,9 +714,12 @@
                 <h1 class="page-title">My Financials</h1>
                 <p class="page-subtitle">Review your banking setup, check current salary details, and access payroll history from a single finance hub.</p>
             </div>
-            <a href="/user/profile">
-                <button class="btn btn-secondary">← Back to Profile</button>
-            </a>
+			<a href="/user/profile"
+			   onclick="window.location.replace('/user/profile'); return false;">
+			    <button type="button" class="btn btn-secondary">
+			        ← Back to Profile
+			    </button>
+			</a>
         </div>
 
         <p class="success-message" th:if="${message}" th:text="${message}"></p>
@@ -877,7 +895,6 @@
                                     <th>Month</th>
                                     <th>Basic</th>
                                     <th>HRA</th>
-                                    <th>Bonus</th>
                                     <th>Approved Additions</th>
                                     <th>PF</th>
                                     <th>Tax</th>
@@ -892,17 +909,19 @@
                                     <td>₹<span th:text="${#numbers.formatDecimal(payroll.basicSalary, 0, 'COMMA', 0, 'POINT')}">0</span>
                                     </td>
                                     <td>₹<span th:text="${payroll.hra}">0</span></td>
-                                    <td>₹<span th:text="${payroll.bonus}">0</span></td>
+                                    
 									<td>₹<span th:text="${payroll.approvedAdditions}">0</span></td>
                                     <td>₹<span th:text="${payroll.pf}">0</span></td>
                                     <td>₹<span th:text="${payroll.tax}">0</span></td>
                                     <td>₹<span th:text="${#numbers.formatDecimal(payroll.netSalary, 0, 'COMMA', 0, 'POINT')}">0</span>
                                     </td>
-                                    <td>
-										<a th:href="@{/user/download(month=${payroll.month})}">
-										    <button class="btn btn-primary">📥 Download Payslip</button>
-										</a>
-                                    </td>
+									<td style="text-align:center;">
+									    <a th:href="@{/user/download(month=${payroll.month})}"
+									       class="btn btn-primary"
+									       style="display:inline-block; white-space:nowrap;">
+									        📥 Download Payslip
+									    </a>
+									</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -948,6 +967,16 @@
         </div>
 
     </div>
+	<script>
+	    // Prevent sensitive financial page from being restored from browser cache/history
+	    window.addEventListener("pageshow", function (event) {
+
+	        if (event.persisted) {
+	            window.location.replace("/user/financial/verify");
+	        }
+
+	    });
+	</script>
 
 </body>
 
