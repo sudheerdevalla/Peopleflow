@@ -325,7 +325,7 @@
 
         <!-- Form Container -->
         <div class="form-container">
-            <form th:action="@{/admin/save-employees}" method="post" th:object="${employee}">
+            <form th:action="@{/admin/save-employee}" method="post" th:object="${employee}">
 
                 <!-- ===== BASIC DETAILS ===== -->
                 <div class="form-section">
@@ -528,7 +528,7 @@
 				
 				<div class="form-group">
 				    <label for="department">Department</label>
-				    <select id="department" th:field="*{department}" required>
+				   <select id="department" name="department" required>
 				        <option value="">Select Department</option>
 				        <option value="Solar & OM">Solar &amp; OM</option>
 				    </select>
