@@ -391,8 +391,7 @@ private BCryptPasswordEncoder passwordEncoder;
     	if (employee.getEmployeeCode() != null
     	        && !employee.getEmployeeCode().isBlank()
     	        && employeeRepository
-    	                .findByEmployeeCode(employee.getEmployeeCode().trim())
-    	                .isPresent()) {
+    	                .countByEmployeeCode(employee.getEmployeeCode().trim()) > 0) {
 
     	    ra.addFlashAttribute(
     	            "error",

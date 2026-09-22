@@ -24,6 +24,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     Employee findByEmpId(Long empId);
     
     Optional<Employee> findByEmployeeCode(String employeeCode);
+    long countByEmployeeCode(String employeeCode);
     
     // ✅ NEW: JOIN FETCH to prevent N+1 query when accessing manager
     @Query("SELECT e FROM Employee e LEFT JOIN FETCH e.manager WHERE e.empId = :empId")
