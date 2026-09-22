@@ -444,12 +444,12 @@ private BCryptPasswordEncoder passwordEncoder;
         employeeRepository.save(employee);
               User user = new User();
 
-user.setUsername(employee.getEmail());
+user.setUsername(employee.getEmail().trim().toLowerCase());
 user.setPassword(passwordEncoder.encode(temporaryPassword));
 user.setRole("USER");
 user.setForcePasswordChange(true);
 
-userRepository.save(user);
+userRepository.saveAndFlush(user);
 
         // Send welcome email to new employee
         try {
