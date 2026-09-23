@@ -26,6 +26,7 @@ import java.nio.file.StandardCopyOption;
 
 import org.springframework.web.multipart.MultipartFile;
 import com.hr.hrapp.entity.Employee;
+import com.hr.hrapp.entity.EmployeeAttendance;
 import com.hr.hrapp.entity.EmployeeDocument;
 import com.hr.hrapp.entity.Holiday;
 import com.hr.hrapp.entity.Leave;
@@ -50,7 +51,7 @@ import com.hr.hrapp.service.LocationService;
 import com.hr.hrapp.service.TimesheetEntryService;
 
 @Controller
-@RequestMapping("/user")   // ✅ VERY IMPORTANT
+@RequestMapping("/user")   // âœ… VERY IMPORTANT
 public class UserController {
 
     @Autowired
@@ -143,7 +144,7 @@ public class UserController {
                 "username",
                 emp.getName());
 
-        // 🔔 Notification Count Debug
+        // ðŸ”” Notification Count Debug
         System.out.println(
                 "Employee ID = " + emp.getEmpId());
 
@@ -310,7 +311,7 @@ public class UserController {
         model.addAttribute("weekStatus", weekStatus);
 
         // ==================================================
-        // 🔥 ADD THIS PART (LEAVES + BALANCE)
+        // ðŸ”¥ ADD THIS PART (LEAVES + BALANCE)
         // ==================================================
 
         List<Leave> leaves = leaveRepository.findByEmpId(emp.getEmpId());
@@ -322,7 +323,7 @@ public class UserController {
         model.addAttribute("leaveDates", leaveDates);
         model.addAttribute("leaves", leaves);
 
-        // 🔥 ADD THIS HERE ↓↓↓
+        // ðŸ”¥ ADD THIS HERE â†“â†“â†“
         Map<String, Leave> leaveMap = new HashMap<>();
         
         for (DayOfWeek d : DayOfWeek.values()) {
@@ -339,7 +340,7 @@ public class UserController {
 
         model.addAttribute("leaveMap", leaveMap);
 
-        // 👉 balances
+        // ðŸ‘‰ balances
         model.addAttribute("sickLeaves", emp.getSickLeaves());
         
         System.out.println("Annual Leaves From DB = "
@@ -351,7 +352,7 @@ public class UserController {
         model.addAttribute("employee", emp);
         
 
-        // 👉 used & remaining (optional but useful)
+        // ðŸ‘‰ used & remaining (optional but useful)
         long usedLeaves = leaves.stream()
                 .filter(l -> "APPROVED".equals(l.getStatus()))
                 .count();
@@ -499,7 +500,7 @@ public class UserController {
         
         model.addAttribute("employee", emp);
 
-        // ✅ ADD THIS (AUTO LOCATION)
+        // âœ… ADD THIS (AUTO LOCATION)
         model.addAttribute("employeeLocation", emp.getLocation());
 
         // ===== STEP 1: Fetch wide range =====
@@ -544,7 +545,7 @@ public class UserController {
                 ts = new Timesheet();
                 ts.setDate(date);
 
-                // ✅ DEFAULT LOCATION AUTO FILL
+                // âœ… DEFAULT LOCATION AUTO FILL
                 ts.setWorkLocation(emp.getLocation());
             }
 
@@ -608,7 +609,7 @@ public class UserController {
         System.out.println("Annual Leaves = " + emp.getAnnualLeaves());
         System.out.println("Sick Leaves = " + emp.getSickLeaves());
 
-        // 🔥 Update accrual first
+        // ðŸ”¥ Update accrual first
         leaveService.accrueLeaves(emp);
         
         System.out.println("After Accrual");
@@ -903,6 +904,46 @@ public class UserController {
                 holidays);
 
         return "holidays";
+    }
+    // ================= MOBILE ATTENDANCE API =================
+    @GetMapping("/api/attendance")
+    @ResponseBody
+    public ResponseEntity<?> getMyAttendance(Principal principal) {
+
+        Employee emp = employeeRepository.findByEmail(principal.getName());
+
+        if (emp == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        EmployeeAttendance attendance =
+                attendanceRepository.findByEmployeeId(emp.getEmpId());
+
+        if (attendance == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("employeeId", attendance.getEmployeeId());
+        response.put("totalDays", attendance.getTotalDays());
+        response.put("presentDays", attendance.getPresentDays());
+
+        int absentDays =
+                attendance.getTotalDays() - attendance.getPresentDays();
+
+        double percentage =
+                attendance.getTotalDays() > 0
+                        ? (attendance.getPresentDays() * 100.0)
+                            / attendance.getTotalDays()
+                        : 0;
+
+        response.put("absentDays", absentDays);
+        response.put(
+                "attendancePercentage",
+                Math.round(percentage * 100.0) / 100.0
+        );
+
+        return ResponseEntity.ok(response);
     }
     
 }
