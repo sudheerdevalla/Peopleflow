@@ -945,5 +945,37 @@ public class UserController {
 
         return ResponseEntity.ok(response);
     }
+// ================= MOBILE MANAGER TEAM API =================
+@GetMapping("/api/manager/team")
+@ResponseBody
+public ResponseEntity<?> getMyTeam(Principal principal) {
+
+    Employee manager =
+            employeeRepository.findByEmail(principal.getName());
+
+    if (manager == null) {
+        return ResponseEntity.notFound().build();
+    }
+
+    List<Employee> employees =
+            employeeRepository.findByManager_EmpId(
+                    manager.getEmpId());
+
+    List<Map<String, Object>> team = new ArrayList<>();
+
+    for (Employee emp : employees) {
+
+        Map<String, Object> member = new HashMap<>();
+
+        member.put("employeeId", emp.getEmpId());
+        member.put("name", emp.getName());
+        member.put("email", emp.getEmail());
+        member.put("employeeCode", emp.getEmployeeCode());
+
+        team.add(member);
+    }
+
+    return ResponseEntity.ok(team);
+}
     
 }
