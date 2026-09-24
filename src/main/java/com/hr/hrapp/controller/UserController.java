@@ -14,6 +14,7 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.http.HttpStatus;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -977,5 +978,53 @@ public ResponseEntity<?> getMyTeam(Principal principal) {
 
     return ResponseEntity.ok(team);
 }
-    
+
+@GetMapping("/api/manager/timesheets")
+    @ResponseBody
+    public ResponseEntity<?> getManagerTimesheets(Principal principal) {
+
+        if (principal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Employee manager = employeeRepository.findByEmail(principal.getName());
+
+        if (manager == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        List<Employee> employees =
+                employeeRepository.findByManager_EmpId(manager.getEmpId());
+
+        List<Map<String, Object>> response = new ArrayList<>();
+
+        for (Employee emp : employees) {
+
+            List<Timesheet> timesheets =
+                    timesheetRepository.findByEmployeeId(emp.getEmpId());
+
+            for (Timesheet ts : timesheets) {
+
+                Map<String, Object> item = new HashMap<>();
+
+                item.put("id", ts.getId());
+                item.put("employeeId", ts.getEmployeeId());
+                item.put("employeeName", emp.getName());
+                item.put("date", ts.getDate());
+                item.put("clientName", ts.getClientName());
+                item.put("projectName", ts.getProjectName());
+                item.put("hours", ts.getHours());
+                item.put("workLocation", ts.getWorkLocation());
+                item.put("status", ts.getStatus());
+                item.put("latitude", ts.getLatitude());
+                item.put("longitude", ts.getLongitude());
+
+                response.add(item);
+            }
+        }
+
+        return ResponseEntity.ok(response);
+    }
 }
+
+
