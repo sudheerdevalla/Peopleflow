@@ -445,7 +445,7 @@ private BCryptPasswordEncoder passwordEncoder;
 
 user.setUsername(employee.getEmail().trim().toLowerCase());
 user.setPassword(passwordEncoder.encode(temporaryPassword));
-user.setRole("USER");
+user.setRole(employee.getRole() != null && !employee.getRole().isBlank() ? employee.getRole() : "USER");
 user.setForcePasswordChange(true);
 
 userRepository.saveAndFlush(user);
