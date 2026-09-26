@@ -1074,6 +1074,91 @@ public ResponseEntity<?> getMyTeam(Principal principal) {
         }
     }
 
+
+    @GetMapping("/api/timesheet")
+    @ResponseBody
+    public ResponseEntity<?> getMobileTimesheet(Principal principal) {
+        try {
+            Employee emp = employeeRepository.findByEmail(principal.getName());
+
+            if (emp == null) {
+                return ResponseEntity.notFound().build();
+            }
+
+            LocalDate today = LocalDate.now();
+
+            Optional<Timesheet> timesheet =
+                    timesheetRepository.findByEmployeeIdAndDate(
+                            emp.getEmpId(), today);
+
+            if (timesheet.isEmpty()) {
+                return ResponseEntity.ok(Map.of(
+                        "submitted", false
+                ));
+            }
+
+            Timesheet t = timesheet.get();
+
+            return ResponseEntity.ok(Map.of(
+                    "submitted", true,
+                    "hours", t.getHours(),
+                    "status", t.getStatus()
+            ));
+
+        } catch (Exception ex) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(Map.of("error", ex.getMessage()));
+        }
+    }
+
+
+
+    @GetMapping("/api/leave-management")
+    @ResponseBody
+    public ResponseEntity<?> getMobileLeaveManagement(Principal principal) {
+        try {
+            Employee emp = employeeRepository.findByEmail(principal.getName());
+
+            if (emp == null) {
+                return ResponseEntity.notFound().build();
+            }
+
+            leaveService.accrueLeaves(emp);
+
+            List<Leave> leaves =
+                    leaveRepository.findByEmpId(emp.getEmpId());
+
+            List<Map<String, Object>> leaveData = new ArrayList<>();
+
+            for (Leave leave : leaves) {
+                Map<String, Object> item = new HashMap<>();
+                item.put("id", leave.getId());
+                item.put("date", leave.getDate());
+                item.put("type", leave.getType());
+                item.put("status", leave.getStatus());
+                item.put("managerStatus", leave.getManagerStatus());
+                item.put("adminStatus", leave.getAdminStatus());
+                item.put("managerComment", leave.getManagerComment());
+                item.put("adminComment", leave.getAdminComment());
+                leaveData.add(item);
+            }
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("annualLeaves", emp.getAnnualLeaves());
+            response.put("sickLeaves", emp.getSickLeaves());
+            response.put("leaves", leaveData);
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception ex) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(Map.of("error", ex.getMessage()));
+        }
+    }
+
+
 }
 
 
