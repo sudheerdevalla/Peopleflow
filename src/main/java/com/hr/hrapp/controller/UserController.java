@@ -1025,6 +1025,55 @@ public ResponseEntity<?> getMyTeam(Principal principal) {
 
         return ResponseEntity.ok(response);
     }
+
+    // ================= MOBILE TIMESHEET API =================
+    @PostMapping("/api/timesheet")
+    @ResponseBody
+    public ResponseEntity<?> saveMobileTimesheet(
+            @RequestParam("date") String date,
+            @RequestParam("workLocation") String location,
+            @RequestParam(value = "hours", required = false) Integer hours,
+            @RequestParam(value = "clientName", required = false) String clientName,
+            @RequestParam(value = "projectName", required = false) String projectName,
+            @RequestParam(value = "workDescription", required = false) String workDescription,
+            @RequestParam(value = "latitude", required = false) Double latitude,
+            @RequestParam(value = "longitude", required = false) Double longitude,
+            Principal principal) {
+
+        try {
+            String username = principal.getName();
+
+            Employee emp = employeeRepository.findByEmail(username);
+
+            if (emp == null) {
+                return ResponseEntity.notFound().build();
+            }
+
+            LocalDate localDate = LocalDate.parse(date);
+
+            Timesheet saved = timesheetEntryService.saveOrUpdate(
+                    emp,
+                    localDate,
+                    location,
+                    hours,
+                    null,
+                    clientName,
+                    projectName,
+                    workDescription,
+                    latitude,
+                    longitude,
+                    username
+            );
+
+            return ResponseEntity.ok(saved);
+
+        } catch (Exception ex) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(Map.of("error", ex.getMessage()));
+        }
+    }
+
 }
 
 
