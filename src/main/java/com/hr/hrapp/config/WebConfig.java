@@ -27,6 +27,8 @@ public class WebConfig implements WebMvcConfigurer {
                         "/default",
                         "/mfa",
                         "/mfa/verify",
+                        "/api/auth/verify-mfa",
+                        "/user/api/timesheet",
                         "/css/**",
                         "/js/**",
                         "/images/**",
