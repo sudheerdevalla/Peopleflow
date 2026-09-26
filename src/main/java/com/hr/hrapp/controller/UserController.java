@@ -906,6 +906,20 @@ public class UserController {
 
         return "holidays";
     }
+    // ================= MOBILE HOLIDAYS API =================
+    @GetMapping("/api/holidays")
+    @ResponseBody
+    public ResponseEntity<?> getMobileHolidays() {
+        try {
+            List<Holiday> holidays = holidayRepository.findAll();
+            return ResponseEntity.ok(holidays);
+        } catch (Exception ex) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(Map.of("error", ex.getMessage()));
+        }
+    }
+
     // ================= MOBILE ATTENDANCE API =================
     @GetMapping("/api/attendance")
     @ResponseBody
@@ -1102,6 +1116,12 @@ public ResponseEntity<?> getMyTeam(Principal principal) {
             return ResponseEntity.ok(Map.of(
                     "submitted", true,
                     "hours", t.getHours(),
+                    "workLocation", t.getWorkLocation(),
+                    "clientName", t.getClientName(),
+                    "projectName", t.getProjectName(),
+                    "workDescription", t.getWorkDescription(),
+                    "latitude", t.getLatitude(),
+                    "longitude", t.getLongitude(),
                     "status", t.getStatus()
             ));
 
