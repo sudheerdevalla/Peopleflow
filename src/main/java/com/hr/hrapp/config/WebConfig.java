@@ -30,6 +30,7 @@ public class WebConfig implements WebMvcConfigurer {
                         "/api/auth/verify-mfa",
                         "/user/api/timesheet",
                         "/user/api/leave-management",
+                        "/user/api/apply-leave",
                         "/css/**",
                         "/js/**",
                         "/images/**",
