@@ -32,6 +32,7 @@ public class WebConfig implements WebMvcConfigurer {
                         "/user/api/leave-management",
                         "/user/api/apply-leave",
                         "/user/api/holidays",
+                        "/travel/api/my-requests",
                         "/css/**",
                         "/js/**",
                         "/images/**",
