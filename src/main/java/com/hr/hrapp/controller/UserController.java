@@ -1180,6 +1180,69 @@ public ResponseEntity<?> getMyTeam(Principal principal) {
     }
 
 
+    @PostMapping("/api/apply-leave")
+    @ResponseBody
+    public ResponseEntity<?> applyLeaveMobile(
+            @RequestParam String date,
+            @RequestParam String type,
+            Principal principal) {
+        try {
+            Employee emp = employeeRepository.findByEmail(principal.getName());
+
+            if (emp == null) {
+                return ResponseEntity.notFound().build();
+            }
+
+            leaveService.accrueLeaves(emp);
+
+            LocalDate leaveDate = LocalDate.parse(date);
+
+            if (leaveRepository.existsByEmpIdAndDateAndStatus(
+                    emp.getEmpId(), leaveDate, "APPROVED")) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "Already applied"));
+            }
+
+            if ("SICK".equals(type) && emp.getSickLeaves() <= 0) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "No sick leaves"));
+            }
+
+            if ("ANNUAL".equals(type) && emp.getAnnualLeaves() < 1) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "No annual leaves"));
+            }
+
+            Leave leave = new Leave();
+            leave.setEmpId(emp.getEmpId());
+            leave.setDate(leaveDate);
+            leave.setType(type);
+            leave.setStatus("PENDING");
+
+            leaveRepository.save(leave);
+
+            Employee manager = emp.getManager();
+
+            if (manager != null) {
+                emailService.sendMail(
+                        manager.getEmail(),
+                        "New Leave Request",
+                        emp.getName() + " applied for " + type + " leave"
+                );
+            }
+
+            return ResponseEntity.ok(
+                    Map.of("message", "Leave applied successfully")
+            );
+
+        } catch (Exception ex) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(Map.of("error", ex.getMessage()));
+        }
+    }
+
+
 }
 
 
