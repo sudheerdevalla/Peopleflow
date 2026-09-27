@@ -1113,17 +1113,18 @@ public ResponseEntity<?> getMyTeam(Principal principal) {
 
             Timesheet t = timesheet.get();
 
-            return ResponseEntity.ok(Map.of(
-                    "submitted", true,
-                    "hours", t.getHours(),
-                    "workLocation", t.getWorkLocation(),
-                    "clientName", t.getClientName(),
-                    "projectName", t.getProjectName(),
-                    "workDescription", t.getWorkDescription(),
-                    "latitude", t.getLatitude(),
-                    "longitude", t.getLongitude(),
-                    "status", t.getStatus()
-            ));
+            Map<String, Object> response = new HashMap<>();
+            response.put("submitted", true);
+            response.put("hours", t.getHours());
+            response.put("workLocation", t.getWorkLocation());
+            response.put("clientName", t.getClientName());
+            response.put("projectName", t.getProjectName());
+            response.put("workDescription", t.getWorkDescription());
+            response.put("latitude", t.getLatitude());
+            response.put("longitude", t.getLongitude());
+            response.put("status", t.getStatus());
+
+            return ResponseEntity.ok(response);
 
         } catch (Exception ex) {
             return ResponseEntity
