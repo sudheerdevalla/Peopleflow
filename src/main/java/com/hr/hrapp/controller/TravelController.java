@@ -41,7 +41,7 @@ public class TravelController {
     @Autowired
     private com.hr.hrapp.service.EmailService emailService;
 
-    // ✅ Open Apply Form
+    // ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬Å“ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ Open Apply Form
     @GetMapping("/apply")
     public String applyTravelForm(Model model) {
 
@@ -52,11 +52,13 @@ public class TravelController {
         return "apply-travel";
     }
 
-    // ✅ Save Travel Request
+    // ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬Å“ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ Save Travel Request
     @PostMapping("/save")
     public String saveTravelRequest(
             @ModelAttribute TravelRequest request,
-            @RequestParam("ticket") MultipartFile file,
+            @RequestParam(value = "ticket", required = false) MultipartFile file,
+            @RequestParam(value = "foodInvoice", required = false) MultipartFile foodInvoice,
+            @RequestParam(value = "hotelInvoice", required = false) MultipartFile hotelInvoice,
             Principal principal) throws IOException {
 
         String email = principal.getName();
@@ -83,31 +85,55 @@ public class TravelController {
 
         request.setStatus("REQUESTED");
 
-        // ✅ File Upload
-        if(!file.isEmpty()){
+        // ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬Å“ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ File Upload
+        // Travel mode and reimbursement
+        if ("BIKE".equalsIgnoreCase(request.getTravelMode())) {
+            if (request.getBikeDistanceKm() != null && request.getBikeDistanceKm() > 0) {
+                request.setBikeAmount(request.getBikeDistanceKm() * 3);
+            }
+        }
 
+        String uploadDir =
+                System.getProperty("user.dir")
+                + "/uploads/";
+
+        File uploadPath = new File(uploadDir);
+
+        if (!uploadPath.exists()) {
+            uploadPath.mkdirs();
+        }
+
+        // Bus ticket
+        if (file != null && !file.isEmpty()) {
             String fileName =
                     System.currentTimeMillis()
                     + "_"
                     + file.getOriginalFilename();
 
-            String uploadDir =
-                    System.getProperty("user.dir")
-                    + "/uploads/";
-
-            File uploadPath =
-                    new File(uploadDir);
-
-            if(!uploadPath.exists()){
-
-                uploadPath.mkdirs();
-            }
-
-            file.transferTo(
-                    new File(uploadDir + fileName)
-            );
-
+            file.transferTo(new File(uploadDir + fileName));
             request.setTicketFile(fileName);
+        }
+
+        // Food invoice
+        if (foodInvoice != null && !foodInvoice.isEmpty()) {
+            String fileName =
+                    System.currentTimeMillis()
+                    + "_food_"
+                    + foodInvoice.getOriginalFilename();
+
+            foodInvoice.transferTo(new File(uploadDir + fileName));
+            request.setFoodInvoiceFile(fileName);
+        }
+
+        // Hotel invoice
+        if (hotelInvoice != null && !hotelInvoice.isEmpty()) {
+            String fileName =
+                    System.currentTimeMillis()
+                    + "_hotel_"
+                    + hotelInvoice.getOriginalFilename();
+
+            hotelInvoice.transferTo(new File(uploadDir + fileName));
+            request.setHotelInvoiceFile(fileName);
         }
 
         travelRepository.save(request);
@@ -140,7 +166,7 @@ public class TravelController {
         return "redirect:/travel/my-requests";
     }
 
-    // ✅ Employee Requests
+    // ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬Å“ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ Employee Requests
     @GetMapping("/my-requests")
     public String myTravelRequests(
             Principal principal,
@@ -160,7 +186,7 @@ public class TravelController {
         return "my-travel-requests";
     }
 
-    // ✅ Manager View Requests
+    // ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬Å“ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ Manager View Requests
     @GetMapping("/manager")
     public String managerTravelRequests(
             Principal principal,
@@ -199,7 +225,7 @@ public class TravelController {
         return "manager-travel-requests";
     }
 
-    // ✅ Manager Approve
+    // ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬Å“ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ Manager Approve
     @GetMapping("/manager-approve/{id}")
     @PreAuthorize("hasAuthority('WRITE_EMPLOYEE')")
     public String managerApprove(
@@ -244,7 +270,7 @@ public class TravelController {
         return "redirect:/travel/manager";
     }
 
-    // ✅ Manager Reject
+    // ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬Å“ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ Manager Reject
     @GetMapping("/manager-reject/{id}")
     @PreAuthorize("hasAuthority('WRITE_EMPLOYEE')")
     public String managerReject(
@@ -281,7 +307,7 @@ public class TravelController {
         return "redirect:/travel/manager";
     }
 
-    // ✅ HR/Admin View
+    // ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬Å“ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ HR/Admin View
     @GetMapping("/admin")
     @PreAuthorize("hasAuthority('READ_EMPLOYEE')")
     public String adminTravelRequests(Model model) {
@@ -295,7 +321,7 @@ public class TravelController {
         return "admin-travel-requests";
     }
 
-    // ✅ HR Final Approval
+    // ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬Å“ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ HR Final Approval
     @GetMapping("/approve/{id}")
     @PreAuthorize("hasAuthority('WRITE_EMPLOYEE')")
     public String approveTravel(
@@ -332,7 +358,7 @@ public class TravelController {
         return "redirect:/travel/admin";
     }
 
-    // ✅ HR Reject
+    // ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬Å“ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ HR Reject
     @GetMapping("/reject/{id}")
     @PreAuthorize("hasAuthority('WRITE_EMPLOYEE')")
     public String rejectTravel(

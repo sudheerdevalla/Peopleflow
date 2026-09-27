@@ -30,6 +30,20 @@ public class TravelRequest {
     private double estimatedCost;
 
     private String ticketFile;
+
+    private String travelMode;
+
+    private Double bikeDistanceKm;
+
+    private Double bikeAmount;
+
+    private Double foodAmount;
+
+    private String foodInvoiceFile;
+
+    private Double hotelAmount;
+
+    private String hotelInvoiceFile;
     
     private Double travelAllowance;
     
@@ -109,7 +123,7 @@ public class TravelRequest {
         this.estimatedCost = estimatedCost;
     }
 
-    // ✅ Ticket File
+    // ÃƒÂ¢Ã…â€œÃ¢â‚¬Â¦ Ticket File
     public String getTicketFile() {
         return ticketFile;
     }
@@ -126,6 +140,60 @@ public class TravelRequest {
         this.status = status;
     }
     
+    public String getTravelMode() {
+        return travelMode;
+    }
+
+    public void setTravelMode(String travelMode) {
+        this.travelMode = travelMode;
+    }
+
+    public Double getBikeDistanceKm() {
+        return bikeDistanceKm;
+    }
+
+    public void setBikeDistanceKm(Double bikeDistanceKm) {
+        this.bikeDistanceKm = bikeDistanceKm;
+    }
+
+    public Double getBikeAmount() {
+        return bikeAmount;
+    }
+
+    public void setBikeAmount(Double bikeAmount) {
+        this.bikeAmount = bikeAmount;
+    }
+    public Double getFoodAmount() {
+        return foodAmount;
+    }
+
+    public void setFoodAmount(Double foodAmount) {
+        this.foodAmount = foodAmount;
+    }
+
+    public String getFoodInvoiceFile() {
+        return foodInvoiceFile;
+    }
+
+    public void setFoodInvoiceFile(String foodInvoiceFile) {
+        this.foodInvoiceFile = foodInvoiceFile;
+    }
+
+    public Double getHotelAmount() {
+        return hotelAmount;
+    }
+
+    public void setHotelAmount(Double hotelAmount) {
+        this.hotelAmount = hotelAmount;
+    }
+
+    public String getHotelInvoiceFile() {
+        return hotelInvoiceFile;
+    }
+
+    public void setHotelInvoiceFile(String hotelInvoiceFile) {
+        this.hotelInvoiceFile = hotelInvoiceFile;
+    }
     public Double getTravelAllowance() {
         return travelAllowance;
     }
