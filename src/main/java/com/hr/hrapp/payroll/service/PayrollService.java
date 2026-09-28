@@ -125,6 +125,31 @@ public class PayrollService {
                 - telephone
                 - internet
                 - travel;
+        List<TravelRequest> approvedTravels =
+                travelRepository.findByEmpIdAndStatusAndPayrollProcessed(
+                        employee.getEmpId(),
+                        "ADMIN_APPROVED",
+                        false
+                );
+
+        double approvedAdditions = 0.0;
+
+        for (TravelRequest travelRequest : approvedTravels) {
+            approvedAdditions += travelRequest.getBikeAmount() != null
+                    ? travelRequest.getBikeAmount()
+                    : 0.0;
+
+            approvedAdditions += travelRequest.getFoodAmount() != null
+                    ? travelRequest.getFoodAmount()
+                    : 0.0;
+
+            approvedAdditions += travelRequest.getHotelAmount() != null
+                    ? travelRequest.getHotelAmount()
+                    : 0.0;
+        }
+
+        approvedAdditions = round(approvedAdditions);
+
         double grossEarning =
                 round(basic
                         + hra
@@ -132,7 +157,8 @@ public class PayrollService {
                         + telephone
                         + internet
                         + travel
-                        + specialAllowance);
+                        + specialAllowance
+                        + approvedAdditions);
         double pfWages =
                 Math.min(basic, 15000.00);
 
@@ -217,7 +243,7 @@ public class PayrollService {
         payroll.setTravelAllowance(travel);
 
         payroll.setSpecialAllowance(specialAllowance);
-        payroll.setApprovedAdditions(0.0);
+        payroll.setApprovedAdditions(approvedAdditions);
 
         payroll.setGrossSalary(grossEarning);
 
