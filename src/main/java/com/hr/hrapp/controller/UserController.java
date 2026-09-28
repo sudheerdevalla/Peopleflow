@@ -906,6 +906,90 @@ public class UserController {
 
         return "holidays";
     }
+    // ================= MOBILE MY TREE API =================
+    @GetMapping("/api/my-tree")
+    @ResponseBody
+    public ResponseEntity<?> getMyTree(Principal principal) {
+        Employee emp = employeeRepository.findByEmail(principal.getName());
+
+        if (emp == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("employeeId", emp.getEmpId());
+        response.put("name", emp.getName());
+        response.put("role", emp.getRole());
+
+        Employee manager = emp.getManager();
+
+        if (manager != null) {
+            Map<String, Object> managerData = new LinkedHashMap<>();
+            managerData.put("employeeId", manager.getEmpId());
+            managerData.put("name", manager.getName());
+            managerData.put("role", manager.getRole());
+            response.put("manager", managerData);
+        } else {
+            response.put("manager", null);
+        }
+
+        return ResponseEntity.ok(response);
+    }
+
+    // ================= MOBILE DOCUMENTS API =================
+    @GetMapping("/api/documents")
+    @ResponseBody
+    public ResponseEntity<?> getMyDocuments(Principal principal) {
+        try {
+            Employee emp = employeeRepository.findByEmail(principal.getName());
+
+            if (emp == null) {
+                return ResponseEntity.notFound().build();
+            }
+
+            List<EmployeeDocument> docs =
+                    employeeDocumentRepository.findByEmployeeId(
+                            Long.valueOf(emp.getEmpId()));
+
+            return ResponseEntity.ok(docs);
+
+        } catch (Exception ex) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", ex.getMessage()));
+        }
+    }
+
+    // ================= MOBILE NOTIFICATIONS API =================
+    @GetMapping("/api/notifications")
+    @ResponseBody
+    public ResponseEntity<?> getMyNotifications(Principal principal) {
+        try {
+            Employee emp = employeeRepository.findByEmail(principal.getName());
+
+            if (emp == null) {
+                return ResponseEntity.notFound().build();
+            }
+
+            List<Notification> notifications =
+                    notificationRepository
+                            .findByEmployeeIdOrderByCreatedAtDesc(
+                                    emp.getEmpId());
+
+            // Same behavior as web notifications page:
+            // opening notifications marks all as read.
+            for (Notification n : notifications) {
+                n.setRead(true);
+            }
+
+            notificationRepository.saveAll(notifications);
+
+            return ResponseEntity.ok(notifications);
+
+        } catch (Exception ex) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", ex.getMessage()));
+        }
+    }
     // ================= MOBILE HOLIDAYS API =================
     @GetMapping("/api/holidays")
     @ResponseBody
