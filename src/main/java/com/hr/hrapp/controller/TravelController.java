@@ -1,6 +1,7 @@
 package com.hr.hrapp.controller;
 
 import java.security.Principal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -172,7 +173,6 @@ public class TravelController {
     @GetMapping("/api/my-requests")
     @ResponseBody
     public ResponseEntity<?> getMyTravelRequests(Principal principal) {
-
         Employee employee =
                 employeeRepository.findByEmail(principal.getName());
 
@@ -180,8 +180,32 @@ public class TravelController {
             return ResponseEntity.notFound().build();
         }
 
-        List<TravelRequest> requests =
+        List<TravelRequest> allRequests =
                 travelRepository.findByEmpId(employee.getEmpId());
+
+        LocalDateTime now = LocalDateTime.now();
+
+        List<TravelRequest> requests = new ArrayList<>();
+
+        for (TravelRequest request : allRequests) {
+
+            if (!request.isPayrollProcessed()) {
+                requests.add(request);
+                continue;
+            }
+
+            if (request.getPayrollProcessedAt() == null) {
+                requests.add(request);
+                continue;
+            }
+
+            LocalDateTime hideAfter =
+                    request.getPayrollProcessedAt().plusDays(2);
+
+            if (now.isBefore(hideAfter)) {
+                requests.add(request);
+            }
+        }
 
         return ResponseEntity.ok(requests);
     }
@@ -195,9 +219,32 @@ public class TravelController {
         Employee employee =
                 employeeRepository.findByEmail(email);
 
-        List<TravelRequest> requests =
-                travelRepository.findByEmpId(
-                        employee.getEmpId());
+        List<TravelRequest> allRequests =
+                travelRepository.findByEmpId(employee.getEmpId());
+
+        LocalDateTime now = LocalDateTime.now();
+
+        List<TravelRequest> requests = new ArrayList<>();
+
+        for (TravelRequest request : allRequests) {
+
+            if (!request.isPayrollProcessed()) {
+                requests.add(request);
+                continue;
+            }
+
+            if (request.getPayrollProcessedAt() == null) {
+                requests.add(request);
+                continue;
+            }
+
+            LocalDateTime hideAfter =
+                    request.getPayrollProcessedAt().plusDays(2);
+
+            if (now.isBefore(hideAfter)) {
+                requests.add(request);
+            }
+        }
 
         model.addAttribute("requests", requests);
 
@@ -411,3 +458,5 @@ public class TravelController {
         return "redirect:/travel/admin";
     }
 }
+
+
